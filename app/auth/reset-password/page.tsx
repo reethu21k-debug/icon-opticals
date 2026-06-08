@@ -6,6 +6,7 @@ import { useState, useEffect, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase'
+import type { AuthChangeEvent, Session } from '@supabase/supabase-js'
 import { Loader2, Eye, EyeOff, Check, AlertCircle } from 'lucide-react'
 
 function ResetPasswordInner() {
@@ -26,7 +27,7 @@ function ResetPasswordInner() {
     const supabase = createClient()
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
+      async (event: AuthChangeEvent, session: Session | null) => {
         if (event === 'PASSWORD_RECOVERY' || (event === 'SIGNED_IN' && session)) {
           setSessionReady(true)
           setChecking(false)
@@ -34,7 +35,7 @@ function ResetPasswordInner() {
       }
     )
 
-    supabase.auth.getSession().then(({ data: { session } }) => {
+    supabase.auth.getSession().then(({ data: { session } }: { data: { session: Session | null } }) => {
       if (session) {
         setSessionReady(true)
       }
