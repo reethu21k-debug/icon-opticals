@@ -1,8 +1,20 @@
 import { createBrowserClient } from '@supabase/ssr'
 import { createServerClient } from '@supabase/ssr'
 
-const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL!
-const SUPABASE_ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+// ── Env var validation ────────────────────────────────────────
+// Read lazily inside functions so a missing var throws with a clear message
+// at call time rather than crashing the entire module at import time.
+function getEnv() {
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL
+  const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+  if (!url || !key) {
+    throw new Error(
+      '[supabase] NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY ' +
+      'must be set in your Vercel project environment variables.'
+    )
+  }
+  return { url, key }
+}
 
 // ── Browser Client singleton ──────────────────────────────────
 // One shared instance prevents navigator-lock contention when many components
@@ -10,28 +22,29 @@ const SUPABASE_ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 let _browserClient: ReturnType<typeof createBrowserClient> | null = null
 
 export function createClient() {
+  const { url, key } = getEnv()
   // Server-side: always a fresh instance (no window, no shared state needed)
   if (typeof window === 'undefined') {
-    return createBrowserClient(SUPABASE_URL, SUPABASE_ANON_KEY)
+    return createBrowserClient(url, key)
   }
   if (!_browserClient) {
-    _browserClient = createBrowserClient(SUPABASE_URL, SUPABASE_ANON_KEY)
+    _browserClient = createBrowserClient(url, key)
   }
   return _browserClient
 }
 
 // ── Server Client — ONLY call from server components / API routes
 export async function createServerClientInstance() {
+  const { url, key } = getEnv()
   const { cookies } = await import('next/headers')
   const cookieStore = await cookies()
 
-  return createServerClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+  return createServerClient(url, key, {
     cookies: {
       getAll() { return cookieStore.getAll() },
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      setAll(cookiesToSet: any[]) {
+      setAll(cookiesToSet: { name: string; value: string; options?: object }[]) {
         try {
-          cookiesToSet.forEach(({ name, value, options }: { name: string; value: string; options?: object }) =>
+          cookiesToSet.forEach(({ name, value, options }) =>
             cookieStore.set(name, value, options)
           )
         } catch { /* Server Component context — ignore */ }
@@ -42,9 +55,10 @@ export async function createServerClientInstance() {
 
 // ── Admin / Service Role Client — server-side API routes ONLY ─
 export function createAdminClient() {
+  const { url } = getEnv()
   const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
-  if (!serviceKey) throw new Error('SUPABASE_SERVICE_ROLE_KEY not set')
-  return createBrowserClient(SUPABASE_URL, serviceKey, {
+  if (!serviceKey) throw new Error('[supabase] SUPABASE_SERVICE_ROLE_KEY not set')
+  return createBrowserClient(url, serviceKey, {
     auth: { autoRefreshToken: false, persistSession: false },
   })
 }
