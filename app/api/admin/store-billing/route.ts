@@ -1,5 +1,3 @@
-export const dynamic = 'force-dynamic'
-
 // app/api/admin/store-billing/route.ts
 //
 // Store Billing API — creates orders on behalf of walk-in customers.
@@ -16,6 +14,7 @@ export const dynamic = 'force-dynamic'
 //              Client-submitted prices for unlisted overrides are rejected.
 
 export const runtime = 'nodejs'
+export const maxDuration = 60 // awaits generate-invoice which can take up to ~30s
 
 import { NextRequest, NextResponse } from 'next/server'
 import { createAdminClient, createServerClientInstance } from '@/lib/supabase'
@@ -430,18 +429,28 @@ export async function POST(request: NextRequest) {
       `for ${customerName} | items: ${validatedItems.length} | total: ₹${totalAmount}`,
     )
 
-    // ── STEP 9: Generate invoice (fire-and-forget) ────────────────────────
-    fetch(`${baseUrl}/api/generate-invoice`, {
-      method:  'POST',
-      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${process.env.ADMIN_API_SECRET}` },
-      body: JSON.stringify({
-        order_id:     orderRecord.id,
-        order_number: orderRecord.order_number,
-        user_id:      customerId,
-        force:        false,
-        phone:        customerPhone,
-      }),
-    }).catch(err => console.error('[store-billing] invoice trigger failed:', err))
+    // ── STEP 9: Generate invoice ──────────────────────
+    // IMPORTANT: do NOT fire-and-forget here. Vercel freezes this function the
+    // instant we return a response -- any in-flight fetch that hasn't completed
+    // gets killed, silently dropping the invoice + confirmation email.
+    // Awaiting keeps the function alive until generate-invoice responds.
+    // generate-invoice has maxDuration=60 and returns once the PDF is uploaded.
+    try {
+      await fetch(`${baseUrl}/api/generate-invoice`, {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${process.env.ADMIN_API_SECRET}` },
+        body: JSON.stringify({
+          order_id:     orderRecord.id,
+          order_number: orderRecord.order_number,
+          user_id:      customerId,
+          force:        false,
+          phone:        customerPhone,
+        }),
+      })
+    } catch (err) {
+      // Non-fatal: order already created. Log for visibility.
+      console.error('[store-billing] invoice trigger failed (order still created):', err)
+    }
 
     // ── STEP 10: New customer notifications ───────────────────────────────
     if (isNewCustomer) {
