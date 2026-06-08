@@ -1,0 +1,30 @@
+# robots.txt — iconopticals.in
+# Next.js app/robots.ts is the authoritative source.
+# This file is a fallback for CDN/static hosts.
+
+User-agent: *
+Allow: /
+Disallow: /api/
+Disallow: /admin/
+Disallow: /dashboard/
+Disallow: /private/
+Disallow: /checkout/
+Disallow: /cart/
+Disallow: /account/
+Disallow: /orders/
+Disallow: /wishlist/
+Disallow: /auth/
+Disallow: /unsubscribe/
+Disallow: /booking/confirmed/
+
+User-agent: GPTBot
+Disallow: /
+
+User-agent: ChatGPT-User
+Disallow: /
+
+User-agent: CCBot
+Disallow: /
+
+Host: https://iconopticals.in
+Sitemap: https://iconopticals.in/sitemap.xml
