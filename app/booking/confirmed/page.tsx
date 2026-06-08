@@ -9,6 +9,18 @@ import Link from 'next/link'
 import { createClient } from '@/lib/supabase'
 import { CalendarCheck, MapPin, Clock, Loader2, Check, Info, FileText, ChevronRight, Home } from 'lucide-react'
 
+// Booking type
+interface Booking {
+  id: string
+  booking_number: string
+  booking_date: string
+  time_slot: string
+  purpose: string
+  notes?: string
+  store?: { name: string; address: string; city: string; phone?: string }
+  [key: string]: unknown
+}
+
 // Elevated Nomenclature for Appointments
 const PURPOSE_LABELS: Record<string, string> = {
   eye_test: 'Comprehensive Eye Assessment', 
@@ -20,8 +32,7 @@ const PURPOSE_LABELS: Record<string, string> = {
 function BookingConfirmedPageInner() {
   const searchParams = useSearchParams()
   const id = searchParams.get('id')
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const [booking, setBooking] = useState<any>(null)
+  const [booking, setBooking] = useState<Booking | null>(null)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -30,7 +41,7 @@ function BookingConfirmedPageInner() {
       .from('bookings')
       .select('*, store:stores(name, address, city, phone)')
       .eq('id', id).single()
-      .then(({ data }) => { setBooking(data); setLoading(false) })
+      .then(({ data }: { data: Booking | null }) => { setBooking(data); setLoading(false) })
   }, [id])
 
   if (loading) return (

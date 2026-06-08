@@ -5,7 +5,17 @@ export const dynamic = 'force-dynamic'
 import { useState, Suspense, useEffect, useMemo } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { createClient } from '@/lib/supabase'
+import type { User } from '@supabase/supabase-js'
 import { Calendar, Clock, MapPin, ChevronRight, Loader2, AlertCircle, Glasses, Search, Package, Wrench, Check } from 'lucide-react'
+
+// Store type
+interface Store {
+  id: string
+  name: string
+  address: string
+  city: string
+  timings?: string
+}
 
 type BookingPurpose = 'eye_test' | 'frame_trial' | 'pickup' | 'repair'
 
@@ -29,8 +39,7 @@ function BookingPageInner() {
   const preselectedStore = searchParams.get('store')
 
   const [userId, setUserId] = useState<string | null>(null)
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const [stores, setStores] = useState<any[]>([])
+  const [stores, setStores] = useState<Store[]>([])
   const [selectedStore, setSelectedStore] = useState<string>(preselectedStore || '')
   const [selectedDate, setSelectedDate] = useState('')
   const [selectedSlot, setSelectedSlot] = useState('')
@@ -47,12 +56,12 @@ function BookingPageInner() {
 
   useEffect(() => {
     const supabase = createClient()
-    supabase.auth.getUser().then(({ data: { user } }) => {
+    supabase.auth.getUser().then(({ data: { user } }: { data: { user: User | null } }) => {
       if (!user) { router.push('/auth/login?redirect=/booking'); return }
       setUserId(user.id)
     })
     supabase.from('stores').select('id, name, address, city, timings').eq('is_active', true)
-      .range(0, 19).then(({ data }) => { 
+      .range(0, 19).then(({ data }: { data: Store[] | null }) => { 
         if (data) setStores(data)
         setInitializing(false)
       })
@@ -63,7 +72,7 @@ function BookingPageInner() {
     const supabase = createClient()
     supabase.from('bookings').select('time_slot')
       .eq('store_id', selectedStore).eq('booking_date', selectedDate).neq('status', 'cancelled')
-      .then(({ data }) => { setBookedSlots((data as { time_slot: string }[] || []).map(b => b.time_slot)) })
+      .then(({ data }: { data: Array<{ time_slot: string }> | null }) => { setBookedSlots((data || []).map(b => b.time_slot)) })
   }, [selectedStore, selectedDate])
 
   const storeObj = stores.find(s => s.id === selectedStore)

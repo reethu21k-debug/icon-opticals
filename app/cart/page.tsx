@@ -6,6 +6,466 @@
 // import Image from 'next/image'
 // import Link from 'next/link'
 // import { useRouter } from 'next/navigation'
+// import { Trash2, Plus, Minus, ShoppingBag, ChevronRight, Gift } from 'lucide-react'
+// import { createClient } from '@/lib/supabase'
+// import { useCart } from '@/hooks/useCart'
+// import { getOptimizedUrl } from '@/lib/cloudinary-url'
+// import type { CartItemWithProduct } from '@/types'
+
+// // ── BOGO helper ──────────────────────────────────────────────────────────────
+// function getBogoFreeMap(
+//   items: CartItemWithProduct[],
+//   freeCount: number
+// ): Map<string, number> {
+//   if (freeCount <= 0) return new Map()
+//   const expanded: { id: string; unitPrice: number }[] = []
+//   for (const item of items) {
+//     const qty = item.quantity || 1
+//     const unitPrice = (item.total_price || 0) / qty
+//     for (let i = 0; i < qty; i++) expanded.push({ id: item.id, unitPrice })
+//   }
+//   expanded.sort((a, b) => b.unitPrice - a.unitPrice)
+//   const map = new Map<string, number>()
+//   for (const entry of expanded.slice(expanded.length - freeCount)) {
+//     map.set(entry.id, (map.get(entry.id) || 0) + 1)
+//   }
+//   return map
+// }
+
+// // ── Cart Styles ──────────────────────────────────────────────────────────────
+
+// const CART_CSS = `
+//   @keyframes cart-fade-up { from { opacity:0; transform:translateY(14px) } to { opacity:1; transform:translateY(0) } }
+
+//   .ct-root { min-height: 100vh; background: #fff; }
+//   .ct-wrap { max-width: 1400px; margin: 0 auto; padding: 3rem 24px 5rem; }
+//   @media (max-width: 640px) { .ct-wrap { padding: 2rem 16px 4rem; } }
+
+//   .ct-header {
+//     display: flex; align-items: flex-end; justify-content: space-between;
+//     padding-bottom: 1.75rem; border-bottom: 1px solid #e2e8f0; margin-bottom: 2.5rem;
+//     animation: cart-fade-up 0.5s cubic-bezier(0.22,1,0.36,1) both;
+//   }
+//   .ct-eyebrow { font-size: 8.5px; text-transform: uppercase; letter-spacing: 0.3em; color: #94a3b8; font-weight: 600; margin-bottom: 6px; }
+//   .ct-title { font-family: Didot, "Bodoni MT", "Playfair Display", Times, serif; font-size: clamp(2rem, 4vw, 3rem); color: #0f172a; font-weight: 400; letter-spacing: -0.02em; }
+//   .ct-count { font-size: 8.5px; text-transform: uppercase; letter-spacing: 0.28em; color: #94a3b8; font-weight: 600; }
+
+//   .ct-bogo {
+//     display: flex; align-items: center; gap: 1rem;
+//     background: #0f172a; padding: 1.25rem 1.5rem; margin-bottom: 2rem;
+//     animation: cart-fade-up 0.5s cubic-bezier(0.22,1,0.36,1) 0.1s both;
+//   }
+//   .ct-bogo-title { font-family: Didot, "Bodoni MT", "Playfair Display", Times, serif; color: #fff; font-size: 1.05rem; }
+//   .ct-bogo-sub { font-size: 9px; text-transform: uppercase; letter-spacing: 0.22em; color: #64748b; margin-top: 2px; }
+
+//   .ct-grid { display: grid; grid-template-columns: 1fr 360px; gap: 3.5rem; align-items: start; }
+//   @media (max-width: 1024px) { .ct-grid { grid-template-columns: 1fr; gap: 2.5rem; } }
+
+//   .ct-items { display: flex; flex-direction: column; gap: 1rem; }
+//   .ct-item {
+//     display: flex; gap: 1.5rem; padding: 1.5rem;
+//     border: 1px solid #e2e8f0; background: #fff;
+//     transition: border-color .2s;
+//     animation: cart-fade-up 0.5s cubic-bezier(0.22,1,0.36,1) both;
+//   }
+//   .ct-item:hover { border-color: #cbd5e1; }
+//   .ct-item.bogo-item { border-color: #0f172a; background: #f8fafc; }
+
+//   .ct-img-wrap {
+//     flex-shrink: 0; width: 120px; height: 120px;
+//     background: #f8fafc; border: 1px solid #f1f5f9;
+//     display: flex; align-items: center; justify-content: center;
+//     position: relative; overflow: hidden; text-decoration: none;
+//   }
+//   .ct-free-badge {
+//     position: absolute; top: 0; right: 0;
+//     background: #0f172a; color: #fff;
+//     font-size: 8px; text-transform: uppercase; letter-spacing: 0.2em; padding: 3px 6px;
+//   }
+
+//   .ct-item-body { flex: 1; display: flex; flex-direction: column; justify-content: space-between; gap: 0.75rem; min-width: 0; }
+//   .ct-brand { font-size: 9px; text-transform: uppercase; letter-spacing: 0.22em; color: #94a3b8; }
+//   .ct-name {
+//     font-family: Didot, "Bodoni MT", "Playfair Display", Times, serif;
+//     font-size: 1.2rem; color: #0f172a; text-decoration: none; line-height: 1.2;
+//     transition: color .18s; display: block;
+//   }
+//   .ct-name:hover { color: #475569; }
+//   .ct-bogo-tag {
+//     display: inline-flex; align-items: center; margin-top: 8px;
+//     border: 1px solid #0f172a; font-size: 8.5px; text-transform: uppercase;
+//     letter-spacing: 0.18em; color: #0f172a; padding: 2px 8px;
+//   }
+//   .ct-lens-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
+//   .ct-lens-tag { font-size: 9px; text-transform: uppercase; letter-spacing: 0.15em; border: 1px solid #e2e8f0; color: #64748b; padding: 3px 8px; background: #fff; }
+
+//   .ct-item-footer { display: flex; align-items: center; justify-content: space-between; padding-top: 0.75rem; border-top: 1px solid #f1f5f9; }
+//   .ct-qty { display: flex; align-items: center; border: 1px solid #e2e8f0; }
+//   .ct-qty-btn { width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; background: none; border: none; cursor: pointer; color: #64748b; transition: background .15s, color .15s; }
+//   .ct-qty-btn:hover { background: #f8fafc; color: #0f172a; }
+//   .ct-qty-num { width: 32px; text-align: center; font-size: 12px; font-weight: 600; color: #0f172a; }
+//   .ct-delete { background: none; border: none; cursor: pointer; color: #cbd5e1; padding: 4px; display: flex; align-items: center; transition: color .15s; }
+//   .ct-delete:hover { color: #0f172a; }
+
+//   .ct-price { text-align: right; }
+//   .ct-price-main { font-family: Didot, "Bodoni MT", "Playfair Display", Times, serif; font-size: 1.2rem; color: #0f172a; }
+//   .ct-price-strike { font-size: 10px; color: #cbd5e1; text-decoration: line-through; }
+//   .ct-price-hint { font-size: 9px; text-transform: uppercase; letter-spacing: 0.15em; color: #94a3b8; margin-top: 2px; }
+
+//   /* Summary */
+//   .ct-summary { position: sticky; top: 5.5rem; }
+//   .ct-summary-inner { border: 1px solid #e2e8f0; background: #fff; padding: 2rem; }
+//   .ct-summary-title { font-family: Didot, "Bodoni MT", "Playfair Display", Times, serif; font-size: 1.5rem; color: #0f172a; padding-bottom: 1.25rem; border-bottom: 1px solid #f1f5f9; margin-bottom: 1.5rem; }
+
+//   .ct-coupon-applied { display: flex; align-items: center; justify-content: space-between; border: 1px solid #0f172a; padding: 0.875rem 1rem; background: #f8fafc; margin-bottom: 1.5rem; }
+//   .ct-coupon-code { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.22em; color: #0f172a; }
+//   .ct-coupon-saved { font-size: 9px; text-transform: uppercase; letter-spacing: 0.18em; color: #64748b; margin-top: 2px; }
+//   .ct-coupon-remove { font-size: 9px; text-transform: uppercase; letter-spacing: 0.18em; color: #94a3b8; background: none; border: none; cursor: pointer; transition: color .15s; }
+//   .ct-coupon-remove:hover { color: #0f172a; }
+//   .ct-coupon-row { display: flex; border: 1px solid #e2e8f0; margin-bottom: 1.5rem; }
+//   .ct-coupon-input { flex: 1; font-size: 10px; text-transform: uppercase; letter-spacing: 0.15em; padding: 0.875rem 1rem; border: none; outline: none; color: #0f172a; background: transparent; font-family: 'Inter', sans-serif; }
+//   .ct-coupon-input::placeholder { color: #cbd5e1; }
+//   .ct-coupon-btn { padding: 0 1rem; border-left: 1px solid #e2e8f0; font-size: 9px; text-transform: uppercase; letter-spacing: 0.18em; font-weight: 700; color: #0f172a; background: none; border-top: none; border-right: none; border-bottom: none; cursor: pointer; transition: background .15s; }
+//   .ct-coupon-btn:hover { background: #f8fafc; }
+//   .ct-coupon-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+//   .ct-coupon-error { font-size: 10px; color: #dc2626; margin-top: -1rem; margin-bottom: 1rem; }
+
+//   .ct-summary-rows { display: flex; flex-direction: column; gap: 0.875rem; padding-bottom: 1.25rem; border-bottom: 1px solid #f1f5f9; margin-bottom: 1.25rem; }
+//   .ct-row { display: flex; justify-content: space-between; align-items: baseline; }
+//   .ct-row-label { font-size: 10px; text-transform: uppercase; letter-spacing: 0.2em; color: #94a3b8; }
+//   .ct-row-val { font-size: 13px; font-weight: 500; color: #0f172a; }
+//   .ct-row-val.discount { color: #059669; }
+//   .ct-row-val.free-label { font-size: 9px; text-transform: uppercase; letter-spacing: 0.2em; }
+
+//   .ct-total-row { display: flex; align-items: flex-end; justify-content: space-between; margin-bottom: 1.75rem; }
+//   .ct-total-label { font-size: 9px; text-transform: uppercase; letter-spacing: 0.22em; color: #94a3b8; }
+//   .ct-total-val { font-family: Didot, "Bodoni MT", "Playfair Display", Times, serif; font-size: 2rem; color: #0f172a; letter-spacing: -0.02em; }
+
+//   .ct-checkout-btn {
+//     width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px;
+//     padding: 1.1rem; background: #0f172a; color: #fff;
+//     font-size: 9.5px; text-transform: uppercase; letter-spacing: 0.22em; font-weight: 600;
+//     text-decoration: none; border: none; cursor: pointer; font-family: 'Inter', sans-serif;
+//     position: relative; overflow: hidden; transition: background .2s;
+//   }
+//   .ct-checkout-btn::before {
+//     content: ''; position: absolute; inset: 0; background: #1e293b;
+//     transform: translateX(-110%) skewX(-8deg);
+//     transition: transform .5s cubic-bezier(.22,1,.36,1);
+//   }
+//   .ct-checkout-btn:hover::before { transform: translateX(110%) skewX(-8deg); }
+//   .ct-checkout-btn span { position: relative; z-index: 1; }
+//   .ct-secure { font-size: 9px; text-transform: uppercase; letter-spacing: 0.22em; color: #cbd5e1; text-align: center; margin-top: 1rem; display: flex; align-items: center; justify-content: center; gap: 6px; }
+
+//   /* Empty state */
+//   .ct-empty { min-height: 100vh; background: #fff; display: flex; align-items: center; justify-content: center; }
+//   .ct-empty-inner { text-align: center; max-width: 400px; padding: 2rem; animation: cart-fade-up 0.6s cubic-bezier(0.22,1,0.36,1) both; }
+//   .ct-empty-icon { width: 72px; height: 72px; border: 1px solid #e2e8f0; display: flex; align-items: center; justify-content: center; margin: 0 auto 2rem; color: #cbd5e1; }
+//   .ct-empty-title { font-family: Didot, "Bodoni MT", "Playfair Display", Times, serif; font-size: 2rem; color: #0f172a; margin-bottom: 0.75rem; font-weight: 400; }
+//   .ct-empty-desc { font-size: 13px; color: #64748b; line-height: 1.65; margin-bottom: 2rem; }
+//   .ct-shop-btn { display: inline-flex; align-items: center; gap: 8px; padding: 1rem 2rem; background: #0f172a; color: #fff; font-size: 9.5px; text-transform: uppercase; letter-spacing: 0.22em; font-weight: 600; text-decoration: none; font-family: 'Inter', sans-serif; transition: background .2s; }
+//   .ct-shop-btn:hover { background: #1e293b; }
+// `
+
+// // ── CartPage ─────────────────────────────────────────────────────────────────
+
+// export default function CartPage() {
+//   const [userId, setUserId] = useState<string | null>(null)
+//   const [couponInput, setCouponInput] = useState('')
+//   const [applyingCoupon, setApplyingCoupon] = useState(false)
+//   const router = useRouter()
+
+//   useEffect(() => {
+//     createClient().auth.getUser().then(({ data }) => {
+//       if (!data.user) router.push('/auth/login?redirect=/cart')
+//       else setUserId(data.user.id)
+//     })
+//   }, [router])
+
+//   const {
+//     items, summary, loading,
+//     coupon, couponError,
+//     removeFromCart, updateQuantity,
+//     applyCoupon, removeCoupon,
+//   } = useCart(userId)
+
+//   const handleApplyCoupon = async () => {
+//     if (!couponInput.trim()) return
+//     setApplyingCoupon(true)
+//     await applyCoupon(couponInput.trim())
+//     setApplyingCoupon(false)
+//   }
+
+//   const isBogo = coupon?.discount_type === 'bogo'
+//   const bogoFreeMap = isBogo
+//     ? getBogoFreeMap(items, summary.bogo_free_item_count)
+//     : new Map<string, number>()
+
+//   if (loading) return <CartSkeleton />
+
+//   if (!loading && items.length === 0) {
+//     return (
+//       <div className="ct-empty">
+//         <style dangerouslySetInnerHTML={{ __html: CART_CSS }} />
+//         <div className="ct-empty-inner">
+//           <div className="ct-empty-icon">
+//             <ShoppingBag size={28} strokeWidth={1} />
+//           </div>
+//           <p className="ct-eyebrow">Shopping Bag</p>
+//           <h2 className="ct-empty-title">Your Cart is Empty</h2>
+//           <p className="ct-empty-desc">
+//             Explore our collection and add your favourite frames to begin your checkout experience.
+//           </p>
+//           <Link href="/products" className="ct-shop-btn">
+//             <span>Discover Frames</span>
+//             <ChevronRight size={14} strokeWidth={1.5} />
+//           </Link>
+//         </div>
+//       </div>
+//     )
+//   }
+
+//   return (
+//     <main className="ct-root">
+//       <style dangerouslySetInnerHTML={{ __html: CART_CSS }} />
+//       <div className="ct-wrap">
+
+//         {/* Header */}
+//         <header className="ct-header">
+//           <div>
+//             <p className="ct-eyebrow">Shopping Bag</p>
+//             <h1 className="ct-title">Your Cart</h1>
+//           </div>
+//           <p className="ct-count">{summary.item_count} Item{summary.item_count !== 1 ? 's' : ''}</p>
+//         </header>
+
+//         {/* BOGO Banner */}
+//         {isBogo && summary.bogo_free_item_count > 0 && (
+//           <div className="ct-bogo">
+//             <Gift size={18} strokeWidth={1.5} style={{ color: '#fff', flexShrink: 0 }} />
+//             <div>
+//               <p className="ct-bogo-title">Buy 1 Get 1 Free Applied</p>
+//               <p className="ct-bogo-sub">
+//                 {summary.bogo_free_item_count} cheapest item{summary.bogo_free_item_count > 1 ? 's are' : ' is'} free
+//               </p>
+//             </div>
+//           </div>
+//         )}
+
+//         <div className="ct-grid">
+
+//           {/* ── Items ── */}
+//           <div className="ct-items">
+//             {items.map((item, idx) => {
+//               const freeUnits = bogoFreeMap.get(item.id) || 0
+//               const allFree = freeUnits === item.quantity
+//               const partialFree = freeUnits > 0 && !allFree
+
+//               return (
+//                 <div
+//                   key={item.id}
+//                   className={`ct-item${freeUnits > 0 ? ' bogo-item' : ''}`}
+//                   style={{ animationDelay: `${idx * 0.07}s` }}
+//                 >
+//                   {/* Image */}
+//                   <Link href={`/products/${item.product?.slug}`} className="ct-img-wrap">
+//                     {item.product?.images?.[0] && (
+//                       <Image
+//                         src={getOptimizedUrl(item.product.images[0].public_id, { width: 120, height: 120 })}
+//                         alt={item.product.name}
+//                         fill
+//                         className="object-contain mix-blend-multiply p-2"
+//                         sizes="120px"
+//                       />
+//                     )}
+//                     {freeUnits > 0 && (
+//                       <span className="ct-free-badge">{allFree ? 'FREE' : `${freeUnits} FREE`}</span>
+//                     )}
+//                   </Link>
+
+//                   {/* Body */}
+//                   <div className="ct-item-body">
+//                     <div>
+//                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 12 }}>
+//                         <div>
+//                           <p className="ct-brand">{item.product?.brand}</p>
+//                           <Link href={`/products/${item.product?.slug}`} className="ct-name">
+//                             {item.product?.name}
+//                           </Link>
+//                           {freeUnits > 0 && (
+//                             <span className="ct-bogo-tag">
+//                               {allFree ? 'BOGO Free' : `${freeUnits} of ${item.quantity} free`}
+//                             </span>
+//                           )}
+//                         </div>
+//                         <button onClick={() => removeFromCart(item.id)} className="ct-delete" aria-label="Remove">
+//                           <Trash2 size={15} strokeWidth={1.5} />
+//                         </button>
+//                       </div>
+//                       {item.lens_power_type && (
+//                         <div className="ct-lens-tags">
+//                           <span className="ct-lens-tag">{item.lens_power_type.replace('_', ' ')}</span>
+//                           {item.lens_package_code && (
+//                             <span className="ct-lens-tag">{item.lens_package_code.replace('_', ' ')} Lenses</span>
+//                           )}
+//                         </div>
+//                       )}
+//                     </div>
+
+//                     <div className="ct-item-footer">
+//                       <div className="ct-qty">
+//                         <button className="ct-qty-btn" onClick={() => updateQuantity(item.id, item.quantity - 1)}>
+//                           <Minus size={11} />
+//                         </button>
+//                         <span className="ct-qty-num">{item.quantity}</span>
+//                         <button className="ct-qty-btn" onClick={() => updateQuantity(item.id, item.quantity + 1)}>
+//                           <Plus size={11} />
+//                         </button>
+//                       </div>
+//                       <div className="ct-price">
+//                         {allFree ? (
+//                           <>
+//                             <p className="ct-price-main">FREE</p>
+//                             <p className="ct-price-strike">₹{(item.total_price || 0).toLocaleString('en-IN')}</p>
+//                           </>
+//                         ) : (
+//                           <>
+//                             <p className="ct-price-main">₹{(item.total_price || 0).toLocaleString('en-IN')}</p>
+//                             {partialFree && <p className="ct-price-hint">{freeUnits} unit{freeUnits > 1 ? 's' : ''} free</p>}
+//                             {(item.lens_price || 0) > 0 && <p className="ct-price-hint">Frame + Lens</p>}
+//                           </>
+//                         )}
+//                       </div>
+//                     </div>
+//                   </div>
+//                 </div>
+//               )
+//             })}
+//           </div>
+
+//           {/* ── Summary ── */}
+//           <div className="ct-summary">
+//             <div className="ct-summary-inner">
+//               <h3 className="ct-summary-title">Order Summary</h3>
+
+//               {/* Coupon */}
+//               <p className="ct-eyebrow" style={{ marginBottom: 10 }}>Promo Code</p>
+//               {coupon ? (
+//                 <div className="ct-coupon-applied">
+//                   <div>
+//                     <p className="ct-coupon-code">{coupon.code}</p>
+//                     <p className="ct-coupon-saved">
+//                       {isBogo
+//                         ? `${summary.bogo_free_item_count} item free`
+//                         : `Saved ₹${summary.discount_amount.toLocaleString('en-IN')}`}
+//                     </p>
+//                   </div>
+//                   <button className="ct-coupon-remove" onClick={removeCoupon}>Remove</button>
+//                 </div>
+//               ) : (
+//                 <div className="ct-coupon-row">
+//                   <input
+//                     type="text"
+//                     value={couponInput}
+//                     onChange={e => setCouponInput(e.target.value.toUpperCase())}
+//                     onKeyDown={e => e.key === 'Enter' && handleApplyCoupon()}
+//                     placeholder="ENTER CODE"
+//                     className="ct-coupon-input"
+//                   />
+//                   <button
+//                     onClick={handleApplyCoupon}
+//                     disabled={applyingCoupon || !couponInput.trim()}
+//                     className="ct-coupon-btn"
+//                   >
+//                     {applyingCoupon ? '...' : 'Apply'}
+//                   </button>
+//                 </div>
+//               )}
+//               {couponError && <p className="ct-coupon-error">{couponError}</p>}
+
+//               {/* Line Items */}
+//               <div className="ct-summary-rows">
+//                 <div className="ct-row">
+//                   <span className="ct-row-label">Subtotal</span>
+//                   <span className="ct-row-val">₹{summary.subtotal.toLocaleString('en-IN')}</span>
+//                 </div>
+//                 {summary.discount_amount > 0 && (
+//                   <div className="ct-row">
+//                     <span className="ct-row-label">{isBogo ? 'BOGO Discount' : 'Coupon'}</span>
+//                     <span className="ct-row-val discount">−₹{summary.discount_amount.toLocaleString('en-IN')}</span>
+//                   </div>
+//                 )}
+//                 <div className="ct-row">
+//                   <span className="ct-row-label">Delivery</span>
+//                   <span className="ct-row-val free-label">Complimentary</span>
+//                 </div>
+//               </div>
+
+//               {/* Total */}
+//               <div className="ct-total-row">
+//                 <span className="ct-total-label">Estimated Total</span>
+//                 <span className="ct-total-val">₹{summary.total.toLocaleString('en-IN')}</span>
+//               </div>
+
+//               <Link href="/checkout" className="ct-checkout-btn">
+//                 <span>Proceed to Checkout →</span>
+//               </Link>
+
+//               <p className="ct-secure">
+//                 <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+//                   <rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+//                 </svg>
+//                 Secure Encrypted Transaction
+//               </p>
+//             </div>
+//           </div>
+
+//         </div>
+//       </div>
+//     </main>
+//   )
+// }
+
+// // ── Skeleton ──────────────────────────────────────────────────────────────────
+
+// function CartSkeleton() {
+//   return (
+//     <main style={{ minHeight: '100vh', background: '#fff', padding: '3rem 24px' }}>
+//       <div style={{ maxWidth: 1400, margin: '0 auto' }}>
+//         <div style={{ paddingBottom: '1.75rem', borderBottom: '1px solid #e2e8f0', marginBottom: '2.5rem' }}>
+//           <div style={{ width: 80, height: 10, background: '#f1f5f9', marginBottom: 10 }} />
+//           <div style={{ width: 200, height: 40, background: '#e2e8f0' }} />
+//         </div>
+//         <div style={{ display: 'grid', gridTemplateColumns: '1fr 360px', gap: '3.5rem' }}>
+//           <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+//             {[1, 2].map(i => (
+//               <div key={i} style={{ display: 'flex', gap: 24, padding: 24, border: '1px solid #f1f5f9' }}>
+//                 <div style={{ width: 120, height: 120, background: '#f8fafc', flexShrink: 0 }} />
+//                 <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 12 }}>
+//                   <div style={{ width: 60, height: 8, background: '#f1f5f9' }} />
+//                   <div style={{ width: '70%', height: 24, background: '#e2e8f0' }} />
+//                 </div>
+//               </div>
+//             ))}
+//           </div>
+//           <div style={{ border: '1px solid #e2e8f0', padding: 32, height: 380, background: '#fff' }}>
+//             <div style={{ width: 160, height: 28, background: '#e2e8f0', marginBottom: 24 }} />
+//             <div style={{ width: '100%', height: 44, background: '#f8fafc', marginBottom: 24 }} />
+//             <div style={{ width: '100%', height: 44, background: '#0f172a', marginTop: 'auto' }} />
+//           </div>
+//         </div>
+//       </div>
+//     </main>
+//   )
+// }
+// 'use client'
+
+// export const dynamic = 'force-dynamic'
+
+// import { useState, useEffect } from 'react'
+// import Image from 'next/image'
+// import Link from 'next/link'
+// import { useRouter } from 'next/navigation'
 // import { Trash2, Plus, Minus, Tag, ShoppingBag, ChevronRight, Gift } from 'lucide-react'
 // import { createClient } from '@/lib/supabase'
 // import { useCart } from '@/hooks/useCart'
@@ -42,7 +502,7 @@
 //   const router = useRouter()
 
 //   useEffect(() => {
-//     createClient().auth.getUser().then(({ data }) => {
+//     createClient().auth.getUser().then(({ data }: UserResponse) => {
 //       if (!data.user) router.push('/auth/login?redirect=/cart')
 //       else setUserId(data.user.id)
 //     })
@@ -453,6 +913,7 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { Trash2, Plus, Minus, ShoppingBag, ChevronRight, Gift } from 'lucide-react'
 import { createClient } from '@/lib/supabase'
+import type { UserResponse } from '@supabase/supabase-js'
 import { useCart } from '@/hooks/useCart'
 import { getOptimizedUrl } from '@/lib/cloudinary-url'
 import type { CartItemWithProduct } from '@/types'
@@ -621,7 +1082,7 @@ export default function CartPage() {
   const router = useRouter()
 
   useEffect(() => {
-    createClient().auth.getUser().then(({ data }) => {
+    createClient().auth.getUser().then(({ data }: UserResponse) => {
       if (!data.user) router.push('/auth/login?redirect=/cart')
       else setUserId(data.user.id)
     })
