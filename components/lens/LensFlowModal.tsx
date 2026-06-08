@@ -48,7 +48,7 @@ export default function LensFlowModal({ product, onClose, onComplete }: LensFlow
       .select('*')
       .eq('is_active', true)
       .order('price_addon')
-      .then(({ data, error }) => {
+      .then(({ data, error }: { data: LensPackage[] | null; error: { message: string } | null }) => {
         if (!error && data && data.length > 0) {
           setLensPackages(data as LensPackage[])
         } else {

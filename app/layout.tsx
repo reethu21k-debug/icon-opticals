@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import type { ReactNode } from 'react'
 import './globals.css'
 import Navbar from '@/components/Navbar'
 import Footer from '@/components/Footer'
@@ -16,7 +17,7 @@ export const metadata: Metadata = baseMetadata
 export default function RootLayout({
   children,
 }: {
-  children: React.ReactNode
+  children: ReactNode
 }) {
   return (
     <html lang="en">
@@ -26,8 +27,6 @@ export default function RootLayout({
         <meta name="theme-color" content="#0f172a" />
         <meta name="color-scheme" content="light" />
 
-        {/* MediaPipe WASM shim — must be before any other scripts */}
-        <MediaPipePatch />
 
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link
@@ -58,6 +57,8 @@ export default function RootLayout({
       </head>
 
       <body className="bg-white text-gray-900 antialiased">
+        {/* MediaPipe WASM shim — hoisted to <head> by Next.js beforeInteractive */}
+        <MediaPipePatch />
         <Preloader />
         <Navbar />
 

@@ -18,7 +18,7 @@
 //   filters: ProductFilters
 // }
 
-// export default function ProductGrid({ products, total, page, perPage }: ProductGridProps) {
+// export default function ProductGrid({ products, total, page, perPage, filters }: ProductGridProps) {
 //   const router       = useRouter()
 //   const pathname     = usePathname()
 //   const searchParams = useSearchParams()
@@ -38,7 +38,7 @@
 //       .select('role')
 //       .eq('id', userId)
 //       .single()
-//       .then(({ data }) => {
+//       .then(({ data }: { data: { role: string } | null }) => {
 //         setIsAdmin(data?.role === 'admin')
 //       })
 //   }, [userId, ready])
@@ -350,7 +350,7 @@ interface ProductGridProps {
   filters: ProductFilters
 }
 
-export default function ProductGrid({ products, total, page, perPage }: ProductGridProps) {
+export default function ProductGrid({ products, total, page, perPage, filters }: ProductGridProps) {
   const router       = useRouter()
   const pathname     = usePathname()
   const searchParams = useSearchParams()
@@ -372,7 +372,7 @@ export default function ProductGrid({ products, total, page, perPage }: ProductG
       .select('role')
       .eq('id', userId)
       .single()
-      .then(({ data }) => {
+      .then(({ data }: { data: { role: string } | null }) => {
         setIsAdmin(data?.role === 'admin')
       })
   }, [userId, ready])
