@@ -52,9 +52,6 @@ function baseTemplate(innerContent: string): string {
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
   <meta name="x-apple-disable-message-reformatting" />
-  <!--[if mso]>
-  <noscript><xml><o:OfficeDocumentSettings><o:PixelsPerInch>96</o:PixelsPerInch></o:OfficeDocumentSettings></xml></noscript>
-  <![endif]-->
   <title>Icon Vision Care &amp; Opticals</title>
   <style type="text/css">
     @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;0,700;1,300;1,400;1,600&family=Jost:wght@200;300;400;500;600;700&display=swap');
@@ -78,18 +75,15 @@ function baseTemplate(innerContent: string): string {
 </head>
 <body style="margin:0;padding:0;background-color:#010308;width:100%;">
 
-<!-- GHOST TABLE — centres the entire email in every client -->
 <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%"
   style="background-color:#010308;">
   <tr>
     <td align="center" valign="top" style="padding:32px 10px 56px;">
 
-      <!-- PRE-HEADER EYEBROW -->
       <table role="presentation" cellspacing="0" cellpadding="0" border="0"
         class="email-container" width="600" style="width:600px;max-width:600px;">
         <tr>
           <td align="center" style="padding-bottom:16px;">
-            <!-- Fine top rule with centre diamond -->
             <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
               <tr>
                 <td style="height:1px;background:linear-gradient(90deg,transparent,#1A2445 40%,#1A2445 60%,transparent);font-size:0;line-height:0;"></td>
@@ -104,14 +98,13 @@ function baseTemplate(innerContent: string): string {
                   bgcolor="#010308"></td>
                 <td style="font-family:'Jost',Arial,sans-serif;font-size:8px;font-weight:500;
                   letter-spacing:5px;text-transform:uppercase;color:#3A4868;
-                  padding-left:14px;">ANANTHAPUR</td>
+                  padding-left:14px;">ANANTHAPURAM</td>
               </tr>
             </table>
           </td>
         </tr>
       </table>
 
-      <!-- CARD: all email content lives inside this one table -->
       <table role="presentation" cellspacing="0" cellpadding="0" border="0"
         class="email-container" width="600"
         style="width:600px;max-width:600px;background-color:#040916;
@@ -119,10 +112,7 @@ function baseTemplate(innerContent: string): string {
 
         ${innerContent}
 
-      </table><!-- /CARD -->
-
-      <!-- OUTER FOOTER -->
-      <table role="presentation" cellspacing="0" cellpadding="0" border="0"
+      </table><table role="presentation" cellspacing="0" cellpadding="0" border="0"
         class="email-container" width="600" style="width:600px;max-width:600px;">
         <tr>
           <td style="height:1px;font-size:0;line-height:0;
@@ -131,7 +121,6 @@ function baseTemplate(innerContent: string): string {
         </tr>
         <tr>
           <td align="center" style="padding:22px 0 6px;">
-            <!-- Lens glyph ornament -->
             <table role="presentation" cellspacing="0" cellpadding="0" border="0" align="center">
               <tr>
                 <td style="width:28px;height:1px;font-size:0;line-height:0;
@@ -161,9 +150,12 @@ function baseTemplate(innerContent: string): string {
         <tr>
           <td align="center" style="padding-bottom:6px;
             font-family:'Jost',Arial,sans-serif;font-size:10px;
-            font-weight:300;letter-spacing:1.5px;color:#2A3555;">
+            font-weight:300;letter-spacing:1.5px;color:#2A3555;line-height:1.7;">
+            Raju Road , Vaibhav Jewellers Opposite Road, Near Punjab National Bank , Kamala Nagar , Ananthapuram -515001<br/>
             <a href="tel:9676227094" style="color:#2A3555;text-decoration:none;">+91 96762 27094</a>
-            &nbsp;&nbsp;&middot;&nbsp;&nbsp; Ananthapur
+            &nbsp;&nbsp;&middot;&nbsp;&nbsp;
+            <a href="tel:9154693939" style="color:#2A3555;text-decoration:none;">+91 91546 93939</a><br/>
+            GST: 37BOFPM8364B1ZU
           </td>
         </tr>
         <tr>
@@ -172,9 +164,7 @@ function baseTemplate(innerContent: string): string {
             &copy; ${new Date().getFullYear()} Icon Vision Care &amp; Opticals &nbsp;&middot;&nbsp; All rights reserved
           </td>
         </tr>
-      </table><!-- /OUTER FOOTER -->
-
-    </td>
+      </table></td>
   </tr>
 </table>
 </body>
@@ -187,11 +177,9 @@ function baseTemplate(innerContent: string): string {
 
 function headerBlock(): string {
   return `
-  <!-- ═══ HEADER ═══ -->
   <tr>
     <td style="background:#020714;border-radius:1px 1px 0 0;padding:0;">
 
-      <!-- Triple shimmer accent: thin · bright · thin -->
       <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
         <tr>
           <td style="height:1px;font-size:0;line-height:0;
@@ -213,12 +201,10 @@ function headerBlock(): string {
         </tr>
       </table>
 
-      <!-- Brand content -->
       <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
         <tr>
           <td align="center" style="padding:50px 40px 44px;">
 
-            <!-- Eyebrow label -->
             <p style="margin:0 0 20px;
               font-family:'Jost',Arial,sans-serif;
               font-size:7.5px;font-weight:600;letter-spacing:7px;
@@ -226,7 +212,6 @@ function headerBlock(): string {
               ICON VISION CARE &amp; OPTICALS
             </p>
 
-            <!-- Wordmark: ICON + Vision -->
             <table role="presentation" cellspacing="0" cellpadding="0" border="0" align="center">
               <tr>
                 <td align="center">
@@ -248,19 +233,14 @@ function headerBlock(): string {
               </tr>
             </table>
 
-            <!-- Ornament: rule · rotated square · rule -->
             <table role="presentation" cellspacing="0" cellpadding="0" border="0"
               align="center" style="margin:22px auto 0;">
               <tr>
-                <!-- Left segment: long line fading in -->
                 <td style="width:72px;height:1px;font-size:0;line-height:0;
                   background:linear-gradient(90deg,transparent,#2A3860);"></td>
-                <!-- Short bright tick -->
                 <td style="width:16px;height:1px;font-size:0;line-height:0;
                   background:linear-gradient(90deg,#2A3860,#6070A0);"></td>
-                <!-- Centre diamond enclosure -->
                 <td align="center" style="padding:0 12px;width:26px;">
-                  <!-- Outer square -->
                   <table role="presentation" cellspacing="0" cellpadding="0" border="0"
                     align="center">
                     <tr>
@@ -271,28 +251,24 @@ function headerBlock(): string {
                     </tr>
                   </table>
                 </td>
-                <!-- Short bright tick -->
                 <td style="width:16px;height:1px;font-size:0;line-height:0;
                   background:linear-gradient(90deg,#6070A0,#2A3860);"></td>
-                <!-- Right long fade -->
                 <td style="width:72px;height:1px;font-size:0;line-height:0;
                   background:linear-gradient(90deg,#2A3860,transparent);"></td>
               </tr>
             </table>
 
-            <!-- Tagline -->
             <p style="margin:18px 0 0;
               font-family:'Jost',Arial,sans-serif;
               font-size:8px;font-weight:300;letter-spacing:5px;
               text-transform:uppercase;color:#3A4868;">
-              ANANTHAPUR &nbsp;&middot;&nbsp; EST. IN EXCELLENCE
+              ANANTHAPURAM &nbsp;&middot;&nbsp; EST. IN EXCELLENCE
             </p>
 
           </td>
         </tr>
       </table>
 
-      <!-- Bottom border of header -->
       <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
         <tr>
           <td style="height:1px;font-size:0;line-height:0;
@@ -306,10 +282,8 @@ function headerBlock(): string {
 
 function statusBannerBlock(eyelet: string, title: string, subtitle: string): string {
   return `
-  <!-- ═══ STATUS BANNER ═══ -->
   <tr>
     <td style="padding:0;">
-      <!-- Gold hairline at top -->
       <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
         <tr>
           <td style="height:1px;font-size:0;line-height:0;
@@ -321,11 +295,9 @@ function statusBannerBlock(eyelet: string, title: string, subtitle: string): str
       <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%"
         style="background:linear-gradient(180deg,#05102A 0%,#030C1E 60%,#040916 100%);">
         <tr>
-          <!-- Left gold accent bar -->
           <td style="width:3px;background:linear-gradient(180deg,transparent,#D4AA5A 30%,#D4AA5A 70%,transparent);font-size:0;line-height:0;"></td>
           <td align="center" style="padding:32px 40px 30px;">
 
-            <!-- Eyelet with side rules -->
             <table role="presentation" cellspacing="0" cellpadding="0" border="0" align="center">
               <tr>
                 <td style="width:30px;height:1px;font-size:0;line-height:0;
@@ -338,24 +310,20 @@ function statusBannerBlock(eyelet: string, title: string, subtitle: string): str
               </tr>
             </table>
 
-            <!-- Main title -->
             <p style="margin:10px 0 10px;
               font-family:'Cormorant Garamond',Georgia,serif;
               font-size:34px;font-weight:600;color:#F2F5FB;
               letter-spacing:1px;line-height:1.2;">${title}</p>
 
-            <!-- Subtitle -->
             <p style="margin:0;font-family:'Jost',Arial,sans-serif;
               font-size:9px;font-weight:400;color:#6070A0;
               letter-spacing:4.5px;text-transform:uppercase;">${subtitle}</p>
 
           </td>
-          <!-- Right gold accent bar -->
           <td style="width:3px;background:linear-gradient(180deg,transparent,#D4AA5A 30%,#D4AA5A 70%,transparent);font-size:0;line-height:0;"></td>
         </tr>
       </table>
 
-      <!-- Bottom rule -->
       <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
         <tr>
           <td style="height:1px;font-size:0;line-height:0;
@@ -376,15 +344,10 @@ function dividerRow(padClass = 'divider-pad'): string {
         <tr>
           <td style="height:1px;background:linear-gradient(90deg,transparent,#1A2445);font-size:0;line-height:0;"></td>
           <td style="padding:0 16px;white-space:nowrap;text-align:center;vertical-align:middle;">
-            <!-- Left dot -->
             <span style="display:inline-block;width:2px;height:2px;border-radius:50%;
-              background:#2A3555;vertical-align:middle;margin-right:6px;font-size:0;line-height:0;"></span><!--
-            --><!-- Rotated square / gem -->
-            <span style="display:inline-block;width:7px;height:7px;
+              background:#2A3555;vertical-align:middle;margin-right:6px;font-size:0;line-height:0;"></span><span style="display:inline-block;width:7px;height:7px;
               border:1px solid rgba(212,170,90,0.45);
-              vertical-align:middle;font-size:0;line-height:0;"></span><!--
-            --><!-- Right dot -->
-            <span style="display:inline-block;width:2px;height:2px;border-radius:50%;
+              vertical-align:middle;font-size:0;line-height:0;"></span><span style="display:inline-block;width:2px;height:2px;border-radius:50%;
               background:#2A3555;vertical-align:middle;margin-left:6px;font-size:0;line-height:0;"></span>
           </td>
           <td style="height:1px;background:linear-gradient(90deg,#1A2445,transparent);font-size:0;line-height:0;"></td>
@@ -398,7 +361,6 @@ function cardFooterRow(text: string): string {
   return `
   <tr>
     <td class="card-footer" style="padding:0;">
-      <!-- Top rule -->
       <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
         <tr>
           <td style="height:1px;font-size:0;line-height:0;
@@ -498,7 +460,6 @@ export function buildOrderConfirmationEmail(order: Order, userName: string): str
       <td class="btn-pad" align="center" style="padding:0 40px 12px;">
         <table role="presentation" cellspacing="0" cellpadding="0" border="0">
           <tr>
-            <!-- Shimmer button with gold-ish gradient -->
             <td align="center" style="border-radius:1px;
               background:linear-gradient(135deg,#8899BB 0%,#C8D4E8 30%,#E8EEF8 50%,#C8D4E8 70%,#8899BB 100%);">
               <a href="${viewHref}"
@@ -537,11 +498,9 @@ export function buildOrderConfirmationEmail(order: Order, userName: string): str
     ${headerBlock()}
     ${statusBannerBlock('&mdash;&ensp;confirmed&ensp;&mdash;', 'Order Received', 'Your selection is being prepared')}
 
-    <!-- BODY -->
     <tr>
       <td class="body-padding" style="padding:40px 40px 30px;">
 
-        <!-- Greeting -->
         <p style="margin:0 0 32px;
           font-family:'Cormorant Garamond',Georgia,serif;
           font-size:17px;font-weight:400;font-style:italic;
@@ -550,7 +509,6 @@ export function buildOrderConfirmationEmail(order: Order, userName: string): str
           We are delighted to confirm your order. Each piece is handled with the utmost care and precision by our team.
         </p>
 
-        <!-- Two-column: Order Ref + Collection Point -->
         <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
           <tr>
             <td class="stack-col" valign="top"
@@ -564,7 +522,7 @@ export function buildOrderConfirmationEmail(order: Order, userName: string): str
               ${goldLabel('Collection Point')}
               ${fieldValue(
                 order.store_id ? 'Icon Vision Care &amp; Opticals' : 'To be confirmed',
-                order.store_id ? 'Ananthapur &nbsp;&middot;&nbsp; In-store Pickup' : undefined
+                order.store_id ? 'Ananthapuram &nbsp;&middot;&nbsp; In-store Pickup' : undefined
               )}
             </td>
           </tr>
@@ -575,7 +533,6 @@ export function buildOrderConfirmationEmail(order: Order, userName: string): str
 
     ${dividerRow()}
 
-    <!-- Items table -->
     <tr>
       <td class="items-pad" style="padding:0 40px 4px;">
         <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%"
@@ -626,12 +583,10 @@ export function buildOrderConfirmationEmail(order: Order, userName: string): str
     ${invoiceButtons}
     ${dividerRow()}
 
-    <!-- Info box -->
     <tr>
       <td class="info-pad" style="padding:0 40px 40px;">
         <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
           <tr>
-            <!-- Gold left accent bar -->
             <td style="width:3px;background:linear-gradient(180deg,transparent,#D4AA5A 25%,#A07D3A 75%,transparent);font-size:0;line-height:0;border-radius:2px;"></td>
             <td style="background:#030811;border:1px solid #0E1628;border-left:none;
               border-radius:0 2px 2px 0;padding:20px 24px;
@@ -648,7 +603,7 @@ export function buildOrderConfirmationEmail(order: Order, userName: string): str
       </td>
     </tr>
 
-    ${cardFooterRow(`Questions? Call us at <a href="tel:9676227094" style="color:#D4AA5A;text-decoration:none;">+91 96762 27094</a>`)}
+    ${cardFooterRow(`Questions? Call us at <a href="tel:9676227094" style="color:#D4AA5A;text-decoration:none;">+91 96762 27094</a> or <a href="tel:9154693939" style="color:#D4AA5A;text-decoration:none;">+91 91546 93939</a>`)}
   `
 
   return baseTemplate(inner)
@@ -673,11 +628,9 @@ export function buildBookingConfirmationEmail(booking: Booking, userName: string
     ${headerBlock()}
     ${statusBannerBlock('&mdash;&ensp;reserved&ensp;&mdash;', 'Appointment Confirmed', 'Your visit has been secured')}
 
-    <!-- BODY -->
     <tr>
       <td class="body-padding" style="padding:40px 40px 30px;">
 
-        <!-- Greeting -->
         <p style="margin:0 0 32px;
           font-family:'Cormorant Garamond',Georgia,serif;
           font-size:17px;font-weight:400;font-style:italic;
@@ -686,7 +639,6 @@ export function buildBookingConfirmationEmail(booking: Booking, userName: string
           Your appointment has been confirmed. We look forward to welcoming you.
         </p>
 
-        <!-- Two-column: Booking Ref + Location -->
         <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
           <tr>
             <td class="stack-col" valign="top"
@@ -711,7 +663,6 @@ export function buildBookingConfirmationEmail(booking: Booking, userName: string
 
     ${dividerRow()}
 
-    <!-- Two-column: Date/Time + Purpose -->
     <tr>
       <td class="field-pad" style="padding:0 40px 30px;">
         <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
@@ -746,7 +697,6 @@ export function buildBookingConfirmationEmail(booking: Booking, userName: string
 
     ${dividerRow()}
 
-    <!-- Info box -->
     <tr>
       <td class="info-pad" style="padding:0 40px 40px;">
         <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
@@ -760,14 +710,14 @@ export function buildBookingConfirmationEmail(booking: Booking, userName: string
               Kindly arrive <strong style="color:#C8D4E8;font-weight:500;">5&ndash;10 minutes</strong>
               before your scheduled time. If you need to reschedule, please call us at least
               2 hours in advance at
-              <strong style="color:#C8D4E8;font-weight:500;">+91 96762 27094</strong>.
+              <strong style="color:#C8D4E8;font-weight:500;">+91 96762 27094</strong> or <strong style="color:#C8D4E8;font-weight:500;">+91 91546 93939</strong>.
             </td>
           </tr>
         </table>
       </td>
     </tr>
 
-    ${cardFooterRow('Icon Vision Care &amp; Opticals &nbsp;&middot;&nbsp; Ananthapur')}
+    ${cardFooterRow('Icon Vision Care &amp; Opticals &nbsp;&middot;&nbsp; Ananthapuram')}
   `
 
   return baseTemplate(inner)
