@@ -348,7 +348,7 @@ export default function StoreBillingPage() {
 
   // ── Load stores on mount ───────────────────────────────────────────────
   useEffect(() => {
-    supabase.from('stores').select('id, name').eq('is_active', true).then(({ data }) => {
+    supabase.from('stores').select('id, name').eq('is_active', true).then(({ data }: { data: Array<{ id: string; name: string }> | null }) => {
       setStores((data || []) as Array<{ id: string; name: string }>)
       if (data?.[0]) setStoreId(data[0].id)
     })
@@ -1326,8 +1326,8 @@ function LensFlowModalWithPrice({ product, existingConfig: _existing, onClose, o
       .from('lens_packages')
       .select('code, price_addon')
       .eq('is_active', true)
-      .then(({ data }) => {
-        if (data) setPackages(data as Array<{ code: string; price_addon: number }>)
+      .then(({ data }: { data: Array<{ code: string; price_addon: number }> | null }) => {
+        if (data) setPackages(data)
       })
   }, [])
 
