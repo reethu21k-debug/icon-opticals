@@ -194,8 +194,8 @@ export function buildInvoiceHTML(
                 <div style="font-size:26px;font-weight:800;color:#2563eb;letter-spacing:-0.5px;">Icon Opticals - ATP</div>
                 <div style="font-size:13px;color:#6b7280;margin-top:4px;font-weight:500;">Precision Vision Care</div>
                 <div style="font-size:12px;color:#6b7280;margin-top:12px;line-height:1.5;">
-                  123 Main Bazaar Road, Anantapur, AP 515001<br/>
-                  Phone: +91 98765 43210<br/>
+                  Raju Road , Vaibhav Jewellers Opposite Road, Near Punjab National Bank , Kamala Nagar , Ananthapuram -515001<br/>
+                  Phone: 9676227094, 9154693939<br/>
                   Email: support@iconopticals-atp.com
                 </div>
               </td>
@@ -231,8 +231,7 @@ export function buildInvoiceHTML(
                 <div style="font-size:14px;color:#111827;font-weight:600;margin-bottom:4px;">Icon Opticals - ATP</div>
                 <div style="font-size:13px;color:#4b5563;line-height:1.6;">
                   GSTIN: 29XXXXX1234Z5<br/>
-                  State Code: 37 (Andhra Pradesh)<br/>
-                  PAN: ABCDE1234F
+                  State Code: 37 (Andhra Pradesh)
                 </div>
               </td>
             </tr>
@@ -398,8 +397,8 @@ function drawHeader(doc: Doc, order: InvoiceOrder): void {
   doc.font('Helvetica').fontSize(10).fillColor(GRAY).text('Precision Vision Care', L, 68, { lineBreak: false })
 
   doc.font('Helvetica').fontSize(9).fillColor(LIGHT)
-    .text('123 Main Bazaar Road, Anantapur, AP 515001', L, 84, { lineBreak: false })
-    .text('Ph: +91 98765 43210 | Email: support@iconopticals-atp.com', L, 96, { lineBreak: false })
+    .text('Raju Road , Vaibhav Jewellers Opposite Road, Near Punjab National Bank , Kamala Nagar , Ananthapuram -515001 ', L, 84, { width: 350 })
+    .text('Ph: 9676227094, 9154693939 | Email: support@iconopticals-atp.com', L, 106, { lineBreak: false })
 
   const invoiceDate = new Date(order.created_at).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })
 
@@ -459,7 +458,6 @@ function drawBillTo(doc: Doc, customerName: string, customerEmail: string, custo
   cell(doc, 'Icon Opticals - ATP', cx, startY + 18, colW, { font: 'Helvetica-Bold', size: 12, color: DARK })
   cell(doc, 'GSTIN: 29XXXXX1234Z5', cx, startY + 34, colW, { size: 10, color: GRAY })
   cell(doc, 'State Code: 37 (Andhra Pradesh)', cx, startY + 48, colW, { size: 10, color: GRAY })
-  cell(doc, 'PAN: ABCDE1234F', cx, startY + 62, colW, { size: 10, color: GRAY })
 }
 
 function drawTableHeader(doc: Doc, y: number): void {
@@ -509,8 +507,9 @@ function drawItems(doc: Doc, items: OrderItem[], startY: number, isAdminBilled: 
     if (hasRx)       rowH += 26  // two eye rows
     if (hasOverride) rowH += 16  // override note
 
-    // Page break guard (space for summary block below)
-    if (y + rowH > pageH - 200) {
+    // Guard to ensure there is enough space left below for the summary.
+    // Increased from 200 to 240 to prevent bottom overlap on edge cases.
+    if (y + rowH > pageH - 240) {
       doc.addPage()
       y = PAGE_MARGIN
       drawTableHeader(doc, y)
@@ -705,7 +704,9 @@ export async function generatePDFBuffer(
   return new Promise<Buffer>((resolve, reject) => {
     const doc = new PDFDocument({
       size:    'A4',
-      margins: { top: PAGE_MARGIN, bottom: PAGE_MARGIN, left: PAGE_MARGIN, right: PAGE_MARGIN },
+      // Fixed: Lowered the bottom margin parameter from default (40) to 15.
+      // This stops elements at the very bottom from forcing an invisible page break.
+      margins: { top: PAGE_MARGIN, bottom: 15, left: PAGE_MARGIN, right: PAGE_MARGIN },
       autoFirstPage: true,
       compress: true,
     })
