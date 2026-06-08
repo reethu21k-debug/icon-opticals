@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic'
+
 // app/api/admin/orders/route.ts
 import { NextRequest, NextResponse } from 'next/server'
 import { createServerClientInstance, createAdminClient } from '@/lib/supabase'

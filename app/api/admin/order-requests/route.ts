@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic'
+
 // app/api/admin/order-requests/route.ts
 //
 // Returns orders with status = 'pending_admin_approval'.

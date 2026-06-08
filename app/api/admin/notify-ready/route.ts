@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic'
+
 // app/api/admin/notify-ready/route.ts
 //
 // Thin server-side proxy that sends the "ready_for_pickup" WhatsApp message.

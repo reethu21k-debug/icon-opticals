@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic'
+
 // app/api/admin/products/route.ts
 //
 // Server-side API for admin product create / update / delete.

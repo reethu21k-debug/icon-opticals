@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic'
+
 // app/api/admin/upload-tryon-image/route.ts
 // ── Upload transparent PNG for Virtual Try-On overlay ────────────────────────
 //

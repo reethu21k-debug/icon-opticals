@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic'
+
 // app/api/admin/orders/[id]/reject/route.ts
 //
 // POST /api/admin/orders/:id/reject

@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic'
+
 // app/api/admin/orders/[id]/accept/route.ts
 //
 // POST /api/admin/orders/:id/accept
@@ -6,13 +8,8 @@
 //   1. Validate it is still pending_admin_approval
 //   2. Update status → confirmed, payment_status → paid
 //   3. Reduce stock (ONLY happens here, not at checkout)
-//   4. Generate invoice + send WhatsApp (AWAITED — not fire-and-forget)
-//   5. Return success, or success-with-warning if WhatsApp failed
-//
-// FIX: The invoice fetch is now awaited instead of fire-and-forget.
-// Previously, if the server process restarted or the fetch threw, the customer
-// never received their WhatsApp confirmation and no error was shown to the admin.
-// Now the admin sees a clear warning if the send fails, and can retry.
+//   4. Generate invoice (fire-and-forget — handles email + WhatsApp internally)
+//   5. Return success
 
 import { NextRequest, NextResponse } from 'next/server'
 import { createServerClientInstance, createAdminClient } from '@/lib/supabase'
@@ -104,16 +101,15 @@ export async function POST(
   }
 
   console.log(
-    `[ORDER_CONFIRMED] Order ${order.order_number} accepted by admin ${adminUser.id}.`,
-    `Stock reduced for ${orderItems.length} items.`,
+    `[accept-order] Order ${order.order_number} accepted by admin ${adminUser.id}.`,
+    `Stock reduced for ${orderItems.length} items. Triggering invoice generation.`,
   )
 
-  // ── Fetch customer phone for WhatsApp ─────────────────────────────────────
-  // Pass it directly to generate-invoice to avoid a race condition where the
-  // profile update from place-order hasn't committed yet.
+  // ── Trigger invoice generation (handles email + WhatsApp internally) ───────
   const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
-  let customerPhone: string | null = null
 
+  // Fetch customer phone for WhatsApp (pass it directly to avoid race conditions)
+  let customerPhone: string | null = null
   try {
     const { data: profileData } = await db
       .from('profiles')
@@ -125,54 +121,24 @@ export async function POST(
     console.warn('[accept-order] Could not fetch customer phone:', e)
   }
 
-  // ── Trigger invoice generation (AWAITED) ──────────────────────────────────
-  // generate-invoice handles: PDF creation → Cloudinary upload → email → WhatsApp.
-  //
-  // FIX: This was previously fire-and-forget (.catch only). If the server
-  // restarted mid-request the customer never got their WhatsApp message, and
-  // the admin had no idea. Now we await the result and show a warning if it
-  // fails, so the admin can act immediately.
-  console.log(`[WHATSAPP_SEND_START] Triggering invoice+WhatsApp for order ${order.order_number}`)
+  fetch(`${baseUrl}/api/generate-invoice`, {
+    method:  'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization:  `Bearer ${process.env.ADMIN_API_SECRET}`,
+    },
+    body: JSON.stringify({
+      order_id:     orderId,
+      order_number: order.order_number,
+      user_id:      order.user_id,
+      phone:        customerPhone,
+      force:        false,
+    }),
+  }).catch(err => console.error('[accept-order] Invoice trigger failed:', err))
 
-  let invoiceWarning: string | null = null
-
-  try {
-    const invoiceRes = await fetch(`${baseUrl}/api/generate-invoice`, {
-      method:  'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization:  `Bearer ${process.env.ADMIN_API_SECRET}`,
-      },
-      body: JSON.stringify({
-        order_id:     orderId,
-        order_number: order.order_number,
-        user_id:      order.user_id,
-        phone:        customerPhone,
-        force:        false,
-      }),
-    })
-
-    if (!invoiceRes.ok) {
-      const errBody = await invoiceRes.json().catch(() => ({ error: 'Unknown error' })) as { error?: string }
-      invoiceWarning = `Invoice/WhatsApp send failed: ${errBody.error ?? invoiceRes.statusText}. Order is confirmed — please retry WhatsApp from the order details page.`
-      console.error(`[WHATSAPP_SEND_FAILED] Order ${order.order_number}:`, invoiceWarning)
-    } else {
-      console.log(`[WHATSAPP_SEND_SUCCESS] Invoice+WhatsApp triggered for order ${order.order_number}`)
-    }
-  } catch (err) {
-    invoiceWarning = 'Invoice/WhatsApp trigger threw a network error. Order is confirmed — please retry WhatsApp from the order details page.'
-    console.error(`[WHATSAPP_SEND_FAILED] Order ${order.order_number} — fetch threw:`, err)
-  }
-
-  // ── Respond ───────────────────────────────────────────────────────────────
-  // Always return 200 — the order IS confirmed in the database.
-  // If WhatsApp failed, include a warning so the admin knows to follow up.
   return NextResponse.json({
     success:      true,
-    message:      invoiceWarning
-      ? 'Order confirmed. ⚠️ WhatsApp/Invoice failed — see warning.'
-      : 'Order confirmed. Invoice and WhatsApp sent.',
-    warning:      invoiceWarning ?? undefined,
+    message:      'Order accepted. Invoice generation triggered.',
     order_number: order.order_number,
   })
 }

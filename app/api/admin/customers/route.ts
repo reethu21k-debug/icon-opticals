@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic'
+
 // app/api/admin/customers/route.ts
 //
 // Admin Customers API

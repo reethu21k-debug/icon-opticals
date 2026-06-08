@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic'
+
 // app/api/admin/monthly-report/route.ts
 //
 // Generates a monthly confirmed-orders PDF report and streams it directly to

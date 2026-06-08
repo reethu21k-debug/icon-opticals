@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic'
+
 // app/api/admin/store-billing/route.ts
 //
 // Store Billing API — creates orders on behalf of walk-in customers.
