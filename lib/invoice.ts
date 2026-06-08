@@ -1,23 +1,6 @@
 import PDFDocument from 'pdfkit'
 
 // ---------------------------------------------------------------------------
-// PDFKit cold-start warmup
-// ---------------------------------------------------------------------------
-// PDFDocument registers built-in fonts synchronously on first construction.
-// Running a throwaway instance at module-load time means the work happens once
-// per container (cold start) rather than on the first real invoice request,
-// shaving ~100–200ms off the first request after a cold start.
-let _pdfkitWarmedUp = false
-function ensurePdfkitReady() {
-  if (_pdfkitWarmedUp) return
-  const warmup = new PDFDocument({ bufferPages: true })
-  warmup.end()
-  _pdfkitWarmedUp = true
-}
-// Trigger warmup immediately on module load (non-blocking — end() is sync enough here)
-ensurePdfkitReady()
-
-// ---------------------------------------------------------------------------
 // Types
 // ---------------------------------------------------------------------------
 
@@ -211,8 +194,10 @@ export function buildInvoiceHTML(
                 <div style="font-size:26px;font-weight:800;color:#2563eb;letter-spacing:-0.5px;">Icon Opticals - ATP</div>
                 <div style="font-size:13px;color:#6b7280;margin-top:4px;font-weight:500;">Precision Vision Care</div>
                 <div style="font-size:12px;color:#6b7280;margin-top:12px;line-height:1.5;">
-                  123 Main Bazaar Road, Anantapur, AP 515001<br/>
-                  Phone: +91 98765 43210<br/>
+                  Raju Road, Vaibhav Jewellers Opposite Road,<br/>
+                  Near Punjab National Bank, Kamala Nagar,<br/>
+                  Ananthapuram - 515001<br/>
+                  Phone: +91 96762 27094 / +91 91546 93939<br/>
                   Email: support@iconopticals-atp.com
                 </div>
               </td>
@@ -247,9 +232,8 @@ export function buildInvoiceHTML(
                 <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#2563eb;margin-bottom:8px;">Company Details</div>
                 <div style="font-size:14px;color:#111827;font-weight:600;margin-bottom:4px;">Icon Opticals - ATP</div>
                 <div style="font-size:13px;color:#4b5563;line-height:1.6;">
-                  GSTIN: 29XXXXX1234Z5<br/>
-                  State Code: 37 (Andhra Pradesh)<br/>
-                  PAN: ABCDE1234F
+                  GSTIN: 37BOFPM8364B1ZU<br/>
+                  State Code: 37 (Andhra Pradesh)
                 </div>
               </td>
             </tr>
@@ -415,8 +399,8 @@ function drawHeader(doc: Doc, order: InvoiceOrder): void {
   doc.font('Helvetica').fontSize(10).fillColor(GRAY).text('Precision Vision Care', L, 68, { lineBreak: false })
 
   doc.font('Helvetica').fontSize(9).fillColor(LIGHT)
-    .text('123 Main Bazaar Road, Anantapur, AP 515001', L, 84, { lineBreak: false })
-    .text('Ph: +91 98765 43210 | Email: support@iconopticals-atp.com', L, 96, { lineBreak: false })
+    .text('Raju Road, Vaibhav Jewellers Opp., Near PNB, Kamala Nagar, Ananthapuram - 515001', L, 84, { lineBreak: false })
+    .text('Ph: +91 96762 27094  |  +91 91546 93939', L, 96, { lineBreak: false })
 
   const invoiceDate = new Date(order.created_at).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })
 
@@ -474,9 +458,8 @@ function drawBillTo(doc: Doc, customerName: string, customerEmail: string, custo
 
   cell(doc, 'COMPANY DETAILS', cx, startY, colW, { font: 'Helvetica-Bold', size: 9, color: PRIMARY, characterSpacing: 1 })
   cell(doc, 'Icon Opticals - ATP', cx, startY + 18, colW, { font: 'Helvetica-Bold', size: 12, color: DARK })
-  cell(doc, 'GSTIN: 29XXXXX1234Z5', cx, startY + 34, colW, { size: 10, color: GRAY })
+  cell(doc, 'GSTIN: 37BOFPM8364B1ZU', cx, startY + 34, colW, { size: 10, color: GRAY })
   cell(doc, 'State Code: 37 (Andhra Pradesh)', cx, startY + 48, colW, { size: 10, color: GRAY })
-  cell(doc, 'PAN: ABCDE1234F', cx, startY + 62, colW, { size: 10, color: GRAY })
 }
 
 function drawTableHeader(doc: Doc, y: number): void {
@@ -719,7 +702,6 @@ export async function generatePDFBuffer(
   customerPhone?: string,
   customerAddress?: string,
 ): Promise<Buffer> {
-  ensurePdfkitReady() // no-op after first call; guards against module-level skip
   return new Promise<Buffer>((resolve, reject) => {
     const doc = new PDFDocument({
       size:    'A4',
