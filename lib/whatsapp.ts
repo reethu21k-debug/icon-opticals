@@ -57,13 +57,26 @@ async function fetchWithRetry(
 }
 
 // ── Format phone number to E.164 ─────────────────────────────────────────────
+// Normalises Indian numbers to the 12-digit form 91XXXXXXXXXX.
+//
+// The DB can end up with repeated "91" prefixes when the country code is
+// applied more than once (e.g. 9191XXXXXXXXXX or 919191XXXXXXXXXX).  A
+// single slice(2) only handles one level of duplication; any deeper nesting
+// falls through to the bare `return digits` path and is sent as-is to Meta,
+// which rejects non-E.164 numbers.  The while-loop below strips every extra
+// prefix in one pass, so the fix works for double, triple, or any depth.
 export function formatPhone(phone: string): string | null {
-  const digits = phone.replace(/\D/g, '')
-  if (digits.length < 10 || digits.length > 15) return null
-  if (digits.length === 10) return `91${digits}`
-  if (digits.startsWith('91') && digits.length === 12) return digits
-  if (digits.startsWith('9191') && digits.length === 14) return digits.slice(2)
-  return digits
+  let digits = phone.replace(/\D/g, '')
+
+  // Strip repeated leading '91' country-code prefixes until the number is
+  // no longer over-encoded (i.e. already canonical 12-digit or bare 10-digit).
+  while (digits.length > 12 && digits.startsWith('91')) {
+    digits = digits.slice(2)
+  }
+
+  if (digits.length === 10) return `91${digits}`                           // bare 10-digit → prepend country code
+  if (digits.startsWith('91') && digits.length === 12) return digits       // already E.164
+  return null                                                               // reject anything that didn't normalise
 }
 
 // ── Send plain-text fallback message ─────────────────────────────────────────
@@ -115,7 +128,7 @@ async function sendTemplateMessage(
   const formattedPhone = formatPhone(phone)
 
   if (!formattedPhone) {
-    const msg = `Invalid phone "${phone}" — ${phone.replace(/\D/g, '').length} digits after stripping (need 10–15)`
+    const msg = `Invalid phone "${phone}" — could not normalise to E.164 (expected bare 10-digit or 91-prefixed 12-digit Indian number)`
     console.error('[WhatsApp]', msg)
     return { success: false, error: msg }
   }
