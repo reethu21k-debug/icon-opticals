@@ -1,4 +1,5 @@
 export const dynamic = 'force-dynamic'
+export const maxDuration = 60 // awaits generate-invoice which can take up to ~30s
 
 // app/api/admin/orders/[id]/accept/route.ts
 //
@@ -8,7 +9,7 @@ export const dynamic = 'force-dynamic'
 //   1. Validate it is still pending_admin_approval
 //   2. Update status → confirmed, payment_status → paid
 //   3. Reduce stock (ONLY happens here, not at checkout)
-//   4. Generate invoice (fire-and-forget — handles email + WhatsApp internally)
+//   4. Await invoice generation (handles email + WhatsApp internally)
 //   5. Return success
 
 import { NextRequest, NextResponse } from 'next/server'
@@ -106,6 +107,13 @@ export async function POST(
   )
 
   // ── Trigger invoice generation (handles email + WhatsApp internally) ───────
+  //
+  // IMPORTANT: do NOT fire-and-forget here. Vercel freezes this function the
+  // instant `return NextResponse.json(...)` executes, killing any in-flight
+  // fetch that hasn't completed — which is why WhatsApp/email was silently
+  // dropped. Awaiting keeps this function alive until generate-invoice responds.
+  // generate-invoice has maxDuration=60 and only returns once PDF + WhatsApp
+  // + email are all done (via Promise.allSettled inside it).
   const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
 
   // Fetch customer phone for WhatsApp (pass it directly to avoid race conditions)
@@ -121,24 +129,29 @@ export async function POST(
     console.warn('[accept-order] Could not fetch customer phone:', e)
   }
 
-  fetch(`${baseUrl}/api/generate-invoice`, {
-    method:  'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization:  `Bearer ${process.env.ADMIN_API_SECRET}`,
-    },
-    body: JSON.stringify({
-      order_id:     orderId,
-      order_number: order.order_number,
-      user_id:      order.user_id,
-      phone:        customerPhone,
-      force:        false,
-    }),
-  }).catch(err => console.error('[accept-order] Invoice trigger failed:', err))
+  try {
+    await fetch(`${baseUrl}/api/generate-invoice`, {
+      method:  'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization:  `Bearer ${process.env.ADMIN_API_SECRET}`,
+      },
+      body: JSON.stringify({
+        order_id:     orderId,
+        order_number: order.order_number,
+        user_id:      order.user_id,
+        phone:        customerPhone,
+        force:        false,
+      }),
+    })
+  } catch (err) {
+    // Non-fatal: order is already confirmed. Log for visibility.
+    console.error('[accept-order] Invoice/WhatsApp trigger failed (order still confirmed):', err)
+  }
 
   return NextResponse.json({
     success:      true,
-    message:      'Order accepted. Invoice generation triggered.',
+    message:      'Order accepted. Invoice and WhatsApp notification sent.',
     order_number: order.order_number,
   })
 }

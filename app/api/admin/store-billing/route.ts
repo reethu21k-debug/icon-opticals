@@ -453,7 +453,14 @@ export async function POST(request: NextRequest) {
     }
 
     // ── STEP 10: New customer notifications ───────────────────────────────
+    //
+    // IMPORTANT: use Promise.allSettled and await — do NOT fire-and-forget.
+    // Vercel freezes this function the instant `return NextResponse.json(...)`
+    // executes, silently killing any in-flight fetch that hasn't completed.
+    // Awaiting keeps the function alive until both notifications are sent.
     if (isNewCustomer) {
+      const newCustomerNotifications: Promise<void>[] = []
+
       if (passwordSetupLink && customerEmail) {
         const setupHtml = `
           <div style="font-family:sans-serif;max-width:520px;margin:0 auto;padding:32px 24px;background:#f9fafb;">
@@ -469,15 +476,19 @@ export async function POST(request: NextRequest) {
             <p style="color:#9ca3af;font-size:12px;margin:4px 0 0;">— Icon Opticals</p>
           </div>
         `
-        fetch(`${baseUrl}/api/send-email`, {
-          method:  'POST',
-          headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${process.env.ADMIN_API_SECRET}` },
-          body: JSON.stringify({
-            to:   customerEmail,
-            type: 'generic_html',
-            data: { subject: 'Set up your Icon Opticals account', html: setupHtml },
-          }),
-        }).catch(err => console.error('[store-billing] setup email failed:', err))
+        newCustomerNotifications.push(
+          fetch(`${baseUrl}/api/send-email`, {
+            method:  'POST',
+            headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${process.env.ADMIN_API_SECRET}` },
+            body: JSON.stringify({
+              to:   customerEmail,
+              type: 'generic_html',
+              data: { subject: 'Set up your Icon Opticals account', html: setupHtml },
+            }),
+          })
+            .then(() => console.log(`[store-billing] ✅ Setup email sent → ${customerEmail}`))
+            .catch(err => console.error('[store-billing] ❌ Setup email failed:', err)),
+        )
       }
 
       if (customerPhone) {
@@ -494,21 +505,27 @@ export async function POST(request: NextRequest) {
               : '') +
             `Thank you for shopping with us!\n— Icon Opticals`
 
-          fetch(WA_API_URL, {
-            method:  'POST',
-            headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${process.env.WHATSAPP_ACCESS_TOKEN}` },
-            body: JSON.stringify({
-              messaging_product: 'whatsapp',
-              recipient_type:    'individual',
-              to:                formattedPhone,
-              type:              'text',
-              text:              { body: waText },
-            }),
-          }).catch(err => console.error('[store-billing] setup WhatsApp failed:', err))
+          newCustomerNotifications.push(
+            fetch(WA_API_URL, {
+              method:  'POST',
+              headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${process.env.WHATSAPP_ACCESS_TOKEN}` },
+              body: JSON.stringify({
+                messaging_product: 'whatsapp',
+                recipient_type:    'individual',
+                to:                formattedPhone,
+                type:              'text',
+                text:              { body: waText },
+              }),
+            })
+              .then(() => console.log(`[store-billing] ✅ Setup WhatsApp sent → ${formattedPhone}`))
+              .catch(err => console.error('[store-billing] ❌ Setup WhatsApp failed:', err)),
+          )
         }
       }
-    }
 
+      // Wait for all new-customer notifications before returning
+      await Promise.allSettled(newCustomerNotifications)
+    }
     return NextResponse.json({
       success:         true,
       order_id:        orderRecord.id,
