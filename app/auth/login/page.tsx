@@ -52,14 +52,14 @@ const LOGIN_CSS = `
     width: 100%;
     display: grid; grid-template-columns: 1.05fr 0.95fr; gap: 2rem;
     position: relative; z-index: 10;
-    height: 680px; /* Reduced absolute height for better laptop screen fit */
+    min-height: 680px; /* Swapped fixed height for min-height to allow expansion */
   }
   
   @media (max-width: 1024px) { 
     .lp-container { grid-template-columns: 1fr 1fr; gap: 1.5rem; } 
   }
   @media (max-width: 860px) {
-    .lp-container { grid-template-columns: 1fr; max-width: 520px; height: auto; }
+    .lp-container { grid-template-columns: 1fr; max-width: 520px; min-height: auto; }
     .lp-root { padding: 2rem 16px; }
     .lp-panel { display: none !important; }
   }
@@ -74,7 +74,7 @@ const LOGIN_CSS = `
     box-shadow: 0 40px 80px -20px rgba(0,0,0,0.6);
     opacity: 0; animation: blur-reveal 1.4s cubic-bezier(0.16,1,0.3,1) forwards;
     padding: 0;
-    height: 100%;
+    /* Removed height: 100% to let CSS Grid naturally stretch the container */
   }
 
   /* ═══════════════════════════════════════════════════════════════════
@@ -84,14 +84,14 @@ const LOGIN_CSS = `
   .lp-form-side {
     background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px);
     border: 1px solid #ffffff; border-radius: 24px; 
-    padding: 2.5rem 3.5rem; /* Slightly reduced top/bottom padding */
-    height: 100%; 
+    padding: 2.5rem 3.5rem; 
+    /* Removed height: 100% to let CSS Grid naturally stretch the container */ 
     box-shadow: 0 20px 40px rgba(0,0,0,0.03), inset 0 0 0 1px rgba(255,255,255,0.8);
     display: flex; flex-direction: column; justify-content: center; 
     opacity: 0; animation: blur-reveal 1.2s cubic-bezier(0.16,1,0.3,1) 0.2s forwards;
   }
   @media (max-width: 1200px) { .lp-form-side { padding: 2rem 3rem; } }
-  @media (max-width: 860px)  { .lp-form-side { padding: 2.5rem 2rem; height: auto; background: #ffffff; border: 1px solid #e5e7eb; box-shadow: 0 10px 30px rgba(0,0,0,0.05); } }
+  @media (max-width: 860px)  { .lp-form-side { padding: 2.5rem 2rem; background: #ffffff; border: 1px solid #e5e7eb; box-shadow: 0 10px 30px rgba(0,0,0,0.05); } }
 
   .anim-stagger { opacity: 0; }
   .loaded .anim-stagger { animation: lp-slide-up 0.9s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
