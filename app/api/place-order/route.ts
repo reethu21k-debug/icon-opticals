@@ -181,6 +181,21 @@ export async function POST(request: NextRequest) {
     }).select().single()
 
     if (orderError || !order) {
+      // Friendly error for duplicate UPI Transaction ID
+      if (
+        orderError?.code === '23505' ||
+        orderError?.message?.includes('DUPLICATE_PAYMENT_REFERENCE') ||
+        orderError?.message?.includes('idx_orders_payment_reference_unique')
+      ) {
+        return NextResponse.json(
+          {
+            error:
+              'This UPI Transaction ID has already been used for another order. ' +
+              'Please check your UPI app — your previous order may already be pending approval.',
+          },
+          { status: 409 },
+        )
+      }
       console.error('[place-order] Order creation failed:', orderError)
       return NextResponse.json({ error: 'Failed to create order' }, { status: 500 })
     }

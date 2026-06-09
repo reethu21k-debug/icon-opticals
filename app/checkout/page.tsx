@@ -42,6 +42,9 @@ function CheckoutPageInner() {
   // FIX: dedicated phone field for pickup orders — always required
   const [pickupPhone, setPickupPhone] = useState('')
 
+  // UPI payment flow
+  const [upiTransactionId, setUpiTransactionId] = useState('')
+
   const [placing, setPlacing] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
@@ -114,6 +117,13 @@ function CheckoutPageInner() {
 
     if (!summary.items.length) { setError('Your selection is empty.'); return }
 
+    // ── UPI Transaction ID validation ──────────────────────────────────────
+    const trimmedUpi = upiTransactionId.trim()
+    if (!trimmedUpi) {
+      setError('Please complete the UPI payment and enter your Transaction ID before placing the order.')
+      return
+    }
+
     setPlacing(true)
     try {
       const res = await fetch('/api/place-order', {
@@ -128,6 +138,8 @@ function CheckoutPageInner() {
           // FIX: always send the normalised phone — the API will upsert it into
           //       profiles.phone so generate-invoice can always reach the customer.
           phone: normPhone,
+          // UPI transaction ID for admin payment verification
+          payment_reference: trimmedUpi,
         }),
       })
       const data = await res.json()
@@ -343,16 +355,83 @@ function CheckoutPageInner() {
                 </div>
               </div>
 
+              {/* ── UPI Payment Section ──────────────────────────── */}
+              <div className="border-t border-slate-100 pt-8 space-y-6">
+                {/* QR Code */}
+                <div className="text-center">
+                  <p className="text-[10px] uppercase tracking-[0.2em] font-bold text-slate-900 mb-1">
+                    Pay via UPI
+                  </p>
+                  <p className="text-[9px] text-slate-400 mb-5 leading-relaxed">
+                    Scan the QR code with any UPI app — GPay, PhonePe, Paytm, etc.
+                  </p>
+                  <div className="inline-block border border-slate-200 p-3 bg-white shadow-sm">
+                    {/* QR code image — place your file at /public/upi-qr.png */}
+                    <img
+                      src="/upi-qr.png"
+                      alt="UPI Payment QR Code"
+                      width={180}
+                      height={180}
+                      className="block"
+                      onError={e => {
+                        const t = e.currentTarget
+                        t.style.display = 'none'
+                        const placeholder = t.nextElementSibling as HTMLElement | null
+                        if (placeholder) placeholder.style.display = 'flex'
+                      }}
+                    />
+                    {/* Shown only if /public/upi-qr.png is missing */}
+                    <div
+                      style={{ display: 'none' }}
+                      className="w-[180px] h-[180px] flex-col items-center justify-center text-slate-400 text-[9px] uppercase tracking-widest text-center gap-2"
+                    >
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" className="w-10 h-10 text-slate-300">
+                        <rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/>
+                        <rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="3" height="3"/>
+                        <rect x="19" y="14" width="2" height="2"/><rect x="14" y="19" width="7" height="2"/>
+                      </svg>
+                      <span>Add upi-qr.png<br/>to /public/</span>
+                    </div>
+                  </div>
+                  <p className="text-[9px] text-slate-500 mt-3 font-medium">
+                    Amount: <span className="font-bold text-slate-900">₹{summary.total.toLocaleString('en-IN')}</span>
+                  </p>
+                </div>
+
+                {/* UPI Transaction ID input */}
+                <div className="bg-amber-50 border border-amber-200 p-5">
+                  <p className="text-[9px] uppercase tracking-[0.15em] font-bold text-amber-800 mb-2">
+                    After payment
+                  </p>
+                  <p className="text-[10px] text-amber-700 leading-relaxed mb-4">
+                    Once your UPI payment is complete, enter the <strong>Transaction ID</strong> (UTR / Reference Number) below. Our admin will verify your payment and confirm the order.
+                  </p>
+                  <label className="text-[9px] font-bold text-slate-500 uppercase tracking-widest block mb-2">
+                    UPI Transaction ID <span className="text-slate-900">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    value={upiTransactionId}
+                    onChange={e => setUpiTransactionId(e.target.value)}
+                    placeholder="e.g. 423987654321"
+                    className="w-full text-sm font-mono text-slate-900 border border-slate-200 bg-white px-4 py-3 focus:outline-none focus:border-slate-900 hover:border-slate-400 transition-colors rounded-none appearance-none"
+                  />
+                  <p className="text-[9px] text-slate-400 mt-2 leading-relaxed">
+                    Find this in your UPI app under Payment History → Transaction details.
+                  </p>
+                </div>
+              </div>
+
               {/* Checkout Action */}
               <button
                 onClick={placeOrder}
                 disabled={placing}
-                className="mt-10 w-full py-4 bg-slate-900 hover:bg-slate-800 disabled:opacity-70 disabled:hover:bg-slate-900 text-white text-[10px] uppercase tracking-[0.2em] font-medium transition-colors flex items-center justify-center gap-3 group"
+                className="mt-8 w-full py-4 bg-slate-900 hover:bg-slate-800 disabled:opacity-70 disabled:hover:bg-slate-900 text-white text-[10px] uppercase tracking-[0.2em] font-medium transition-colors flex items-center justify-center gap-3 group"
               >
                 {placing ? (
-                  <><Loader2 size={16} strokeWidth={1.5} className="animate-spin" /> Authorizing...</>
+                  <><Loader2 size={16} strokeWidth={1.5} className="animate-spin" /> Submitting...</>
                 ) : (
-                  <>Secure Order <ChevronRight size={16} strokeWidth={1.5} className="group-hover:translate-x-1 transition-transform" /></>
+                  <>Submit Order <ChevronRight size={16} strokeWidth={1.5} className="group-hover:translate-x-1 transition-transform" /></>
                 )}
               </button>
 

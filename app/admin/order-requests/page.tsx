@@ -224,7 +224,7 @@ export default function OrderRequestsPage() {
               <tr>
                 {[
                   'Order ID', 'Customer', 'Contact', 'Amount',
-                  'Payment Status', 'Payment Ref', 'Date', 'Actions',
+                  'Payment Status', 'UPI Txn ID', 'Date', 'Actions',
                 ].map((h, i) => (
                   <th key={h} className={`py-5 text-[9px] font-bold uppercase tracking-[0.2em] text-slate-400 whitespace-nowrap ${i === 0 ? 'px-8' : 'px-6'}`}>
                     {h}
@@ -313,23 +313,18 @@ export default function OrderRequestsPage() {
                     </span>
                   </td>
 
-                  {/* Payment Reference */}
+                  {/* UPI Transaction ID */}
                   <td className="px-6 py-5">
-                    {order.payment_screenshot_url ? (
-                      <a
-                        href={order.payment_screenshot_url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="inline-flex items-center gap-2 px-3.5 py-2 bg-white/50 border border-slate-200/60 rounded-xl shadow-sm text-[9px] font-bold uppercase tracking-[0.15em] text-slate-700 hover:bg-white hover:border-slate-300 transition-all group/link"
-                      >
-                        <ExternalLink size={12} strokeWidth={2} className="text-slate-400 group-hover/link:text-slate-700 transition-colors" /> View Image
-                      </a>
-                    ) : order.payment_reference ? (
-                      <span className="text-[11px] text-slate-700 font-mono font-bold bg-white/50 border border-slate-200/60 px-3 py-1.5 rounded-lg shadow-sm">
+                    {order.payment_reference ? (
+                      <span className="text-[11px] text-slate-700 font-mono font-bold bg-white/50 border border-slate-200/60 px-3 py-1.5 rounded-lg shadow-sm tracking-wider">
                         {order.payment_reference}
                       </span>
+                    ) : order.payment_screenshot_url ? (
+                      <span className="inline-flex items-center gap-1.5 text-[10px] font-bold text-slate-500 bg-white/50 border border-slate-200/60 px-3 py-1.5 rounded-lg shadow-sm">
+                        <ExternalLink size={10} strokeWidth={2.5} /> Screenshot only
+                      </span>
                     ) : (
-                      <span className="text-[10px] text-slate-400 font-bold tracking-widest">—</span>
+                      <span className="text-[10px] text-rose-400 font-bold tracking-widest">Not provided</span>
                     )}
                   </td>
 
@@ -414,6 +409,70 @@ export default function OrderRequestsPage() {
 
             <div className="p-6 md:p-10 overflow-y-auto custom-scrollbar space-y-8">
               
+              {/* ── UPI Transaction ID Verification Callout ──────── */}
+              {(selectedOrder.payment_reference || selectedOrder.payment_screenshot_url) ? (
+                <div className="bg-emerald-50/80 border border-emerald-200 rounded-2xl p-6">
+                  <div className="flex items-start gap-4">
+                    <div className="p-2.5 bg-emerald-100 rounded-xl flex-shrink-0">
+                      <ShieldCheck size={18} strokeWidth={2.5} className="text-emerald-600" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-[9px] uppercase tracking-[0.25em] font-bold text-emerald-700 mb-1.5">
+                        UPI Payment Submitted
+                      </p>
+                      {selectedOrder.payment_reference && (
+                        <>
+                          <p className="text-[10px] text-emerald-700/80 font-medium mb-2">
+                            Cross-check this Transaction ID in your UPI app / bank portal before accepting:
+                          </p>
+                          <div className="bg-white border border-emerald-200 rounded-xl px-5 py-3 flex items-center justify-between gap-3">
+                            <span className="font-mono font-bold text-slate-900 text-sm tracking-wider break-all">
+                              {selectedOrder.payment_reference}
+                            </span>
+                            <button
+                              onClick={() => navigator.clipboard?.writeText(selectedOrder.payment_reference!)}
+                              title="Copy Transaction ID"
+                              className="text-slate-400 hover:text-slate-700 transition-colors flex-shrink-0 p-1.5 hover:bg-slate-100 rounded-lg"
+                            >
+                              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                <rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+                              </svg>
+                            </button>
+                          </div>
+                          <p className="text-[9px] text-emerald-600/70 mt-2 font-medium">
+                            Verify amount: ₹{selectedOrder.total_amount?.toLocaleString('en-IN')} · Customer: {selectedOrder.profile?.full_name}
+                          </p>
+                        </>
+                      )}
+                      {selectedOrder.payment_screenshot_url && (
+                        <a
+                          href={selectedOrder.payment_screenshot_url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="mt-3 inline-flex items-center gap-2 px-4 py-2 bg-white border border-emerald-200 rounded-xl text-[9px] font-bold uppercase tracking-[0.15em] text-emerald-700 hover:bg-emerald-50 transition-all"
+                        >
+                          <ExternalLink size={12} strokeWidth={2.5} /> View Screenshot
+                        </a>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <div className="bg-amber-50/80 border border-amber-200 rounded-2xl p-5 flex items-start gap-4">
+                  <div className="p-2 bg-amber-100 rounded-xl flex-shrink-0">
+                    <Clock size={16} strokeWidth={2.5} className="text-amber-600" />
+                  </div>
+                  <div>
+                    <p className="text-[9px] uppercase tracking-[0.2em] font-bold text-amber-700 mb-1">
+                      No Transaction ID Provided
+                    </p>
+                    <p className="text-[10px] text-amber-600/80 font-medium leading-relaxed">
+                      Customer did not submit a UPI Transaction ID. Contact them before accepting.
+                    </p>
+                  </div>
+                </div>
+              )}
+
               <div className="bg-white/50 border border-white shadow-[0_8px_30px_rgba(15,23,42,0.04)] rounded-3xl p-2">
                 {[
                   ['Client Profile',    selectedOrder.profile?.full_name],
@@ -423,14 +482,14 @@ export default function OrderRequestsPage() {
                   ['Fulfillment',       selectedOrder.fulfillment_type],
                   ['Coupon Applied',    selectedOrder.coupon_code || 'None'],
                   ['Discount Value',    selectedOrder.discount_amount > 0 ? `₹${selectedOrder.discount_amount}` : 'None'],
-                  ['Payment Ref',       selectedOrder.payment_reference || 'Not provided'],
+                  ['UPI Txn ID',        selectedOrder.payment_reference || 'Not provided'],
                   ['Timestamp',         `${fmtDate(selectedOrder.created_at)} at ${fmtTime(selectedOrder.created_at)}`],
                 ]
                   .filter(([, v]) => v)
                   .map(([k, v], i, arr) => (
                     <div key={k as string} className={`flex justify-between items-center py-4 px-6 ${i !== arr.length - 1 ? 'border-b border-slate-200/50' : ''}`}>
                       <span className="text-[10px] uppercase tracking-[0.15em] font-bold text-slate-400">{k}</span>
-                      <span className="text-xs font-bold text-slate-900 text-right ml-4 max-w-[60%] leading-snug">{v}</span>
+                      <span className={`text-xs font-bold text-right ml-4 max-w-[60%] leading-snug ${k === 'UPI Txn ID' && selectedOrder.payment_reference ? 'font-mono text-slate-900 tracking-wider' : 'text-slate-900'}`}>{v}</span>
                     </div>
                   ))}
               </div>
@@ -444,20 +503,6 @@ export default function OrderRequestsPage() {
                     <p className="text-[10px] uppercase tracking-[0.2em] font-bold text-slate-900 mb-2">Client Notes</p>
                     <p className="text-[12px] text-slate-600 font-medium italic leading-relaxed">&quot;{selectedOrder.notes}&quot;</p>
                   </div>
-                </div>
-              )}
-
-              {selectedOrder.payment_screenshot_url && (
-                <div className="bg-white/50 border border-white shadow-[0_8px_30px_rgba(15,23,42,0.04)] rounded-3xl p-8 text-center">
-                  <p className="text-[10px] uppercase tracking-[0.2em] text-slate-500 mb-4 font-bold">Payment Verification</p>
-                  <a
-                    href={selectedOrder.payment_screenshot_url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center justify-center gap-2 px-6 py-4 bg-white border border-slate-200/60 shadow-sm hover:shadow-md rounded-xl text-[10px] uppercase tracking-[0.15em] font-bold text-slate-700 hover:text-slate-900 hover:border-slate-300 transition-all w-full"
-                  >
-                    <ExternalLink size={14} strokeWidth={2.5} /> View Uploaded Screenshot
-                  </a>
                 </div>
               )}
 

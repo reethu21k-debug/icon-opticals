@@ -15,10 +15,13 @@ const nextConfig = {
   // paths (e.g. .next/server/app/api/generate-invoice/route.js), not the URL
   // path — so the narrow key silently fails to match and pdfkit is stripped.
   // Using '**' guarantees inclusion regardless of the compiled path format.
+  //
+  // NOTE: In Next.js 14.1+, outputFileTracingIncludes moved OUT of
+  // `experimental` and became a top-level key. However Next.js 14.2.3
+  // (this project) still reports it as unrecognised at the top level
+  // because the stable promotion wasn't complete until 15.x.
+  // The correct location for 14.2.x is inside `experimental`.
   // ─────────────────────────────────────────────────────────────────────────
-  outputFileTracingIncludes: {
-    '**': ['./node_modules/pdfkit/**/*'],
-  },
 
   images: {
     remotePatterns: [
@@ -49,13 +52,20 @@ const nextConfig = {
   poweredByHeader: false,
   reactStrictMode: true,
 
+  // Keep pdfkit and cloudinary as external (native require) so that
+  // Node.js resolves them from node_modules at runtime rather than
+  // having webpack attempt to bundle them.
+  // NOTE: In Next.js 14.x this key is `serverComponentsExternalPackages`
+  // inside `experimental`. It was renamed to top-level `serverExternalPackages`
+  // only in Next.js 15. Using the 15.x name here causes the warning.
+
   experimental: {
     optimizePackageImports: ['lucide-react'],
-    // Keep pdfkit and cloudinary as external (native require) so that
-    // Node.js resolves them from node_modules at runtime rather than
-    // having webpack attempt to bundle them. Works in tandem with
-    // outputFileTracingIncludes above.
     serverComponentsExternalPackages: ['pdfkit', 'cloudinary', 'sharp', 'nodemailer'],
+    // outputFileTracingIncludes lives here in Next.js 14.2.x
+    outputFileTracingIncludes: {
+      '**': ['./node_modules/pdfkit/**/*'],
+    },
   },
 
   async headers() {
