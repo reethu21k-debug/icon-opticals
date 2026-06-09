@@ -643,7 +643,7 @@ function drawBottomSection(doc: Doc, order: InvoiceOrder, afterItemsY: number): 
   cell(doc, formatINR(order.total_amount ?? 0), summaryX + labelW, y, valueW, { font: 'Helvetica-Bold', size: 18, align: 'right', color: PRIMARY })
   y += 24
 
-  cell(doc, 'Amount Paid', summaryX, y, labelW, { font: 'Helvetica-Bold', size: 11, color: GREEN })
+  cell(doc, 'Amount Paid', summaryX, y, labelW, { font: 'Helvetic-Bold', size: 11, color: GREEN })
   cell(doc, formatINR(order.total_amount ?? 0), summaryX + labelW, y, valueW, { font: 'Helvetica-Bold', size: 11, align: 'right', color: GREEN })
   y += 18
   cell(doc, 'Balance Due', summaryX, y, labelW, { font: 'Helvetica-Bold', size: 11, color: GRAY })
@@ -681,14 +681,28 @@ function drawBottomSection(doc: Doc, order: InvoiceOrder, afterItemsY: number): 
   cell(doc, 'Authorized Signatory', signX, signY + 36, 150, { font: 'Helvetica-Bold', size: 10, align: 'center', color: DARK })
 }
 
+// ---------------------------------------------------------------------------
+// FIX: footerY was doc.page.height - 40, placing the text at
+//      doc.page.height - 28  which exceeds PDFKit's maxY()
+//      (page.height - bottomMargin = ~801.89 on A4).
+//      PDFKit triggers addPage() when y > maxY(), creating a blank page 2.
+//      Solution: raise footerY by 18 pts so both the rule and the text
+//      sit comfortably inside the usable page area.
+// ---------------------------------------------------------------------------
 function drawFooter(doc: Doc): void {
   const L = PAGE_MARGIN
   const contentW = doc.page.width - PAGE_MARGIN * 2
-  const footerY  = doc.page.height - 40
+  // ← FIXED: was (doc.page.height - 40); rule at 783, text at 791 < maxY 801
+  const footerY  = doc.page.height - 58
 
   hRule(doc, footerY, DIVIDER, 0.75)
   doc.font('Helvetica').fontSize(9).fillColor(LIGHT)
-    .text('This is a computer generated receipt and requires no physical signature.', L, footerY + 12, { width: contentW, align: 'center', lineBreak: false })
+    .text(
+      'This is a computer generated receipt and requires no physical signature.',
+      L,
+      footerY + 8,   // ← FIXED: was +12; now 791 which is safely below maxY
+      { width: contentW, align: 'center', lineBreak: false },
+    )
 }
 
 // ---------------------------------------------------------------------------
