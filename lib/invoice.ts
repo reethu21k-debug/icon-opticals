@@ -70,8 +70,13 @@ function lensLabel(cfg: LensConfig): string {
 }
 
 // Format a signed diopter value like +1.25 / -0.50
-function fmtDiopter(v: number | undefined | null): string {
-  if (v == null) return '—'
+// NOTE: PDFKit's built-in Helvetica uses WinAnsi encoding which does NOT
+// include the em-dash (U+2014). Using it causes corrupted or missing glyphs
+// in the PDF. We use 'N/A' as the safe ASCII fallback for PDF rendering.
+// The HTML email template (buildInvoiceHTML) keeps '—' since HTML renderers
+// handle Unicode fine.
+function fmtDiopter(v: number | undefined | null, forPDF = false): string {
+  if (v == null) return forPDF ? 'N/A' : '\u2014'
   return (v >= 0 ? '+' : '') + v.toFixed(2)
 }
 
@@ -110,7 +115,7 @@ export function buildInvoiceHTML(
             <td style="font-size:10px;color:#6b7280;padding:1px 6px;">${label}</td>
             <td style="font-size:10px;color:#374151;padding:1px 6px;">Sph: ${fmtDiopter(eye.sph)}</td>
             <td style="font-size:10px;color:#374151;padding:1px 6px;">Cyl: ${fmtDiopter(eye.cyl)}</td>
-            <td style="font-size:10px;color:#374151;padding:1px 6px;">Axis: ${eye.axis ?? '—'}°</td>
+            <td style="font-size:10px;color:#374151;padding:1px 6px;">Axis: ${eye.axis ?? '\u2014'}&deg;</td>
           </tr>` : ''
 
         rxHtml = `
@@ -551,7 +556,10 @@ function drawItems(doc: Doc, items: OrderItem[], startY: number, isAdminBilled: 
       if (hasRx) {
         const eyeLine = (label: string, eye: typeof cfg.left_eye) => {
           if (!eye) return
-          const rxText = `${label}  Sph: ${fmtDiopter(eye.sph)}  Cyl: ${fmtDiopter(eye.cyl)}  Ax: ${eye.axis ?? '—'}°`
+          // Use forPDF=true so fmtDiopter returns ASCII 'N/A' instead of em-dash
+          // Axis fallback also uses ASCII — WinAnsi has no em-dash (U+2014)
+          const axisStr = eye.axis != null ? `${eye.axis}` : 'N/A'
+          const rxText = `${label}  Sph: ${fmtDiopter(eye.sph, true)}  Cyl: ${fmtDiopter(eye.cyl, true)}  Ax: ${axisStr} deg`
           cell(doc, rxText, cx + 4, detailY, COL.product - 8, { size: 8, color: GRAY })
           detailY += 12
         }
@@ -562,15 +570,18 @@ function drawItems(doc: Doc, items: OrderItem[], startY: number, isAdminBilled: 
           detailY += 12
         }
       } else if (cfg.upload_later) {
-        cell(doc, '⚠ Prescription pending', cx + 4, detailY, COL.product - 8, { size: 8, color: AMBER })
+        cell(doc, '! Prescription pending', cx + 4, detailY, COL.product - 8, { size: 8, color: AMBER })
         detailY += 12
       }
     }
 
     // ── Price override note ────────────────────────────────────────────────
-    if (hasOverride && ov) {
+    // Only render for admin-billed orders; non-admin orders never have overrides
+    if (hasOverride && ov && isAdminBilled) {
       doc.roundedRect(cx, detailY, 160, 14, 2).fillColor(AMBER_BG).fill()
-      const overrideText = `✏ Rs.${ov.original_price.toLocaleString('en-IN')} → Rs.${ov.overridden_price.toLocaleString('en-IN')}  ${ov.reason ? `| ${ov.reason}` : ''}`
+      // Use ASCII '*' instead of the pencil emoji — PDFKit Helvetica (WinAnsi)
+      // does not include Unicode emoji and will silently drop or corrupt them
+      const overrideText = `* Rs.${ov.original_price.toLocaleString('en-IN')} -> Rs.${ov.overridden_price.toLocaleString('en-IN')}  ${ov.reason ? `| ${ov.reason}` : ''}`
       cell(doc, overrideText, cx + 4, detailY + 3, 154, { size: 7.5, color: AMBER })
     }
 
@@ -643,7 +654,7 @@ function drawBottomSection(doc: Doc, order: InvoiceOrder, afterItemsY: number): 
   cell(doc, formatINR(order.total_amount ?? 0), summaryX + labelW, y, valueW, { font: 'Helvetica-Bold', size: 18, align: 'right', color: PRIMARY })
   y += 24
 
-  cell(doc, 'Amount Paid', summaryX, y, labelW, { font: 'Helvetic-Bold', size: 11, color: GREEN })
+  cell(doc, 'Amount Paid', summaryX, y, labelW, { font: 'Helvetica-Bold', size: 11, color: GREEN })
   cell(doc, formatINR(order.total_amount ?? 0), summaryX + labelW, y, valueW, { font: 'Helvetica-Bold', size: 11, align: 'right', color: GREEN })
   y += 18
   cell(doc, 'Balance Due', summaryX, y, labelW, { font: 'Helvetica-Bold', size: 11, color: GRAY })
@@ -664,7 +675,8 @@ function drawBottomSection(doc: Doc, order: InvoiceOrder, afterItemsY: number): 
   if (isAdminBilled && hasAnyOverride) {
     const noteY = leftY + 70
     doc.roundedRect(L, noteY, 230, 34, 4).fillColor(AMBER_BG).fill()
-    cell(doc, '✏ Custom Pricing Applied', L + 8, noteY + 6, 214, { font: 'Helvetica-Bold', size: 8, color: AMBER, characterSpacing: 0.3 })
+    // ASCII '*' instead of pencil emoji — PDFKit Helvetica (WinAnsi) has no emoji support
+    cell(doc, '* Custom Pricing Applied', L + 8, noteY + 6, 214, { font: 'Helvetica-Bold', size: 8, color: AMBER, characterSpacing: 0.3 })
     cell(doc, 'One or more items billed at store-adjusted price.', L + 8, noteY + 18, 214, { size: 8, color: AMBER })
   }
 
@@ -675,10 +687,16 @@ function drawBottomSection(doc: Doc, order: InvoiceOrder, afterItemsY: number): 
   cell(doc, '2. All disputes are subject to ATP jurisdiction only.', L, termsY + 22, 250, { size: 8, color: GRAY })
 
   // Authorized Signatory
+  // Guard: only draw if we have enough vertical space; if afterItemsY pushed
+  // everything too low the signatory line would overflow the page and trigger
+  // PDFKit to silently append a blank page 2.
+  const pageUsableBottom = doc.page.height - PAGE_MARGIN - 80 // 80pt safety margin above footer
   const signY    = termsY - 5
   const signX    = doc.page.width - PAGE_MARGIN - 150
-  doc.moveTo(signX, signY + 30).lineTo(signX + 150, signY + 30).strokeColor(DARK).lineWidth(1).stroke()
-  cell(doc, 'Authorized Signatory', signX, signY + 36, 150, { font: 'Helvetica-Bold', size: 10, align: 'center', color: DARK })
+  if (signY + 50 <= pageUsableBottom) {
+    doc.moveTo(signX, signY + 30).lineTo(signX + 150, signY + 30).strokeColor(DARK).lineWidth(1).stroke()
+    cell(doc, 'Authorized Signatory', signX, signY + 36, 150, { font: 'Helvetica-Bold', size: 10, align: 'center', color: DARK })
+  }
 }
 
 // ---------------------------------------------------------------------------
