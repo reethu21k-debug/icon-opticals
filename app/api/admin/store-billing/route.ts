@@ -436,7 +436,7 @@ export async function POST(request: NextRequest) {
     // Awaiting keeps the function alive until generate-invoice responds.
     // generate-invoice has maxDuration=60 and returns once the PDF is uploaded.
     try {
-      await fetch(`${baseUrl}/api/generate-invoice`, {
+      const invoiceRes = await fetch(`${baseUrl}/api/generate-invoice`, {
         method:  'POST',
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${process.env.ADMIN_API_SECRET}` },
         body: JSON.stringify({
@@ -447,9 +447,25 @@ export async function POST(request: NextRequest) {
           phone:        customerPhone,
         }),
       })
+
+      // FIX: await fetch() only throws on network errors, NOT on HTTP 4xx/5xx.
+      // Without this check, a 500 from generate-invoice (e.g. pdfkit crashing
+      // because its AFM font files are missing from the Vercel bundle) was
+      // completely invisible — the order appeared to succeed but no invoice,
+      // email, or WhatsApp was ever sent. Now failures are visible in Vercel logs.
+      if (!invoiceRes.ok) {
+        const errBody = await invoiceRes.json().catch(() => ({}))
+        console.error(
+          `[store-billing] ❌ generate-invoice HTTP ${invoiceRes.status} for order ${orderRecord.order_number as string}:`,
+          errBody,
+        )
+      } else {
+        console.log(`[store-billing] ✅ Invoice generated for order ${orderRecord.order_number as string}`)
+      }
     } catch (err) {
+      // Network-level error (DNS failure, connection refused, etc.)
       // Non-fatal: order already created. Log for visibility.
-      console.error('[store-billing] invoice trigger failed (order still created):', err)
+      console.error('[store-billing] invoice trigger network error (order still created):', err)
     }
 
     // ── STEP 10: New customer notifications ───────────────────────────────

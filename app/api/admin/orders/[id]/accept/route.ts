@@ -1,3 +1,4 @@
+export const runtime = 'nodejs' // pdfkit + Supabase admin client require Node.js
 export const dynamic = 'force-dynamic'
 export const maxDuration = 60 // awaits generate-invoice which can take up to ~30s
 
@@ -40,6 +41,22 @@ export async function POST(
 
   const orderId = params.id
   if (!orderId) return NextResponse.json({ error: 'Order ID required' }, { status: 400 })
+
+  // ── Resolve baseUrl ────────────────────────────────────────────────────────
+  //
+  // FIX: The old code used `|| 'http://localhost:3000'` as a fallback.
+  // On Vercel, if NEXT_PUBLIC_APP_URL is not set, this made the
+  // generate-invoice fetch target localhost — which doesn't exist in the
+  // serverless environment, so the invoice call silently failed and no
+  // invoice, email, or WhatsApp was ever sent.
+  //
+  // Correct fallback chain:
+  //   1. NEXT_PUBLIC_APP_URL (explicit production URL — always set this in Vercel)
+  //   2. VERCEL_URL          (automatically injected by Vercel per-deployment)
+  //   3. http://localhost:3000 (local dev only)
+  const baseUrl =
+    process.env.NEXT_PUBLIC_APP_URL ||
+    (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'http://localhost:3000')
 
   const db = createAdminClient()
 
@@ -114,7 +131,6 @@ export async function POST(
   // dropped. Awaiting keeps this function alive until generate-invoice responds.
   // generate-invoice has maxDuration=60 and only returns once PDF + WhatsApp
   // + email are all done (via Promise.allSettled inside it).
-  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
 
   // Fetch customer phone for WhatsApp (pass it directly to avoid race conditions)
   let customerPhone: string | null = null
@@ -130,7 +146,7 @@ export async function POST(
   }
 
   try {
-    await fetch(`${baseUrl}/api/generate-invoice`, {
+    const invoiceRes = await fetch(`${baseUrl}/api/generate-invoice`, {
       method:  'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -144,9 +160,24 @@ export async function POST(
         force:        false,
       }),
     })
+
+    // FIX: await fetch() only throws on network errors, NOT on HTTP 4xx/5xx.
+    // The old code's catch block never ran for HTTP 500 responses from
+    // generate-invoice, so PDF generation failures were completely invisible.
+    // Checking res.ok surfaces the error in Vercel logs for debugging.
+    if (!invoiceRes.ok) {
+      const errBody = await invoiceRes.json().catch(() => ({}))
+      console.error(
+        `[accept-order] ❌ generate-invoice failed with HTTP ${invoiceRes.status} for order ${order.order_number as string}:`,
+        errBody,
+      )
+    } else {
+      console.log(`[accept-order] ✅ Invoice generated for order ${order.order_number as string}`)
+    }
   } catch (err) {
+    // Network-level error (DNS failure, connection refused, etc.)
     // Non-fatal: order is already confirmed. Log for visibility.
-    console.error('[accept-order] Invoice/WhatsApp trigger failed (order still confirmed):', err)
+    console.error('[accept-order] generate-invoice network error (order still confirmed):', err)
   }
 
   return NextResponse.json({

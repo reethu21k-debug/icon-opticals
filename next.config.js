@@ -1,5 +1,21 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  // ─────────────────────────────────────────────────────────────────────────
+  // FIX: pdfkit reads AFM font-metric files at runtime using __dirname +
+  // dynamic string paths (e.g. path.join(__dirname, 'data', fontName+'.afm')).
+  // Vercel's static file tracer (@vercel/nft) cannot detect these dynamic
+  // requires, so it omits the /data/ directory from the function bundle.
+  // Result: PDF generation throws ENOENT and generate-invoice returns 500 —
+  // the caller (store-billing / accept-order) swallows the HTTP error, the
+  // order appears to succeed, but no invoice, email, or WhatsApp is sent.
+  //
+  // Fix: explicitly include ALL pdfkit files so they are present on disk
+  // inside the serverless function at runtime.
+  // ─────────────────────────────────────────────────────────────────────────
+  outputFileTracingIncludes: {
+    '/api/generate-invoice': ['./node_modules/pdfkit/**/*'],
+  },
+
   images: {
     remotePatterns: [
       {
@@ -31,6 +47,10 @@ const nextConfig = {
 
   experimental: {
     optimizePackageImports: ['lucide-react'],
+    // Keep pdfkit and cloudinary as external (native require) so that
+    // Node.js resolves them from node_modules at runtime rather than
+    // having webpack attempt to bundle them. Works in tandem with
+    // outputFileTracingIncludes above.
     serverComponentsExternalPackages: ['pdfkit', 'cloudinary'],
   },
 
