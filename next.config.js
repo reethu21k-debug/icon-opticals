@@ -9,11 +9,15 @@ const nextConfig = {
   // the caller (store-billing / accept-order) swallows the HTTP error, the
   // order appears to succeed, but no invoice, email, or WhatsApp is sent.
   //
-  // Fix: explicitly include ALL pdfkit files so they are present on disk
-  // inside the serverless function at runtime.
+  // Fix: use '**' as the key so pdfkit files are included in ALL serverless
+  // functions. The narrower key '/api/generate-invoice' is unreliable with
+  // Next.js 14 App Router because @vercel/nft matches against compiled output
+  // paths (e.g. .next/server/app/api/generate-invoice/route.js), not the URL
+  // path — so the narrow key silently fails to match and pdfkit is stripped.
+  // Using '**' guarantees inclusion regardless of the compiled path format.
   // ─────────────────────────────────────────────────────────────────────────
   outputFileTracingIncludes: {
-    '/api/generate-invoice': ['./node_modules/pdfkit/**/*'],
+    '**': ['./node_modules/pdfkit/**/*'],
   },
 
   images: {
@@ -51,7 +55,7 @@ const nextConfig = {
     // Node.js resolves them from node_modules at runtime rather than
     // having webpack attempt to bundle them. Works in tandem with
     // outputFileTracingIncludes above.
-    serverComponentsExternalPackages: ['pdfkit', 'cloudinary'],
+    serverComponentsExternalPackages: ['pdfkit', 'cloudinary', 'sharp', 'nodemailer'],
   },
 
   async headers() {

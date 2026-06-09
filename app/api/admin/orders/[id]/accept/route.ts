@@ -1,20 +1,26 @@
 export const runtime = 'nodejs' // pdfkit + Supabase admin client require Node.js
 export const dynamic = 'force-dynamic'
-export const maxDuration = 60 // awaits generate-invoice which can take up to ~30s
+export const maxDuration = 60
 
 // app/api/admin/orders/[id]/accept/route.ts
 //
 // POST /api/admin/orders/:id/accept
 //
-// When admin accepts an order:
-//   1. Validate it is still pending_admin_approval
-//   2. Update status → confirmed, payment_status → paid
-//   3. Reduce stock (ONLY happens here, not at checkout)
-//   4. Await invoice generation (handles email + WhatsApp internally)
-//   5. Return success
+// FIX: Previously this route called fetch('/api/generate-invoice', ...)
+// which made an internal HTTP request to another serverless function.
+// On Vercel this is unreliable — it adds a cold-start, goes through the
+// public routing layer, and can fail silently if NEXT_PUBLIC_APP_URL is
+// wrong or not set. The fix is to import the logic directly and run it
+// in the same function execution, which is faster and always works.
 
 import { NextRequest, NextResponse } from 'next/server'
 import { createServerClientInstance, createAdminClient } from '@/lib/supabase'
+import { generatePDFBuffer, buildInvoiceHTML } from '@/lib/invoice'
+import type { InvoiceOrder } from '@/lib/invoice'
+import { uploadInvoicePDF } from '@/lib/cloudinary'
+import { sendEmail, buildOrderConfirmationEmail } from '@/lib/email'
+import { sendOrderConfirmedWhatsApp } from '@/lib/whatsapp'
+import type { Order } from '@/types'
 
 async function getAdminUser() {
   const supabase = await createServerClientInstance()
@@ -42,25 +48,13 @@ export async function POST(
   const orderId = params.id
   if (!orderId) return NextResponse.json({ error: 'Order ID required' }, { status: 400 })
 
-  // ── Resolve baseUrl ────────────────────────────────────────────────────────
-  //
-  // FIX: The old code used `|| 'http://localhost:3000'` as a fallback.
-  // On Vercel, if NEXT_PUBLIC_APP_URL is not set, this made the
-  // generate-invoice fetch target localhost — which doesn't exist in the
-  // serverless environment, so the invoice call silently failed and no
-  // invoice, email, or WhatsApp was ever sent.
-  //
-  // Correct fallback chain:
-  //   1. NEXT_PUBLIC_APP_URL (explicit production URL — always set this in Vercel)
-  //   2. VERCEL_URL          (automatically injected by Vercel per-deployment)
-  //   3. http://localhost:3000 (local dev only)
   const baseUrl =
     process.env.NEXT_PUBLIC_APP_URL ||
     (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'http://localhost:3000')
 
   const db = createAdminClient()
 
-  // ── Fetch the order ───────────────────────────────────────────────────────
+  // ── Fetch the order ────────────────────────────────────────────────────────
   const { data: orderData, error: fetchError } = await db
     .from('orders')
     .select(`*, order_items(*)`)
@@ -74,7 +68,7 @@ export async function POST(
 
   const order = orderData as Record<string, unknown>
 
-  // ── Guard: only pending orders can be accepted ────────────────────────────
+  // ── Guard: only pending orders can be accepted ─────────────────────────────
   if (order.status !== 'pending_admin_approval') {
     return NextResponse.json(
       { error: `Order is already ${order.status} — cannot accept again.` },
@@ -82,7 +76,7 @@ export async function POST(
     )
   }
 
-  // ── Update order: confirmed + paid ────────────────────────────────────────
+  // ── Update order: confirmed + paid ─────────────────────────────────────────
   const now = new Date().toISOString()
   const { error: updateError } = await db
     .from('orders')
@@ -99,7 +93,7 @@ export async function POST(
     return NextResponse.json({ error: 'Failed to update order' }, { status: 500 })
   }
 
-  // ── Reduce stock (this is the ONE place stock is reduced) ─────────────────
+  // ── Reduce stock ───────────────────────────────────────────────────────────
   const orderItems = (order.order_items as Array<Record<string, unknown>>) || []
   for (const item of orderItems) {
     const { data: product } = await db
@@ -118,71 +112,149 @@ export async function POST(
     }
   }
 
+  const orderNumber = order.order_number as string
+  console.log(`[accept-order] Order ${orderNumber} accepted. Stock reduced for ${orderItems.length} items.`)
+
+  // ── Fetch customer details ─────────────────────────────────────────────────
+  const targetUserId = order.user_id as string
+
+  const [{ data: profileData }, authUserResult] = await Promise.all([
+    db.from('profiles')
+      .select('full_name, phone, whatsapp_opt_in')
+      .eq('id', targetUserId)
+      .single(),
+    db.auth.admin.getUserById(targetUserId).catch((err: unknown) => {
+      console.warn('[accept-order] Could not fetch auth user email:', err)
+      return { data: null }
+    }),
+  ])
+
+  const profile = profileData as {
+    full_name?: string
+    phone?: string
+    whatsapp_opt_in?: boolean
+  } | null
+
+  const customerEmail = (authUserResult?.data as { user?: { email?: string } } | null)?.user?.email ?? ''
+  const customerName  = profile?.full_name ?? 'Customer'
+  const customerPhone = profile?.phone?.trim() || null
+  const whatsappOptIn = profile?.whatsapp_opt_in !== false
+
   console.log(
-    `[accept-order] Order ${order.order_number} accepted by admin ${adminUser.id}.`,
-    `Stock reduced for ${orderItems.length} items. Triggering invoice generation.`,
+    `[accept-order] Customer: "${customerName}" <${customerEmail || 'no email'}>`,
+    `| phone: ${customerPhone ?? 'MISSING'}`,
   )
 
-  // ── Trigger invoice generation (handles email + WhatsApp internally) ───────
-  //
-  // IMPORTANT: do NOT fire-and-forget here. Vercel freezes this function the
-  // instant `return NextResponse.json(...)` executes, killing any in-flight
-  // fetch that hasn't completed — which is why WhatsApp/email was silently
-  // dropped. Awaiting keeps this function alive until generate-invoice responds.
-  // generate-invoice has maxDuration=60 and only returns once PDF + WhatsApp
-  // + email are all done (via Promise.allSettled inside it).
-
-  // Fetch customer phone for WhatsApp (pass it directly to avoid race conditions)
-  let customerPhone: string | null = null
-  try {
-    const { data: profileData } = await db
-      .from('profiles')
-      .select('phone')
-      .eq('id', order.user_id as string)
-      .single()
-    customerPhone = (profileData as Record<string, unknown> | null)?.phone as string | null
-  } catch (e) {
-    console.warn('[accept-order] Could not fetch customer phone:', e)
-  }
+  // ── Generate PDF ───────────────────────────────────────────────────────────
+  let invoiceUrl  = ''
+  let encodedUrl  = ''
 
   try {
-    const invoiceRes = await fetch(`${baseUrl}/api/generate-invoice`, {
-      method:  'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization:  `Bearer ${process.env.ADMIN_API_SECRET}`,
-      },
-      body: JSON.stringify({
-        order_id:     orderId,
-        order_number: order.order_number,
-        user_id:      order.user_id,
-        phone:        customerPhone,
-        force:        false,
-      }),
-    })
+    const pdfBuffer = await generatePDFBuffer(
+      order as unknown as InvoiceOrder,
+      customerName,
+      customerEmail,
+    )
+    console.log(`[accept-order] PDF generated: ${pdfBuffer.length} bytes`)
 
-    // FIX: await fetch() only throws on network errors, NOT on HTTP 4xx/5xx.
-    // The old code's catch block never ran for HTTP 500 responses from
-    // generate-invoice, so PDF generation failures were completely invisible.
-    // Checking res.ok surfaces the error in Vercel logs for debugging.
-    if (!invoiceRes.ok) {
-      const errBody = await invoiceRes.json().catch(() => ({}))
-      console.error(
-        `[accept-order] ❌ generate-invoice failed with HTTP ${invoiceRes.status} for order ${order.order_number as string}:`,
-        errBody,
-      )
+    // ── Upload to Cloudinary ─────────────────────────────────────────────────
+    const uploadResult = await uploadInvoicePDF(pdfBuffer, orderNumber)
+    invoiceUrl  = uploadResult.url
+    encodedUrl  = encodeURIComponent(invoiceUrl)
+
+    // ── Persist invoice_url to DB ────────────────────────────────────────────
+    const { error: invoiceUpdateError } = await db
+      .from('orders')
+      .update({
+        invoice_url:              invoiceUrl,
+        invoice_cloudinary_id:    uploadResult.public_id,
+      })
+      .eq('id', orderId)
+
+    if (invoiceUpdateError) {
+      console.error('[accept-order] Failed to save invoice_url (PDF was uploaded):', invoiceUpdateError.message)
     } else {
-      console.log(`[accept-order] ✅ Invoice generated for order ${order.order_number as string}`)
+      console.log(`[accept-order] ✅ Invoice stored: ${invoiceUrl}`)
     }
   } catch (err) {
-    // Network-level error (DNS failure, connection refused, etc.)
-    // Non-fatal: order is already confirmed. Log for visibility.
-    console.error('[accept-order] generate-invoice network error (order still confirmed):', err)
+    // Non-fatal: order is already confirmed. Log for Vercel dashboard visibility.
+    console.error('[accept-order] ❌ Invoice generation/upload failed:', err)
   }
+
+  // ── Send email + WhatsApp ──────────────────────────────────────────────────
+  // Run in parallel; failures are logged but don't block the response.
+  const invoiceViewUrl     = invoiceUrl ? `${baseUrl}/api/view-invoice?url=${encodedUrl}` : ''
+  const invoiceDownloadUrl = invoiceUrl ? `${baseUrl}/api/view-invoice?url=${encodedUrl}&dl=1` : ''
+
+  const emailPromise = customerEmail
+    ? (async () => {
+        try {
+          const orderWithUrls = {
+            ...order,
+            invoice_url:          invoiceUrl,
+            invoice_view_url:     invoiceViewUrl,
+            invoice_download_url: invoiceDownloadUrl,
+          } as unknown as Order
+
+          const html    = buildOrderConfirmationEmail(orderWithUrls, customerName)
+          const subject = `Order Confirmed — ${orderNumber} | Icon Opticals`
+          const result  = await sendEmail({ to: customerEmail, subject, html })
+
+          if (result.success) {
+            console.log(`[accept-order] ✅ Email sent → ${customerEmail}`)
+          } else {
+            console.error('[accept-order] ❌ Email failed:', result.error)
+          }
+        } catch (err) {
+          console.error('[accept-order] ❌ Email error:', err)
+        }
+      })()
+    : Promise.resolve(
+        console.warn('[accept-order] No email address — skipping email.'),
+      )
+
+  const whatsappPromise = !invoiceUrl
+    ? Promise.resolve(
+        console.warn('[accept-order] No invoice URL — skipping WhatsApp.'),
+      )
+    : !customerPhone
+      ? Promise.resolve(
+          console.error(`[accept-order] ❌ WhatsApp SKIPPED — no phone number for order ${orderNumber}.`),
+        )
+      : !whatsappOptIn
+        ? Promise.resolve(
+            console.log(`[accept-order] WhatsApp skipped — customer opted out.`),
+          )
+        : (async () => {
+            try {
+              const result = await sendOrderConfirmedWhatsApp({
+                phone:         customerPhone,
+                customerName,
+                orderNumber,
+                // encodedUrl is just the Cloudinary URL encoded — the Meta template
+                // button has the base URL (/api/view-invoice?url=) configured in
+                // Business Manager, and Vercel appends this as the dynamic suffix.
+                invoiceUrl:    encodedUrl,
+                storeName:     'Icon Opticals',
+                invoiceNumber: orderNumber,
+                amountPaid:    (order.total_amount as number) ?? 0,
+              })
+              if (result.success) {
+                console.log(`[accept-order] ✅ WhatsApp sent → ${customerPhone}`)
+              } else {
+                console.error('[accept-order] ❌ WhatsApp failed:', result.error)
+              }
+            } catch (err) {
+              console.error('[accept-order] ❌ WhatsApp error:', err)
+            }
+          })()
+
+  await Promise.allSettled([emailPromise, whatsappPromise])
 
   return NextResponse.json({
     success:      true,
-    message:      'Order accepted. Invoice and WhatsApp notification sent.',
-    order_number: order.order_number,
+    message:      'Order accepted. Invoice and notifications sent.',
+    order_number: orderNumber,
+    invoice_url:  invoiceUrl || null,
   })
 }
