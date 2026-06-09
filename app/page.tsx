@@ -203,7 +203,7 @@ const PARTNER_BRANDS = [
 const TRUST_STATS = [
   { value: '1',   numeric: 1,   label: 'Store',          delay: '0.1s',  suffix: ''  },
   { value: '4.8',  numeric: 4.8, label: 'Avg Rating',     delay: '0.17s', suffix: '★' },
-  { value: '500',  numeric: 500, label: 'Happy Customers', delay: '0.24s', suffix: '+' },
+  { value: '10',  numeric: 10,  label: 'Happy Customers', delay: '0.24s', suffix: 'K+' },
   { value: 'Free', numeric: -1,  label: 'Eye Tests',      delay: '0.31s', suffix: ''  },
 ]
 
@@ -1183,7 +1183,7 @@ function Ticker() {
     'Free Eye Test at Store',
     'Buy 1 Get 1 Free on Eyeglasses',
     'Premium Lenses · Trusted Brands',
-    '500+ Happy Customers',
+    '10K+ Happy Customers',
     "Anantapur's Premier Eyewear Store",
     'Book Your Home Try-On',
   ]
