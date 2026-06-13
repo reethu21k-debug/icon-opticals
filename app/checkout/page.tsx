@@ -394,8 +394,13 @@ function CheckoutPageInner() {
                     </div>
                   </div>
                   <p className="text-[9px] text-slate-500 mt-3 font-medium">
-                    Amount: <span className="font-bold text-slate-900">₹{summary.total.toLocaleString('en-IN')}</span>
-                  </p>
+                 Amount: <span className="font-bold text-slate-900">₹{summary.total.toLocaleString('en-IN')}</span>
+            </p>
+             <p className="text-[9px] text-slate-400 mt-1.5 leading-relaxed">
+                 UPI recipient will appear as{' '}
+             <span className="font-bold text-slate-700 tracking-wider">S MUJEEB</span>
+            {' '}— this is correct.
+              </p>
                 </div>
 
                 {/* UPI Transaction ID input */}
