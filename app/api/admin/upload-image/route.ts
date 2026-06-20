@@ -26,9 +26,9 @@ export async function POST(request: NextRequest) {
 
   if (!file) return NextResponse.json({ error: 'No file provided' }, { status: 400 })
 
-  const validTypes = ['image/webp', 'image/jpeg', 'image/jpg']
+  const validTypes = ['image/webp', 'image/jpeg', 'image/jpg', 'image/png']
   if (!validTypes.includes(file.type)) {
-    return NextResponse.json({ error: 'Only WebP and JPG images are allowed.' }, { status: 400 })
+    return NextResponse.json({ error: 'Only WebP, JPG, and PNG images are allowed.' }, { status: 400 })
   }
   if (file.size > 1_000_000) {
     return NextResponse.json({ error: 'Image must be under 1MB.' }, { status: 400 })

@@ -311,7 +311,7 @@ export default function AdminProductsPage() {
                     </button>
                   )}
                 </div>
-                <input ref={fileRef} type="file" accept="image/webp,image/jpeg,image/jpg" multiple className="hidden" onChange={e=>handleImages(e.target.files)}/>
+                <input ref={fileRef} type="file" accept="image/webp,image/jpeg,image/jpg,image/png" multiple className="hidden" onChange={e=>handleImages(e.target.files)}/>
               </section>
 
               {/* Basic details */}
