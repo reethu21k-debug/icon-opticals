@@ -140,7 +140,7 @@ export async function getVariantColorsForProducts(
 
   if (!memberships?.length) return {}
 
-  const groupIds = Array.from(new Set(memberships.map(m => m.variant_group_id)))
+  const groupIds = Array.from(new Set(memberships.map((m: { product_id: string; variant_group_id: string }) => m.variant_group_id)))
 
   const { data: items } = await supabase
     .from('product_variant_items')
