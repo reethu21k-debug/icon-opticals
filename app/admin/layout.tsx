@@ -61,6 +61,12 @@ export default async function AdminLayout({ children }: { children: React.ReactN
 
       {/* ── Global Admin Styles ── */}
       <style dangerouslySetInnerHTML={{__html: `
+        /* Hide root-layout Navbar and Footer inside admin */
+        footer.ft,
+        body header:first-of-type {
+          display: none !important;
+        }
+
         @keyframes float { 
           0%, 100% { transform: translateY(0) scale(1); } 
           50% { transform: translateY(-20px) scale(1.05); } 
