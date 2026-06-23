@@ -10,6 +10,7 @@ const SLIDES = [
   { src: '/Icon_Banner3.png',                                                            alt: 'Icon Banner',            label: 'Icon Banner',        href: '/products' },
   { src: '/Icon_Baneer.png',                                                            alt: 'Icon Banner',            label: 'Icon Banner',        href: '/products' },
   { src: '/Icon_Banner5.png',                                                            alt: 'Icon Banner',            label: 'Icon Banner',        href: '/products' },
+  { src: '/rukmini banner.png',                                                            alt: 'Icon Banner',            label: 'Icon Banner',        href: '/products' },
   { src: 'https://static1.lenskart.com/media/desktop/img/Nov22/trans1.gif',             alt: 'Transitions',            label: 'Transitions',        href: '/products' },
   { src: 'https://static5.lenskart.com/media/uploads/Desktop-summer-20may26.png',     alt: 'Blend Edit Collection',  label: 'Blend Edit',         href: '/products' },
   { src: 'https://static1.lenskart.com/media/desktop/img/Nov22/tinted/launch-desk.gif', alt: 'Tinted Launch',          label: 'Tinted Launch',      href: '/products' },
