@@ -3,6 +3,7 @@ import { Suspense } from 'react'
 import { createClient } from '@/lib/supabase'
 import ProductFilters from '@/components/product/ProductFilters'
 import ProductGrid from '@/components/product/ProductGrid'
+import { getVariantColorsForProducts } from '@/lib/variants'
 import type { ProductFilters as FiltersType } from '@/types'
 import { SITE, CATEGORIES } from '@/lib/seo/constants'
 import { breadcrumbSchema, collectionPageSchema } from '@/lib/seo/schema'
@@ -116,6 +117,7 @@ export default async function ProductsPage({ searchParams }: PageProps) {
   }
 
   const { products, total } = await getProducts(filters)
+  const variantColorsByProductId = await getVariantColorsForProducts(products.map(p => p.id))
 
   const catInfo    = CATEGORIES.find(c => c.slug === filters.category)
   const categoryLabel = catInfo?.label
@@ -188,6 +190,7 @@ export default async function ProductsPage({ searchParams }: PageProps) {
                   page={filters.page || 1}
                   perPage={24}
                   filters={filters}
+                  variantColorsByProductId={variantColorsByProductId}
                 />
               </Suspense>
             </section>

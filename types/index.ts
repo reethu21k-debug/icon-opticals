@@ -66,6 +66,55 @@ export interface Product {
   try_on_image_public_id: string | null  // Cloudinary public_id
 }
 
+// ── Product Variant Linking (optional color switching) ───────
+// Mirrors `product_variant_groups` / `product_variant_items`.
+// Linking is opt-in per product — a product with no rows in
+// `product_variant_items` simply has no variants, and every type
+// below resolves to an empty array / null for it.
+
+export interface ProductVariantGroup {
+  id: string
+  created_at: string
+}
+
+export interface ProductVariantItem {
+  id: string
+  variant_group_id: string
+  product_id: string
+  created_at: string
+}
+
+/** Lightweight shape used for the storefront color selector + product cards. */
+export interface ProductVariantSummary {
+  id: string
+  name: string
+  slug: string
+  color: string | null
+  colorCode: string
+  thumbnail: string | null
+  price: number
+  stock: number
+  is_current?: boolean
+}
+
+/** Shape returned by the admin "search existing products" box. */
+export interface ProductVariantSearchResult {
+  id: string
+  name: string
+  slug: string
+  brand: string
+  frame_color: string | null
+  images: ProductImage[]
+  is_active: boolean
+  stock: number
+}
+
+/** API response shape for a product detail fetch: `{ product, variants }`. */
+export interface ProductWithVariants {
+  product: Product
+  variants: ProductVariantSummary[]
+}
+
 export interface LensPackage {
   id: string
   name: string

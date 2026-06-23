@@ -3,9 +3,10 @@
 
 import { useState, useEffect, useRef } from 'react'
 import { createClient } from '@/lib/supabase'
+import VariantGroupManager from '@/components/admin/VariantGroupManager'
 import {
   Plus, Pencil, Trash2, X, Loader2, ImagePlus, Save,
-  AlertCircle, ChevronLeft, ChevronRight, Check, Package, Camera, Ruler,
+  AlertCircle, ChevronLeft, ChevronRight, Check, Package, Camera, Ruler, Palette,
 } from 'lucide-react'
 
 type Category   = 'eyeglasses'|'sunglasses'|'contact-lenses'|'accessories'
@@ -55,6 +56,120 @@ function BrandCombobox({value,onChange}:{value:string;onChange:(v:string)=>void}
           {list.length===0?<div className="px-5 py-4 text-[10px] text-slate-400 uppercase tracking-widest text-center">No match</div>
             :list.map(b=><button key={b} type="button" onClick={()=>{onChange(b);setOpen(false);setQ('')}}
               className={`w-full text-left px-5 py-3 text-[11px] font-bold uppercase tracking-widest ${value===b?'bg-slate-900 text-white':'text-slate-600 hover:bg-slate-100'}`}>{b}</button>)}
+        </div>
+      )}
+    </div>
+  )
+}
+
+const FRAME_COLORS = [
+  { label: 'Black',   hex: '#1a1a1a' },
+  { label: 'White',   hex: '#f5f5f5' },
+  { label: 'Blue',    hex: '#2563eb' },
+  { label: 'Red',     hex: '#dc2626' },
+  { label: 'Green',   hex: '#16a34a' },
+  { label: 'Yellow',  hex: '#eab308' },
+  { label: 'Orange',  hex: '#ea580c' },
+  { label: 'Purple',  hex: '#9333ea' },
+  { label: 'Pink',    hex: '#ec4899' },
+  { label: 'Brown',   hex: '#92400e' },
+  { label: 'Gray',    hex: '#6b7280' },
+  { label: 'Beige',   hex: '#d4b896' },
+  { label: 'Navy',    hex: '#1e3a5f' },
+  { label: 'Gold',    hex: '#b8860b' },
+  { label: 'Silver',  hex: '#a8a9ad' },
+  { label: 'Lavender',hex: '#b57bee' },
+  { label: 'Violet',  hex: '#7c3aed' },
+]
+
+function ColorCombobox({ value, onChange }: { value: string; onChange: (v: string) => void }) {
+  const [open, setOpen] = useState(false)
+  const [q, setQ] = useState('')
+  const ref = useRef<HTMLDivElement>(null)
+  const inputRef = useRef<HTMLInputElement>(null)
+
+  const filtered = q
+    ? FRAME_COLORS.filter(c => c.label.toLowerCase().includes(q.toLowerCase()))
+    : FRAME_COLORS
+
+  const matchedColor = FRAME_COLORS.find(c => c.label.toLowerCase() === value.toLowerCase())
+
+  useEffect(() => {
+    const h = (e: MouseEvent) => {
+      if (ref.current && !ref.current.contains(e.target as Node)) {
+        setOpen(false)
+        setQ('')
+      }
+    }
+    document.addEventListener('mousedown', h)
+    return () => document.removeEventListener('mousedown', h)
+  }, [])
+
+  const select = (label: string) => {
+    onChange(label)
+    setOpen(false)
+    setQ('')
+  }
+
+  return (
+    <div ref={ref} className="relative z-40">
+      <div className="relative">
+        {/* Color swatch preview inside input */}
+        {value && (
+          <span
+            className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 rounded-full border border-slate-200 shadow-sm flex-shrink-0"
+            style={{ backgroundColor: matchedColor?.hex ?? '#e2e8f0' }}
+          />
+        )}
+        <input
+          ref={inputRef}
+          type="text"
+          value={open ? q : value}
+          placeholder="SELECT COLOR..."
+          onFocus={() => { setOpen(true); setQ('') }}
+          onChange={e => { setQ(e.target.value); onChange(e.target.value); }}
+          className={`w-full text-[11px] font-bold text-slate-900 bg-white/60 border border-slate-200/60 rounded-xl py-3.5 pr-10 focus:outline-none focus:border-slate-400 focus:ring-4 focus:ring-slate-400/10 transition-all shadow-sm uppercase tracking-widest placeholder-slate-400 ${value ? 'pl-10' : 'pl-5'}`}
+        />
+        {/* Chevron */}
+        <div className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2">
+          <svg width="10" height="6" viewBox="0 0 10 6" fill="none"><path d="M1 1L5 5L9 1" stroke="#94a3b8" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
+        </div>
+      </div>
+
+      {open && (
+        <div className="absolute top-full left-0 right-0 mt-2 bg-white/95 backdrop-blur-2xl border border-white/60 shadow-xl rounded-2xl overflow-hidden z-50">
+          <div className="max-h-60 overflow-y-auto py-2">
+            {filtered.length === 0 ? (
+              <div className="px-5 py-4 text-[10px] text-slate-400 uppercase tracking-widest text-center">
+                No match — press Enter to use &ldquo;{q}&rdquo;
+              </div>
+            ) : (
+              filtered.map(c => (
+                <button
+                  key={c.label}
+                  type="button"
+                  onClick={() => select(c.label)}
+                  className={`w-full flex items-center gap-3 px-5 py-3 transition-colors ${
+                    value.toLowerCase() === c.label.toLowerCase()
+                      ? 'bg-slate-900 text-white'
+                      : 'text-slate-600 hover:bg-slate-100'
+                  }`}
+                >
+                  <span
+                    className="w-4 h-4 rounded-full border border-slate-200/80 flex-shrink-0 shadow-sm"
+                    style={{ backgroundColor: c.hex }}
+                  />
+                  <span className="text-[11px] font-bold uppercase tracking-widest">{c.label}</span>
+                </button>
+              ))
+            )}
+          </div>
+          {/* Custom entry hint */}
+          <div className="border-t border-slate-100 px-5 py-2.5">
+            <p className="text-[9px] text-slate-400 uppercase tracking-widest">
+              Not listed? Type any color name above
+            </p>
+          </div>
         </div>
       )}
     </div>
@@ -360,12 +475,14 @@ export default function AdminProductsPage() {
                       </div>
                     </div>
                   ))}
-                  {(['frame_color','frame_material'] as const).map(k=>(
-                    <div key={k}>
-                      <label className="text-[9px] font-bold text-slate-500 uppercase tracking-widest block mb-2">{k.replace('_',' ')}</label>
-                      <input type="text" value={form[k]} onChange={e=>sf(k,e.target.value)} className={cls}/>
-                    </div>
-                  ))}
+                  <div>
+                    <label className="text-[9px] font-bold text-slate-500 uppercase tracking-widest block mb-2">Frame Color</label>
+                    <ColorCombobox value={form.frame_color} onChange={v=>sf('frame_color',v)}/>
+                  </div>
+                  <div>
+                    <label className="text-[9px] font-bold text-slate-500 uppercase tracking-widest block mb-2">Frame Material</label>
+                    <input type="text" value={form.frame_material} onChange={e=>sf('frame_material',e.target.value)} className={cls}/>
+                  </div>
                 </div>
               </section>
 
@@ -477,6 +594,21 @@ export default function AdminProductsPage() {
                       </button>
                     </div>
                     <input ref={tryOnRef} type="file" accept="image/png,image/webp" className="hidden" onChange={e=>handleTryOnUpload(e.target.files)}/>
+                  </div>
+                </section>
+              )}
+
+              {/* ── Product Variant Linking Section (Optional) ─── */}
+              {editing ? (
+                <VariantGroupManager productId={editing.id} productName={form.name || editing.name} />
+              ) : (
+                <section className="bg-white/50 p-7 rounded-3xl border border-white shadow-sm">
+                  <div className="flex items-center gap-3 mb-2">
+                    <div className="p-2 bg-white shadow-sm border border-slate-100 rounded-xl"><Palette size={16} strokeWidth={2} className="text-slate-400"/></div>
+                    <div>
+                      <p className="text-[10px] font-bold text-slate-900 uppercase tracking-[0.2em]">Product Variant Linking</p>
+                      <p className="text-[9px] text-slate-400 font-light mt-0.5">Save this product first, then reopen it to link color variants.</p>
+                    </div>
                   </div>
                 </section>
               )}

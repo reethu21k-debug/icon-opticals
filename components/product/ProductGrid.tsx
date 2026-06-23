@@ -340,7 +340,7 @@ import LensFlowModal from '@/components/lens/LensFlowModal'
 import { useCart } from '@/hooks/useCart'
 import { useAuth } from '@/hooks/useAuth'
 import { createClient } from '@/lib/supabase'
-import type { Product, ProductFilters, LensFlowState } from '@/types'
+import type { Product, ProductFilters, LensFlowState, ProductVariantSummary } from '@/types'
 
 interface ProductGridProps {
   products: Product[]
@@ -348,9 +348,11 @@ interface ProductGridProps {
   page: number
   perPage: number
   filters: ProductFilters
+  /** Optional: product_id -> sibling color variants, for the color-dot row on cards. */
+  variantColorsByProductId?: Record<string, ProductVariantSummary[]>
 }
 
-export default function ProductGrid({ products, total, page, perPage, filters }: ProductGridProps) {
+export default function ProductGrid({ products, total, page, perPage, filters, variantColorsByProductId }: ProductGridProps) {
   const router       = useRouter()
   const pathname     = usePathname()
   const searchParams = useSearchParams()
@@ -470,6 +472,7 @@ export default function ProductGrid({ products, total, page, perPage, filters }:
               userId={userId || undefined}
               isAdmin={isAdmin}
               onAddToCart={p => setSelectedProduct(p)}
+              variantColors={variantColorsByProductId?.[product.id]}
             />
           </div>
         ))}

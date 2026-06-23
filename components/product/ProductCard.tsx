@@ -3,6 +3,7 @@
 import { useState, useCallback } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import { Heart, Star, ArrowRight, ReceiptText } from 'lucide-react'
 import { getOptimizedUrl } from '@/lib/cloudinary-url'
 import { createClient } from '@/lib/supabase'
@@ -10,7 +11,7 @@ import { useAuth } from '@/hooks/useAuth'
 import { useCart } from '@/hooks/useCart'
 import { emitAddToBilling } from '@/hooks/useAdminBilling'
 import LensFlowModal from '@/components/lens/LensFlowModal'
-import type { Product, LensFlowState } from '@/types'
+import type { Product, LensFlowState, ProductVariantSummary } from '@/types'
 
 interface ProductCardProps {
   product: Product
@@ -18,6 +19,13 @@ interface ProductCardProps {
   userId?: string
   isAdmin?: boolean
   onAddToCart?: (product: Product) => void
+  /**
+   * Sibling color variants for this product (including itself), used to draw
+   * the small color-circle row on the card. Omit or pass `[]`/a single-item
+   * array for products that aren't linked — nothing renders in that case, so
+   * cards for unlinked products look exactly as they do today.
+   */
+  variantColors?: ProductVariantSummary[]
 }
 
 export default function ProductCard({
@@ -26,6 +34,7 @@ export default function ProductCard({
   userId: userIdProp,
   isAdmin = false,
   onAddToCart,
+  variantColors,
 }: ProductCardProps) {
   const [wishlisted, setWishlisted]           = useState(initialWishlisted)
   const [hoverIndex, setHoverIndex]           = useState(0)
@@ -42,6 +51,7 @@ export default function ProductCard({
   const userId = userIdProp ?? authUserId ?? undefined
 
   const { addToCart } = useCart(userId ?? null)
+  const router = useRouter()
 
   const primaryImage = product.images?.[0]
   const hoverImage   = product.images?.[hoverIndex] || primaryImage
@@ -377,6 +387,39 @@ export default function ProductCard({
           >
             {product.name}
           </p>
+
+          {/* Color variant dots — only renders when the admin has linked variants */}
+          {variantColors && variantColors.length > 1 && (
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 8 }}>
+              {variantColors.slice(0, 6).map(v => {
+                const isCurrent = v.id === product.id
+                return (
+                  <button
+                    key={v.id}
+                    type="button"
+                    title={v.color ?? v.name}
+                    aria-label={`View ${v.color ?? v.name}`}
+                    onClick={e => {
+                      e.preventDefault()
+                      e.stopPropagation()
+                      if (!isCurrent) router.push(`/products/${v.slug}`)
+                    }}
+                    style={{
+                      width: isCurrent ? 14 : 11,
+                      height: isCurrent ? 14 : 11,
+                      borderRadius: '50%',
+                      background: v.colorCode,
+                      border: isCurrent ? '2px solid #0f172a' : '1px solid #e2e8f0',
+                      padding: 0,
+                      cursor: isCurrent ? 'default' : 'pointer',
+                      flexShrink: 0,
+                      transition: 'transform .15s ease',
+                    }}
+                  />
+                )
+              })}
+            </div>
+          )}
 
           {/* Price row */}
           <div style={{ display: 'flex', alignItems: 'baseline', gap: 7, marginTop: 8 }}>

@@ -3,11 +3,13 @@ import { createClient } from '@/lib/supabase'
 import { Star, Truck, RotateCcw, ShieldCheck } from 'lucide-react'
 import ProductGallery from '@/components/product/ProductGallery'
 import ProductActions from '@/components/product/ProductActions'
+import ProductVariantSelector from '@/components/product/ProductVariantSelector'
 import ReviewList from '@/components/product/ReviewList'
 import type { Metadata } from 'next'
 import type { Product, Review } from '@/types'
 import { SITE } from '@/lib/seo/constants'
 import { productSchema, breadcrumbSchema } from '@/lib/seo/schema'
+import { getProductVariants } from '@/lib/variants'
 
 export const revalidate    = 300
 export const dynamicParams = true
@@ -93,6 +95,7 @@ export default async function ProductPage({ params }: PageProps) {
   if (!product) notFound()
 
   const reviews  = await getReviews(product.id)
+  const variants = await getProductVariants(product.id)
   const discount = Math.round(product.discount_percent)
 
   const breadcrumbs = [
@@ -194,6 +197,10 @@ export default async function ProductPage({ params }: PageProps) {
               <p className="text-[9px] uppercase tracking-[0.15em] text-slate-400 mb-10">
                 Complimentary Shipping · Lens pricing determined upon selection
               </p>
+
+              {variants.length > 0 && (
+                <ProductVariantSelector variants={variants} currentId={product.id} />
+              )}
 
               <div className="mb-10">
                 <ProductActions product={product} />
