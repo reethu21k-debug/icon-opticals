@@ -1,7 +1,7 @@
 'use client'
 // app/admin/products/page.tsx — extended with Virtual Try-On fields
 
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, type DragEvent } from 'react'
 import { createClient } from '@/lib/supabase'
 import VariantGroupManager from '@/components/admin/VariantGroupManager'
 import {
@@ -21,6 +21,11 @@ const SHAPES:FrameShape[] = ['rectangle','round','square','oval','wayfarer','avi
 const BRANDS = ['Ray-Ban','Titan','Tommy Hilfiger','Fastrack','French Connection','Scott','Idee','Voyage','Laurel Dale','Galore Bay','Feather','John Karter','Caron','Kidstar','Red Grapes','Grey Jack','Roberto Gabriel','Para+','Tom Hardy','Daniel Hunter','Xpress','Qual','RK Parkens']
 const TRYON_CATS: Category[] = ['eyeglasses','sunglasses']
 
+// --- Shared Premium UI Classes ---
+const inputClasses = "w-full text-[12px] font-medium text-slate-900 bg-white/60 border border-slate-200/50 rounded-2xl px-5 py-4 focus:outline-none focus:border-slate-800 focus:ring-4 focus:ring-slate-900/5 transition-all duration-300 shadow-[0_2px_10px_-3px_rgba(0,0,0,0.02)] placeholder-slate-400 hover:bg-white/80"
+const labelClasses = "text-[9px] font-bold text-slate-500 uppercase tracking-[0.2em] block mb-2.5 ml-1"
+const sectionClasses = "bg-white/40 backdrop-blur-2xl p-8 sm:p-10 rounded-[2rem] border border-white/80 shadow-[0_8px_30px_rgb(0,0,0,0.04)] relative overflow-hidden"
+
 interface F {
   name:string; slug:string; description:string; brand:string
   category:Category; gender:Gender; frame_type:FrameType; frame_shape:string
@@ -29,12 +34,14 @@ interface F {
   frame_width_mm:string; lens_width_mm:string; bridge_width_mm:string
   temple_length_mm:string; frame_height_mm:string
 }
+
 const empty:F = {
   name:'',slug:'',description:'',brand:'',category:'eyeglasses',gender:'unisex',
   frame_type:'full-rim',frame_shape:'',frame_color:'',frame_material:'',
   base_price:'',discount_percent:'0',stock:'10',is_active:true,is_featured:false,tags:'',
   frame_width_mm:'',lens_width_mm:'',bridge_width_mm:'',temple_length_mm:'',frame_height_mm:'',
 }
+
 const slug = (n:string) => n.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'')
 
 function BrandCombobox({value,onChange}:{value:string;onChange:(v:string)=>void}) {
@@ -42,20 +49,22 @@ function BrandCombobox({value,onChange}:{value:string;onChange:(v:string)=>void}
   const [q,setQ]=useState('')
   const ref=useRef<HTMLDivElement>(null)
   const list = q ? BRANDS.filter(b=>b.toLowerCase().includes(q.toLowerCase())) : BRANDS
+  
   useEffect(()=>{
     const h=(e:MouseEvent)=>{if(ref.current&&!ref.current.contains(e.target as Node)){setOpen(false);setQ('')}}
     document.addEventListener('mousedown',h); return()=>document.removeEventListener('mousedown',h)
   },[])
+  
   return(
     <div ref={ref} className="relative z-50">
       <input type="text" value={open?q:value} placeholder={value||'SELECT BRAND...'} onFocus={()=>{setOpen(true);setQ('')}}
         onChange={e=>{setQ(e.target.value);onChange(e.target.value)}}
-        className="w-full text-[11px] font-bold text-slate-900 bg-white/60 border border-slate-200/60 rounded-xl px-4 py-3.5 focus:outline-none focus:border-slate-400 focus:ring-4 focus:ring-slate-400/10 transition-all shadow-sm uppercase tracking-widest placeholder-slate-400"/>
+        className={`${inputClasses} uppercase tracking-widest text-[11px] font-bold`} />
       {open&&(
-        <div className="absolute top-full left-0 right-0 mt-2 bg-white/95 backdrop-blur-2xl border border-white/60 shadow-xl rounded-2xl max-h-56 overflow-y-auto py-2 z-50">
+        <div className="absolute top-full left-0 right-0 mt-2 bg-white/95 backdrop-blur-3xl border border-white shadow-2xl rounded-2xl max-h-56 overflow-y-auto py-2 z-50 animate-in fade-in slide-in-from-top-2 duration-200 [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:bg-slate-200 [&::-webkit-scrollbar-thumb]:rounded-full">
           {list.length===0?<div className="px-5 py-4 text-[10px] text-slate-400 uppercase tracking-widest text-center">No match</div>
             :list.map(b=><button key={b} type="button" onClick={()=>{onChange(b);setOpen(false);setQ('')}}
-              className={`w-full text-left px-5 py-3 text-[11px] font-bold uppercase tracking-widest ${value===b?'bg-slate-900 text-white':'text-slate-600 hover:bg-slate-100'}`}>{b}</button>)}
+              className={`w-full text-left px-5 py-3 text-[11px] font-bold uppercase tracking-widest transition-colors ${value===b?'bg-slate-900 text-white':'text-slate-600 hover:bg-slate-50 hover:text-slate-900'}`}>{b}</button>)}
         </div>
       )}
     </div>
@@ -63,22 +72,14 @@ function BrandCombobox({value,onChange}:{value:string;onChange:(v:string)=>void}
 }
 
 const FRAME_COLORS = [
-  { label: 'Black',   hex: '#1a1a1a' },
-  { label: 'White',   hex: '#f5f5f5' },
-  { label: 'Blue',    hex: '#2563eb' },
-  { label: 'Red',     hex: '#dc2626' },
-  { label: 'Green',   hex: '#16a34a' },
-  { label: 'Yellow',  hex: '#eab308' },
-  { label: 'Orange',  hex: '#ea580c' },
-  { label: 'Purple',  hex: '#9333ea' },
-  { label: 'Pink',    hex: '#ec4899' },
-  { label: 'Brown',   hex: '#92400e' },
-  { label: 'Gray',    hex: '#6b7280' },
-  { label: 'Beige',   hex: '#d4b896' },
-  { label: 'Navy',    hex: '#1e3a5f' },
-  { label: 'Gold',    hex: '#b8860b' },
-  { label: 'Silver',  hex: '#a8a9ad' },
-  { label: 'Lavender',hex: '#b57bee' },
+  { label: 'Black',   hex: '#1a1a1a' }, { label: 'White',   hex: '#f5f5f5' },
+  { label: 'Blue',    hex: '#2563eb' }, { label: 'Red',     hex: '#dc2626' },
+  { label: 'Green',   hex: '#16a34a' }, { label: 'Yellow',  hex: '#eab308' },
+  { label: 'Orange',  hex: '#ea580c' }, { label: 'Purple',  hex: '#9333ea' },
+  { label: 'Pink',    hex: '#ec4899' }, { label: 'Brown',   hex: '#92400e' },
+  { label: 'Gray',    hex: '#6b7280' }, { label: 'Beige',   hex: '#d4b896' },
+  { label: 'Navy',    hex: '#1e3a5f' }, { label: 'Gold',    hex: '#b8860b' },
+  { label: 'Silver',  hex: '#a8a9ad' }, { label: 'Lavender',hex: '#b57bee' },
   { label: 'Violet',  hex: '#7c3aed' },
 ]
 
@@ -86,89 +87,50 @@ function ColorCombobox({ value, onChange }: { value: string; onChange: (v: strin
   const [open, setOpen] = useState(false)
   const [q, setQ] = useState('')
   const ref = useRef<HTMLDivElement>(null)
-  const inputRef = useRef<HTMLInputElement>(null)
 
-  const filtered = q
-    ? FRAME_COLORS.filter(c => c.label.toLowerCase().includes(q.toLowerCase()))
-    : FRAME_COLORS
-
+  const filtered = q ? FRAME_COLORS.filter(c => c.label.toLowerCase().includes(q.toLowerCase())) : FRAME_COLORS
   const matchedColor = FRAME_COLORS.find(c => c.label.toLowerCase() === value.toLowerCase())
 
   useEffect(() => {
-    const h = (e: MouseEvent) => {
-      if (ref.current && !ref.current.contains(e.target as Node)) {
-        setOpen(false)
-        setQ('')
-      }
-    }
+    const h = (e: MouseEvent) => { if (ref.current && !ref.current.contains(e.target as Node)) { setOpen(false); setQ('') } }
     document.addEventListener('mousedown', h)
     return () => document.removeEventListener('mousedown', h)
   }, [])
 
-  const select = (label: string) => {
-    onChange(label)
-    setOpen(false)
-    setQ('')
-  }
+  const select = (label: string) => { onChange(label); setOpen(false); setQ('') }
 
   return (
     <div ref={ref} className="relative z-40">
-      <div className="relative">
-        {/* Color swatch preview inside input */}
+      <div className="relative group">
         {value && (
-          <span
-            className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 rounded-full border border-slate-200 shadow-sm flex-shrink-0"
-            style={{ backgroundColor: matchedColor?.hex ?? '#e2e8f0' }}
-          />
+          <span className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 rounded-full border border-slate-200 shadow-sm flex-shrink-0 transition-transform group-hover:scale-110"
+            style={{ backgroundColor: matchedColor?.hex ?? '#e2e8f0' }} />
         )}
-        <input
-          ref={inputRef}
-          type="text"
-          value={open ? q : value}
-          placeholder="SELECT COLOR..."
-          onFocus={() => { setOpen(true); setQ('') }}
+        <input type="text" value={open ? q : value} placeholder="SELECT COLOR..." onFocus={() => { setOpen(true); setQ('') }}
           onChange={e => { setQ(e.target.value); onChange(e.target.value); }}
-          className={`w-full text-[11px] font-bold text-slate-900 bg-white/60 border border-slate-200/60 rounded-xl py-3.5 pr-10 focus:outline-none focus:border-slate-400 focus:ring-4 focus:ring-slate-400/10 transition-all shadow-sm uppercase tracking-widest placeholder-slate-400 ${value ? 'pl-10' : 'pl-5'}`}
-        />
-        {/* Chevron */}
-        <div className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2">
-          <svg width="10" height="6" viewBox="0 0 10 6" fill="none"><path d="M1 1L5 5L9 1" stroke="#94a3b8" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
+          className={`${inputClasses} uppercase tracking-widest text-[11px] font-bold pr-10 ${value ? 'pl-11' : 'pl-5'}`} />
+        <div className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-slate-400">
+          <svg width="10" height="6" viewBox="0 0 10 6" fill="none"><path d="M1 1L5 5L9 1" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
         </div>
       </div>
 
       {open && (
-        <div className="absolute top-full left-0 right-0 mt-2 bg-white/95 backdrop-blur-2xl border border-white/60 shadow-xl rounded-2xl overflow-hidden z-50">
-          <div className="max-h-60 overflow-y-auto py-2">
+        <div className="absolute top-full left-0 right-0 mt-2 bg-white/95 backdrop-blur-3xl border border-white shadow-2xl rounded-2xl overflow-hidden z-50 animate-in fade-in slide-in-from-top-2 duration-200">
+          <div className="max-h-60 overflow-y-auto py-2 [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:bg-slate-200 [&::-webkit-scrollbar-thumb]:rounded-full">
             {filtered.length === 0 ? (
-              <div className="px-5 py-4 text-[10px] text-slate-400 uppercase tracking-widest text-center">
-                No match — press Enter to use &ldquo;{q}&rdquo;
-              </div>
+              <div className="px-5 py-4 text-[10px] text-slate-400 uppercase tracking-widest text-center">No match — press Enter to use &ldquo;{q}&rdquo;</div>
             ) : (
               filtered.map(c => (
-                <button
-                  key={c.label}
-                  type="button"
-                  onClick={() => select(c.label)}
-                  className={`w-full flex items-center gap-3 px-5 py-3 transition-colors ${
-                    value.toLowerCase() === c.label.toLowerCase()
-                      ? 'bg-slate-900 text-white'
-                      : 'text-slate-600 hover:bg-slate-100'
-                  }`}
-                >
-                  <span
-                    className="w-4 h-4 rounded-full border border-slate-200/80 flex-shrink-0 shadow-sm"
-                    style={{ backgroundColor: c.hex }}
-                  />
+                <button key={c.label} type="button" onClick={() => select(c.label)}
+                  className={`w-full flex items-center gap-3 px-5 py-3 transition-all duration-200 ${value.toLowerCase() === c.label.toLowerCase() ? 'bg-slate-900 text-white pl-6' : 'text-slate-600 hover:bg-slate-50 hover:pl-6'}`}>
+                  <span className="w-4 h-4 rounded-full border border-slate-200/80 flex-shrink-0 shadow-sm" style={{ backgroundColor: c.hex }} />
                   <span className="text-[11px] font-bold uppercase tracking-widest">{c.label}</span>
                 </button>
               ))
             )}
           </div>
-          {/* Custom entry hint */}
-          <div className="border-t border-slate-100 px-5 py-2.5">
-            <p className="text-[9px] text-slate-400 uppercase tracking-widest">
-              Not listed? Type any color name above
-            </p>
+          <div className="border-t border-slate-100 px-5 py-3 bg-slate-50/50">
+            <p className="text-[9px] text-slate-400 uppercase tracking-widest text-center">Not listed? Type any color above</p>
           </div>
         </div>
       )}
@@ -194,6 +156,8 @@ export default function AdminProductsPage() {
   const [saveErr,setSaveErr]=useState<string|null>(null)
   const fileRef=useRef<HTMLInputElement>(null)
   const tryOnRef=useRef<HTMLInputElement>(null)
+  const [imgDragOver,setImgDragOver]=useState(false)
+  const [tryOnDragOver,setTryOnDragOver]=useState(false)
   const PER=20
   const sb=createClient()
 
@@ -250,6 +214,14 @@ export default function AdminProductsPage() {
     setTryOnUploading(false);if(tryOnRef.current)tryOnRef.current.value=''
   }
 
+  const onImgDragOver=(e:DragEvent)=>{e.preventDefault();e.stopPropagation();if(!uploading)setImgDragOver(true)}
+  const onImgDragLeave=(e:DragEvent)=>{e.preventDefault();e.stopPropagation();setImgDragOver(false)}
+  const onImgDrop=(e:DragEvent)=>{ e.preventDefault();e.stopPropagation();setImgDragOver(false); if(uploading)return; handleImages(e.dataTransfer.files) }
+
+  const onTryOnDragOver=(e:DragEvent)=>{e.preventDefault();e.stopPropagation();if(!tryOnUploading)setTryOnDragOver(true)}
+  const onTryOnDragLeave=(e:DragEvent)=>{e.preventDefault();e.stopPropagation();setTryOnDragOver(false)}
+  const onTryOnDrop=(e:DragEvent)=>{ e.preventDefault();e.stopPropagation();setTryOnDragOver(false); if(tryOnUploading)return; handleTryOnUpload(e.dataTransfer.files) }
+
   const save=async()=>{
     if(!form.name||!form.brand||!form.base_price){alert('Name, Brand and Price required');return}
     setSaving(true);setSaveErr(null)
@@ -267,7 +239,7 @@ export default function AdminProductsPage() {
       bridge_width_mm: form.bridge_width_mm ?parseFloat(form.bridge_width_mm) :null,
       temple_length_mm:form.temple_length_mm?parseFloat(form.temple_length_mm):null,
       frame_height_mm: form.frame_height_mm ?parseFloat(form.frame_height_mm) :null,
-      try_on_image_url:      tryOnImg?.url       ??null,
+      try_on_image_url:      tryOnImg?.url      ??null,
       try_on_image_public_id:tryOnImg?.public_id ??null,
     }
     try{
@@ -283,78 +255,84 @@ export default function AdminProductsPage() {
   const showTryOn=TRYON_CATS.includes(form.category)
 
   return(
-    <div className="max-w-[1400px] mx-auto w-full relative z-10">
+    <div className="max-w-[1400px] mx-auto w-full relative z-10 selection:bg-slate-200">
 
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-10 gap-6 border-b border-slate-200/50 pb-8">
+      <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-12 gap-6 pb-8">
         <div>
-          <div className="flex items-center gap-3 mb-3">
-            <div className="p-2 bg-white/60 backdrop-blur-md rounded-xl shadow-sm border border-white"><Package size={18} strokeWidth={2} className="text-slate-500"/></div>
-            <p className="text-[10px] uppercase tracking-[0.3em] text-slate-400 font-bold">Inventory Management</p>
+          <div className="flex items-center gap-4 mb-4">
+            <div className="p-2.5 bg-white/60 backdrop-blur-xl rounded-2xl shadow-sm border border-white"><Package size={18} strokeWidth={1.5} className="text-slate-900"/></div>
+            <p className="text-[10px] uppercase tracking-[0.35em] text-slate-500 font-bold">Inventory Management</p>
           </div>
-          <h1 className="text-4xl md:text-5xl font-light text-slate-900 tracking-tight mb-3" style={{fontFamily:'Didot,"Bodoni MT","Playfair Display",Times,serif'}}>Boutique Catalog</h1>
-          <p className="text-[11px] uppercase tracking-[0.2em] font-bold text-slate-500">{total} Registered Items</p>
+          <h1 className="text-4xl md:text-5xl font-light text-slate-900 tracking-tight mb-3" style={{fontFamily:'Didot,"Bodoni MT","Playfair Display",Times,serif'}}>
+            Boutique Catalog
+          </h1>
+          <p className="text-[11px] uppercase tracking-[0.25em] font-bold text-slate-400">{total} Registered Items</p>
         </div>
         <button onClick={()=>{setEditing(null);setForm(empty);setImages([]);setTryOnImg(null);setUploadErr(null);setSaveErr(null);setShowForm(true)}}
-          className="flex items-center gap-2.5 px-6 py-4 rounded-xl bg-slate-900 text-white text-[10px] uppercase tracking-[0.2em] font-bold hover:bg-slate-800 transition-all shadow-lg">
-          <Plus size={16} strokeWidth={2.5}/>New Entry
+          className="group flex items-center gap-3 px-7 py-4 rounded-2xl bg-slate-900 text-white text-[10px] uppercase tracking-[0.25em] font-bold hover:bg-slate-800 hover:shadow-2xl hover:-translate-y-0.5 transition-all duration-300">
+          <Plus size={16} strokeWidth={2} className="transition-transform group-hover:rotate-90 duration-500"/>
+          New Entry
         </button>
       </div>
 
       {/* Table */}
-      <div className="bg-white/60 backdrop-blur-3xl border border-white/80 shadow-sm rounded-[2.5rem] overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm text-left min-w-[900px]">
-            <thead className="border-b border-slate-200/50 bg-white/40">
+      <div className="bg-white/40 backdrop-blur-2xl border border-white/80 shadow-[0_8px_30px_rgb(0,0,0,0.04)] rounded-[2.5rem] overflow-hidden">
+        <div className="overflow-x-auto [&::-webkit-scrollbar]:h-2 [&::-webkit-scrollbar-thumb]:bg-slate-200 [&::-webkit-scrollbar-thumb]:rounded-full">
+          <table className="w-full text-sm text-left min-w-[1000px]">
+            <thead className="border-b border-slate-200/50 bg-white/40 backdrop-blur-md">
               <tr>{['Item','Classification','Price','Stock','Try-On','Status','Actions'].map((h,i)=>(
-                <th key={h} className={`py-5 text-[9px] font-bold uppercase tracking-[0.2em] text-slate-400 ${i===0?'px-8':'px-6'}`}>{h}</th>
+                <th key={h} className={`py-6 text-[9px] font-bold uppercase tracking-[0.25em] text-slate-400 ${i===0?'px-10':'px-6'}`}>{h}</th>
               ))}</tr>
             </thead>
             <tbody className="divide-y divide-slate-100/60">
               {loading?Array.from({length:5}).map((_,i)=>(
                 <tr key={i} className="animate-pulse">{Array.from({length:7}).map((_,j)=>(
-                  <td key={j} className={`py-6 ${j===0?'px-8':'px-6'}`}><div className="h-3 bg-slate-200/60 rounded-full"/></td>
+                  <td key={j} className={`py-7 ${j===0?'px-10':'px-6'}`}><div className="h-2 bg-slate-200/60 rounded-full w-2/3"/></td>
                 ))}</tr>
               )):products.length===0?(
-                <tr><td colSpan={7} className="px-6 py-24 text-center">
-                  <AlertCircle size={32} strokeWidth={1.5} className="text-slate-300 mx-auto mb-4"/>
-                  <p className="text-[11px] uppercase tracking-widest text-slate-400">No products yet</p>
+                <tr><td colSpan={7} className="px-6 py-32 text-center">
+                  <AlertCircle size={32} strokeWidth={1} className="text-slate-300 mx-auto mb-5"/>
+                  <p className="text-[11px] uppercase tracking-[0.2em] font-bold text-slate-400">No products yet</p>
                 </td></tr>
               ):products.map(p=>(
-                <tr key={p.id} className="hover:bg-white/80 transition-colors group">
-                  <td className="px-8 py-5">
-                    <div className="flex items-center gap-4">
+                <tr key={p.id} className="hover:bg-white/80 transition-colors duration-300 group">
+                  <td className="px-10 py-6">
+                    <div className="flex items-center gap-5">
                       {p.images?.[0]
-                        ?<div className="w-14 h-14 rounded-2xl border border-slate-200/60 bg-white p-1.5 shadow-sm flex-shrink-0"><img src={p.images[0].url} alt="" className="w-full h-full object-contain"/></div>
-                        :<div className="w-14 h-14 rounded-2xl border border-slate-200/60 bg-slate-50 flex-shrink-0"/>
+                        ?<div className="w-16 h-16 rounded-2xl border border-slate-200/60 bg-white p-2 shadow-sm flex-shrink-0 transition-transform duration-500 group-hover:scale-105"><img src={p.images[0].url} alt="" className="w-full h-full object-contain"/></div>
+                        :<div className="w-16 h-16 rounded-2xl border border-slate-200/60 bg-slate-50/50 flex-shrink-0"/>
                       }
-                      <div><p className="font-bold text-xs text-slate-900 uppercase tracking-wide line-clamp-1">{p.name}</p><p className="text-[10px] font-semibold uppercase tracking-widest text-slate-400 mt-0.5">{p.brand}</p></div>
+                      <div>
+                        <p className="font-bold text-[13px] text-slate-900 uppercase tracking-widest line-clamp-1 mb-1">{p.name}</p>
+                        <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400">{p.brand}</p>
+                      </div>
                     </div>
                   </td>
-                  <td className="px-6 py-5 text-[10px] font-bold uppercase tracking-widest text-slate-500">{p.category.replace(/-/g,' ')}</td>
-                  <td className="px-6 py-5 font-bold text-slate-900">₹{p.final_price?.toLocaleString('en-IN')}</td>
-                  <td className="px-6 py-5">
-                    <span className={`inline-flex items-center gap-1.5 text-[10px] font-bold px-3 py-1.5 rounded-lg border ${p.stock<=5?'bg-rose-50 border-rose-200 text-rose-600':'bg-white border-slate-200 text-slate-600'}`}>
-                      {p.stock<=5&&<AlertCircle size={11} strokeWidth={2.5}/>}{p.stock} units
+                  <td className="px-6 py-6 text-[10px] font-bold uppercase tracking-[0.2em] text-slate-500">{p.category.replace(/-/g,' ')}</td>
+                  <td className="px-6 py-6 font-bold text-slate-900 text-[13px] tracking-wide">₹{p.final_price?.toLocaleString('en-IN')}</td>
+                  <td className="px-6 py-6">
+                    <span className={`inline-flex items-center gap-1.5 text-[9px] uppercase tracking-widest font-bold px-3 py-1.5 rounded-xl border ${p.stock<=5?'bg-rose-50/50 border-rose-200 text-rose-600':'bg-white/50 border-slate-200 text-slate-500'}`}>
+                      {p.stock<=5&&<AlertCircle size={10} strokeWidth={2.5}/>}{p.stock} units
                     </span>
                   </td>
-                  <td className="px-6 py-5">
-                    <span className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-[9px] font-bold uppercase tracking-widest ${
-                      p.try_on_image_url?'bg-emerald-50 border-emerald-200 text-emerald-700':p.frame_width_mm?'bg-amber-50 border-amber-200 text-amber-700':'bg-slate-50 border-slate-200 text-slate-400'}`}>
-                      <Camera size={10} strokeWidth={2.5}/>
+                  <td className="px-6 py-6">
+                    <span className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-xl border text-[9px] font-bold uppercase tracking-[0.15em] ${
+                      p.try_on_image_url?'bg-emerald-50/50 border-emerald-200 text-emerald-700':p.frame_width_mm?'bg-amber-50/50 border-amber-200 text-amber-700':'bg-slate-50/50 border-slate-200 text-slate-400'}`}>
+                      <Camera size={10} strokeWidth={2}/>
                       {p.try_on_image_url?'Ready':p.frame_width_mm?'Dims':'None'}
                     </span>
                   </td>
-                  <td className="px-6 py-5">
-                    <span className={`inline-flex items-center px-3 py-1.5 rounded-lg border text-[9px] font-bold uppercase tracking-widest ${p.is_active?'bg-emerald-50 border-emerald-200 text-emerald-700':'bg-slate-50 border-slate-200 text-slate-500'}`}>
+                  <td className="px-6 py-6">
+                    <span className={`inline-flex items-center px-3 py-1.5 rounded-xl border text-[9px] font-bold uppercase tracking-[0.15em] ${p.is_active?'bg-emerald-50/50 border-emerald-200 text-emerald-700':'bg-slate-50/50 border-slate-200 text-slate-500'}`}>
                       {p.is_active?'Active':'Archived'}
                     </span>
                   </td>
-                  <td className="px-6 py-5">
-                    <div className="flex gap-2">
-                      <button onClick={()=>openEdit(p)} className="p-2.5 rounded-xl bg-white border border-slate-200 text-slate-400 hover:text-slate-900 hover:shadow-md transition-all"><Pencil size={14} strokeWidth={2.5}/></button>
-                      <button onClick={async()=>{if(!confirm('Archive?'))return;await sb.from('products').update({is_active:false}).eq('id',p.id);load()}}
-                        className="p-2.5 rounded-xl bg-white border border-slate-200 text-slate-400 hover:text-rose-600 hover:bg-rose-50 hover:border-rose-200 transition-all"><Trash2 size={14} strokeWidth={2.5}/></button>
+                  <td className="px-6 py-6">
+                    <div className="flex gap-2 opacity-60 group-hover:opacity-100 transition-opacity">
+                      <button onClick={()=>openEdit(p)} className="p-3 rounded-xl bg-white border border-slate-200 text-slate-400 hover:text-slate-900 hover:shadow-md hover:border-slate-300 transition-all duration-300"><Pencil size={14} strokeWidth={2}/></button>
+                      <button onClick={async()=>{if(!confirm('Archive this entry?'))return;await sb.from('products').update({is_active:false}).eq('id',p.id);load()}}
+                        className="p-3 rounded-xl bg-white border border-slate-200 text-slate-400 hover:text-rose-600 hover:bg-rose-50 hover:border-rose-200 transition-all duration-300"><Trash2 size={14} strokeWidth={2}/></button>
                     </div>
                   </td>
                 </tr>
@@ -363,11 +341,11 @@ export default function AdminProductsPage() {
           </table>
         </div>
         {total>PER&&(
-          <div className="px-8 py-5 border-t border-slate-200/50 flex items-center justify-between bg-white/40">
-            <p className="text-[10px] font-bold uppercase tracking-widest text-slate-500">Showing {page*PER+1}–{Math.min((page+1)*PER,total)} of {total}</p>
-            <div className="flex gap-2">
-              <button disabled={page===0} onClick={()=>setPage(p=>p-1)} className="p-2.5 rounded-xl bg-white border border-slate-200 text-slate-600 disabled:opacity-30 hover:border-slate-300 transition-all"><ChevronLeft size={16} strokeWidth={2.5}/></button>
-              <button disabled={(page+1)*PER>=total} onClick={()=>setPage(p=>p+1)} className="p-2.5 rounded-xl bg-white border border-slate-200 text-slate-600 disabled:opacity-30 hover:border-slate-300 transition-all"><ChevronRight size={16} strokeWidth={2.5}/></button>
+          <div className="px-10 py-6 border-t border-slate-200/50 flex items-center justify-between bg-white/40 backdrop-blur-md">
+            <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-500">Showing {page*PER+1}–{Math.min((page+1)*PER,total)} of {total}</p>
+            <div className="flex gap-3">
+              <button disabled={page===0} onClick={()=>setPage(p=>p-1)} className="p-3 rounded-xl bg-white border border-slate-200 text-slate-600 disabled:opacity-30 hover:border-slate-300 hover:shadow-sm transition-all"><ChevronLeft size={16} strokeWidth={2}/></button>
+              <button disabled={(page+1)*PER>=total} onClick={()=>setPage(p=>p+1)} className="p-3 rounded-xl bg-white border border-slate-200 text-slate-600 disabled:opacity-30 hover:border-slate-300 hover:shadow-sm transition-all"><ChevronRight size={16} strokeWidth={2}/></button>
             </div>
           </div>
         )}
@@ -375,54 +353,57 @@ export default function AdminProductsPage() {
 
       {/* ── Form Drawer ────────────────────────────────────────── */}
       {showForm&&(
-        <div className="fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-md flex items-end sm:items-center justify-center p-0 sm:p-4">
-          <div className="bg-white/95 backdrop-blur-3xl w-full max-w-4xl max-h-[95vh] overflow-hidden shadow-2xl border border-white sm:rounded-[2.5rem] flex flex-col animate-in slide-in-from-bottom-8 duration-500">
+        <div className="fixed inset-0 z-50 bg-slate-900/20 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-6 animate-in fade-in duration-300">
+          <div className="bg-slate-50/95 backdrop-blur-3xl w-full max-w-4xl max-h-[95vh] sm:max-h-[90vh] flex flex-col shadow-2xl shadow-slate-900/10 border border-white sm:rounded-[2.5rem] animate-in slide-in-from-bottom-8 sm:slide-in-from-bottom-4 duration-500 ease-out overflow-hidden">
 
             {/* Drawer header */}
-            <div className="bg-white/60 border-b border-slate-200/50 px-8 py-7 flex items-start justify-between flex-shrink-0">
+            <div className="bg-white/80 border-b border-slate-200/50 px-8 sm:px-10 py-8 flex items-start justify-between flex-shrink-0 relative z-10">
               <div>
-                <p className="text-[9px] uppercase tracking-[0.25em] text-slate-500 mb-2 font-bold">Item Configuration</p>
+                <p className="text-[9px] uppercase tracking-[0.3em] text-slate-400 mb-3 font-bold">Item Configuration</p>
                 <h2 className="text-3xl text-slate-900 tracking-tight" style={{fontFamily:'Didot,"Bodoni MT","Playfair Display",Times,serif'}}>
                   {editing?'Modify Entry':'New Entry'}
                 </h2>
               </div>
-              <button onClick={()=>setShowForm(false)} className="text-slate-400 hover:text-slate-900 p-2.5 bg-white rounded-full shadow-sm border border-slate-100 hover:bg-slate-50 transition-all">
-                <X size={18} strokeWidth={2}/>
+              <button onClick={()=>setShowForm(false)} className="text-slate-400 hover:text-slate-900 p-3 bg-white rounded-full shadow-sm border border-slate-100 hover:bg-slate-50 transition-all hover:rotate-90 duration-300">
+                <X size={18} strokeWidth={1.5}/>
               </button>
             </div>
 
             {/* Scrollable body */}
-            <div className="p-6 md:p-10 overflow-y-auto space-y-8 flex-1">
+            <div className="p-6 sm:p-10 overflow-y-auto space-y-8 flex-1 [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:bg-slate-200 [&::-webkit-scrollbar-thumb]:rounded-full relative">
 
               {saveErr&&(
-                <div className="p-4 bg-rose-50 border border-rose-200 rounded-2xl flex items-start justify-between">
-                  <div className="flex items-start gap-3"><AlertCircle size={16} strokeWidth={2.5} className="text-rose-600 mt-0.5 flex-shrink-0"/><p className="text-[11px] text-rose-800">{saveErr}</p></div>
-                  <button onClick={()=>setSaveErr(null)}><X size={14} strokeWidth={2} className="text-rose-400"/></button>
+                <div className="p-5 bg-rose-50/80 backdrop-blur-md border border-rose-200 rounded-2xl flex items-start justify-between shadow-sm animate-in fade-in slide-in-from-top-2">
+                  <div className="flex items-start gap-4"><AlertCircle size={16} strokeWidth={2} className="text-rose-600 mt-0.5 flex-shrink-0"/><p className="text-[11px] font-medium text-rose-800 leading-relaxed">{saveErr}</p></div>
+                  <button onClick={()=>setSaveErr(null)} className="p-1 hover:bg-rose-100 rounded-lg transition-colors"><X size={14} strokeWidth={2} className="text-rose-500"/></button>
                 </div>
               )}
 
               {/* Images */}
-              <section className="bg-white/50 p-7 rounded-3xl border border-white shadow-sm">
-                <div className="flex items-center justify-between mb-5">
-                  <label className="text-[10px] font-bold text-slate-900 uppercase tracking-[0.2em] flex items-center gap-2">
-                    <div className="p-1.5 bg-white shadow-sm border border-slate-100 rounded-lg"><ImagePlus size={14} strokeWidth={2} className="text-slate-500"/></div>
-                    Product Images
+              <section className={sectionClasses}>
+                <div className="flex items-center justify-between mb-8">
+                  <label className="text-[10px] font-bold text-slate-900 uppercase tracking-[0.2em] flex items-center gap-3">
+                    <div className="p-2 bg-white shadow-sm border border-slate-100 rounded-xl"><ImagePlus size={14} strokeWidth={1.5} className="text-slate-900"/></div>
+                    Visual Assets
                   </label>
-                  <span className="text-[9px] font-bold uppercase tracking-widest text-slate-400 bg-white/60 px-3 py-1.5 rounded-lg border border-slate-100">Max 6 · WebP/JPG · &lt;1MB</span>
+                  <span className="text-[9px] font-bold uppercase tracking-[0.15em] text-slate-400 bg-white/60 px-3 py-1.5 rounded-xl border border-slate-100 shadow-sm">Max 6 · WebP/JPG · &lt;1MB</span>
                 </div>
-                {uploadErr&&<div className="mb-4 p-4 bg-rose-50 border border-rose-200 rounded-xl flex items-start justify-between"><div className="flex gap-3"><AlertCircle size={13} className="text-rose-600 mt-0.5 flex-shrink-0"/><span className="text-[10px] text-rose-800">{uploadErr}</span></div><button onClick={()=>setUploadErr(null)}><X size={13} className="text-rose-400"/></button></div>}
-                <div className="flex flex-wrap gap-4">
+                
+                {uploadErr&&<div className="mb-6 p-4 bg-rose-50 border border-rose-200 rounded-xl flex items-start justify-between"><div className="flex gap-3"><AlertCircle size={13} className="text-rose-600 mt-0.5 flex-shrink-0"/><span className="text-[10px] text-rose-800 font-medium">{uploadErr}</span></div><button onClick={()=>setUploadErr(null)}><X size={13} className="text-rose-400"/></button></div>}
+                
+                <div onDragOver={onImgDragOver} onDragLeave={onImgDragLeave} onDrop={onImgDrop}
+                  className={`flex flex-wrap gap-5 rounded-3xl transition-all duration-300 ${imgDragOver?'ring-2 ring-slate-400 ring-offset-4 bg-slate-50 p-4 -m-4':''}`}>
                   {images.map((img,i)=>(
-                    <div key={i} className="relative w-24 h-24 rounded-2xl border border-slate-200 bg-white group shadow-sm hover:shadow-md transition-all">
-                      <img src={img.url} alt="" className="w-full h-full object-contain p-2 rounded-2xl"/>
-                      {i===0&&<span className="absolute top-1.5 left-1.5 text-[7px] bg-slate-900/90 text-white px-1.5 py-0.5 rounded font-bold uppercase tracking-widest">Primary</span>}
-                      <button onClick={()=>setImages(p=>p.filter((_,j)=>j!==i))} className="absolute -top-2.5 -right-2.5 w-7 h-7 rounded-full bg-white border border-slate-200 text-slate-400 hover:text-rose-600 hover:bg-rose-50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all shadow-sm z-10"><X size={13} strokeWidth={2.5}/></button>
+                    <div key={i} className="relative w-28 h-28 rounded-2xl border border-slate-200/80 bg-white group shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all duration-300">
+                      <img src={img.url} alt="" className="w-full h-full object-contain p-3 rounded-2xl"/>
+                      {i===0&&<span className="absolute top-2 left-2 text-[8px] bg-slate-900/95 text-white px-2 py-1 rounded-lg font-bold uppercase tracking-[0.2em] shadow-sm backdrop-blur-md">Primary</span>}
+                      <button onClick={()=>setImages(p=>p.filter((_,j)=>j!==i))} className="absolute -top-3 -right-3 w-8 h-8 rounded-full bg-white border border-slate-200 text-slate-400 hover:text-rose-600 hover:bg-rose-50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 shadow-md z-10"><X size={14} strokeWidth={2}/></button>
                     </div>
                   ))}
                   {images.length<6&&(
                     <button onClick={()=>fileRef.current?.click()} disabled={uploading}
-                      className="w-24 h-24 rounded-2xl border-2 border-dashed border-slate-300 bg-white/40 flex flex-col items-center justify-center text-slate-400 hover:border-slate-500 hover:bg-white transition-all">
-                      {uploading?<Loader2 size={18} strokeWidth={2.5} className="animate-spin"/>:<><Plus size={18} strokeWidth={2.5}/><span className="text-[9px] font-bold uppercase tracking-widest mt-2">Upload</span></>}
+                      className={`w-28 h-28 rounded-2xl border-2 border-dashed flex flex-col items-center justify-center transition-all duration-300 ${imgDragOver?'border-slate-500 bg-white text-slate-700 scale-105':'border-slate-300/80 bg-white/40 text-slate-400 hover:border-slate-400 hover:bg-white hover:shadow-md'}`}>
+                      {uploading?<Loader2 size={20} strokeWidth={2} className="animate-spin text-slate-600"/>:<><Plus size={20} strokeWidth={1.5}/><span className="text-[9px] font-bold uppercase tracking-[0.2em] mt-3">{imgDragOver?'Drop':'Upload'}</span></>}
                     </button>
                   )}
                 </div>
@@ -430,84 +411,84 @@ export default function AdminProductsPage() {
               </section>
 
               {/* Basic details */}
-              <section className="bg-white/50 p-7 rounded-3xl border border-white shadow-sm space-y-6">
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+              <section className={sectionClasses}>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-7">
                   <div className="sm:col-span-2">
-                    <label className="text-[9px] font-bold text-slate-500 uppercase tracking-widest block mb-2">Name</label>
-                    <input type="text" value={form.name} onChange={e=>sf('name',e.target.value)} className={cls}/>
+                    <label className={labelClasses}>Nomenclature</label>
+                    <input type="text" value={form.name} onChange={e=>sf('name',e.target.value)} className={`${inputClasses} text-[14px]`} placeholder="e.g. Classic Aviator 500"/>
                   </div>
                   <div>
-                    <label className="text-[9px] font-bold text-slate-500 uppercase tracking-widest block mb-2">URL Slug</label>
-                    <input type="text" value={form.slug} onChange={e=>sf('slug',e.target.value)} className={cls.replace('font-medium','font-mono text-[11px]')}/>
+                    <label className={labelClasses}>URL Slug</label>
+                    <input type="text" value={form.slug} onChange={e=>sf('slug',e.target.value)} className={`${inputClasses} font-mono text-[11px] text-slate-500`}/>
                   </div>
                   <div>
-                    <label className="text-[9px] font-bold text-slate-500 uppercase tracking-widest block mb-2">Brand</label>
+                    <label className={labelClasses}>Brand/Designer</label>
                     <BrandCombobox value={form.brand} onChange={v=>sf('brand',v)}/>
                   </div>
-                </div>
-                <div>
-                  <label className="text-[9px] font-bold text-slate-500 uppercase tracking-widest block mb-2">Description</label>
-                  <textarea value={form.description} onChange={e=>sf('description',e.target.value)} rows={3}
-                    className={`${cls} resize-none leading-relaxed`}/>
+                  <div className="sm:col-span-2">
+                    <label className={labelClasses}>Description & Detail</label>
+                    <textarea value={form.description} onChange={e=>sf('description',e.target.value)} rows={4}
+                      className={`${inputClasses} resize-none leading-relaxed text-[13px]`} placeholder="Describe the aesthetic and material qualities..."/>
+                  </div>
                 </div>
               </section>
 
               {/* Specifications */}
-              <section className="bg-white/50 p-7 rounded-3xl border border-white shadow-sm">
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+              <section className={sectionClasses}>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-7">
                   {([
                     {k:'category' as const,label:'Category',opts:CATEGORIES},
                     {k:'gender'   as const,label:'Gender',  opts:GENDERS},
-                    {k:'frame_type' as const, label:'Frame Type', opts:FRAME_TYPES},
-                    {k:'frame_shape' as const,label:'Frame Shape',opts:SHAPES},
+                    {k:'frame_type' as const, label:'Frame Architecture', opts:FRAME_TYPES},
+                    {k:'frame_shape' as const,label:'Silhouette',opts:SHAPES},
                   ]).map(f=>(
                     <div key={f.k}>
-                      <label className="text-[9px] font-bold text-slate-500 uppercase tracking-widest block mb-2">{f.label}</label>
-                      <div className="relative">
+                      <label className={labelClasses}>{f.label}</label>
+                      <div className="relative group">
                         <select value={form[f.k]} onChange={e=>sf(f.k,e.target.value)}
-                          className="w-full text-[11px] font-bold uppercase tracking-widest text-slate-900 bg-white/60 border border-slate-200/60 rounded-xl px-5 py-4 pr-10 focus:outline-none focus:border-slate-400 focus:ring-4 focus:ring-slate-400/10 transition-all shadow-sm appearance-none cursor-pointer">
+                          className={`${inputClasses} uppercase tracking-[0.15em] text-[11px] appearance-none cursor-pointer pr-10`}>
                           <option value="">SELECT...</option>
                           {f.opts.map(o=><option key={o} value={o}>{o.replace(/-/g,' ')}</option>)}
                         </select>
-                        <div className="pointer-events-none absolute right-5 top-1/2 -translate-y-1/2">
-                          <svg width="10" height="6" viewBox="0 0 10 6" fill="none"><path d="M1 1L5 5L9 1" stroke="#94a3b8" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                        <div className="pointer-events-none absolute right-5 top-1/2 -translate-y-1/2 text-slate-400 transition-transform group-hover:translate-y-[1px]">
+                          <svg width="10" height="6" viewBox="0 0 10 6" fill="none"><path d="M1 1L5 5L9 1" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
                         </div>
                       </div>
                     </div>
                   ))}
                   <div>
-                    <label className="text-[9px] font-bold text-slate-500 uppercase tracking-widest block mb-2">Frame Color</label>
+                    <label className={labelClasses}>Primary Colorway</label>
                     <ColorCombobox value={form.frame_color} onChange={v=>sf('frame_color',v)}/>
                   </div>
                   <div>
-                    <label className="text-[9px] font-bold text-slate-500 uppercase tracking-widest block mb-2">Frame Material</label>
-                    <input type="text" value={form.frame_material} onChange={e=>sf('frame_material',e.target.value)} className={cls}/>
+                    <label className={labelClasses}>Material Composition</label>
+                    <input type="text" value={form.frame_material} onChange={e=>sf('frame_material',e.target.value)} className={inputClasses} placeholder="e.g. Acetate, Titanium"/>
                   </div>
                 </div>
               </section>
 
               {/* Pricing */}
-              <section className="bg-white/50 p-7 rounded-3xl border border-white shadow-sm space-y-6">
-                <div className="grid grid-cols-3 gap-5">
-                  {([{k:'base_price' as const,l:'Price (₹)'},{k:'discount_percent' as const,l:'Discount %'},{k:'stock' as const,l:'Stock'}]).map(f=>(
+              <section className={sectionClasses}>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-7">
+                  {([{k:'base_price' as const,l:'Retail Price (₹)'},{k:'discount_percent' as const,l:'Discount %'},{k:'stock' as const,l:'Inventory Level'}]).map(f=>(
                     <div key={f.k}>
-                      <label className="text-[9px] font-bold text-slate-500 uppercase tracking-widest block mb-2">{f.l}</label>
-                      <input type="number" min="0" value={form[f.k]} onChange={e=>sf(f.k,e.target.value)} className="w-full text-[13px] font-mono font-bold text-slate-900 bg-white/60 border border-slate-200/60 rounded-xl px-5 py-4 focus:outline-none focus:border-slate-400 focus:ring-4 focus:ring-slate-400/10 transition-all shadow-sm"/>
+                      <label className={labelClasses}>{f.l}</label>
+                      <input type="number" min="0" value={form[f.k]} onChange={e=>sf(f.k,e.target.value)} className={`${inputClasses} font-mono text-[14px]`}/>
                     </div>
                   ))}
                 </div>
-                <div>
-                  <label className="text-[9px] font-bold text-slate-500 uppercase tracking-widest block mb-2">Tags (comma separated)</label>
-                  <input type="text" value={form.tags} onChange={e=>sf('tags',e.target.value)} placeholder="TRENDING, SUMMER, BESTSELLER" className={`${cls} uppercase tracking-widest`}/>
+                <div className="mt-7">
+                  <label className={labelClasses}>Tags / Keywords</label>
+                  <input type="text" value={form.tags} onChange={e=>sf('tags',e.target.value)} placeholder="TRENDING, SUMMER, EDITORIAL" className={`${inputClasses} uppercase tracking-widest text-[11px]`}/>
                 </div>
-                <div className="flex gap-4 pt-2 border-t border-slate-200/50">
-                  {([{k:'is_active' as const,l:'Active (Publicly Visible)'},{k:'is_featured' as const,l:'Featured on Homepage'}]).map(f=>(
-                    <label key={f.k} className="flex-1 flex items-center gap-3 cursor-pointer bg-white/60 px-5 py-4 rounded-xl border border-slate-200 hover:bg-white hover:shadow-md transition-all">
-                      <div className={`relative flex items-center justify-center w-6 h-6 rounded-md border transition-all ${form[f.k]?'bg-slate-900 border-slate-900':'bg-white border-slate-300'}`}>
+                <div className="flex flex-col sm:flex-row gap-5 pt-8 mt-8 border-t border-slate-200/50">
+                  {([{k:'is_active' as const,l:'Publicly Available'},{k:'is_featured' as const,l:'Feature on Homepage'}]).map(f=>(
+                    <label key={f.k} className="flex-1 flex items-center gap-4 cursor-pointer bg-white/60 px-6 py-5 rounded-2xl border border-slate-200/80 hover:bg-white hover:border-slate-300 hover:shadow-lg transition-all duration-300">
+                      <div className={`relative flex items-center justify-center w-6 h-6 rounded-lg border transition-all duration-300 shadow-sm ${form[f.k]?'bg-slate-900 border-slate-900':'bg-slate-50 border-slate-300'}`}>
                         <input type="checkbox" checked={form[f.k] as boolean} onChange={e=>sf(f.k,e.target.checked)} className="absolute opacity-0 cursor-pointer w-full h-full"/>
-                        {form[f.k]&&<Check size={14} strokeWidth={3} className="text-white"/>}
+                        <Check size={14} strokeWidth={3} className={`transition-all duration-300 ${form[f.k]?'text-white scale-100':'text-transparent scale-50'}`}/>
                       </div>
-                      <span className="text-[10px] uppercase tracking-widest font-bold text-slate-700">{f.l}</span>
+                      <span className="text-[10px] uppercase tracking-[0.2em] font-bold text-slate-700">{f.l}</span>
                     </label>
                   ))}
                 </div>
@@ -515,81 +496,84 @@ export default function AdminProductsPage() {
 
               {/* ── Virtual Try-On Section ─────────────────────── */}
               {showTryOn&&(
-                <section className="bg-white/50 p-7 rounded-3xl border border-white shadow-sm">
-                  <div className="flex items-start justify-between gap-3 mb-2">
-                    <div className="flex items-center gap-3">
-                      <div className="p-2 bg-white shadow-sm border border-slate-100 rounded-xl"><Camera size={16} strokeWidth={2} className="text-slate-500"/></div>
+                <section className={sectionClasses}>
+                  <div className="flex items-start justify-between gap-4 mb-3">
+                    <div className="flex items-center gap-4">
+                      <div className="p-2.5 bg-white shadow-sm border border-slate-100 rounded-xl"><Camera size={16} strokeWidth={1.5} className="text-slate-900"/></div>
                       <div>
-                        <p className="text-[10px] font-bold text-slate-900 uppercase tracking-[0.2em]">Virtual Try-On</p>
-                        <p className="text-[9px] text-slate-400 font-light mt-0.5">Dimensions drive accurate scaling · transparent PNG enables overlay</p>
+                        <p className="text-[10px] font-bold text-slate-900 uppercase tracking-[0.2em]">Augmented Reality / Try-On</p>
+                        <p className="text-[10px] text-slate-500 font-medium mt-1 tracking-wide">Dimensions drive precise scaling · Transparent PNG enables facial overlay</p>
                       </div>
                     </div>
-                    <span className="flex-shrink-0 text-[8px] font-bold uppercase tracking-widest px-3 py-1.5 rounded-lg bg-amber-50 border border-amber-200 text-amber-700">Optional</span>
+                    <span className="flex-shrink-0 text-[9px] font-bold uppercase tracking-[0.2em] px-3 py-1.5 rounded-xl bg-slate-100 border border-slate-200 text-slate-500 shadow-sm">Optional</span>
                   </div>
-                  <div className="mb-7 mt-4 p-4 bg-slate-50/80 border border-slate-200/60 rounded-2xl">
-                    <p className="text-[10px] text-slate-500 leading-relaxed">
-                      <span className="font-bold text-slate-700">These fields are optional.</span> Fill them only if you want this product to display the <span className="font-bold">Virtual Try-On</span> button on the storefront. Products without any try-on data will not show the Try-On button.
+                  
+                  <div className="mb-8 mt-6 p-5 bg-slate-50/80 border border-slate-200/60 rounded-2xl">
+                    <p className="text-[11px] text-slate-600 leading-relaxed font-medium">
+                      <span className="font-bold text-slate-900">Fields below govern the AR experience.</span> Populate to activate the <span className="font-bold border-b border-slate-300 pb-0.5">Virtual Try-On</span> module on the product detail page. Empty fields will gracefully hide the feature.
                     </p>
                   </div>
 
                   {/* Dimension inputs */}
-                  <div className="mb-7">
-                    <div className="flex items-center gap-2 mb-4">
-                      <Ruler size={11} strokeWidth={2} className="text-slate-400"/>
-                      <p className="text-[9px] font-bold uppercase tracking-[0.2em] text-slate-500">Frame Dimensions (mm) <span className="text-slate-300 normal-case font-normal tracking-normal">— optional, improves scaling accuracy</span></p>
+                  <div className="mb-10">
+                    <div className="flex items-center gap-3 mb-5">
+                      <Ruler size={12} strokeWidth={1.5} className="text-slate-400"/>
+                      <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-500">Physical Dimensions <span className="text-slate-400/70 normal-case font-medium tracking-normal">(mm)</span></p>
                     </div>
                     <div className="grid grid-cols-2 sm:grid-cols-5 gap-4">
                       {([
-                        {k:'frame_width_mm'   as const,l:'Frame Width',   hint:'130–148'},
-                        {k:'lens_width_mm'    as const,l:'Lens Width',    hint:'46–56'},
-                        {k:'bridge_width_mm'  as const,l:'Bridge',        hint:'14–22'},
-                        {k:'temple_length_mm' as const,l:'Temple',        hint:'135–150'},
-                        {k:'frame_height_mm'  as const,l:'Height',        hint:'32–54'},
+                        {k:'frame_width_mm'   as const,l:'Frame',      hint:'130-148'},
+                        {k:'lens_width_mm'    as const,l:'Lens',       hint:'46-56'},
+                        {k:'bridge_width_mm'  as const,l:'Bridge',     hint:'14-22'},
+                        {k:'temple_length_mm' as const,l:'Temple',     hint:'135-150'},
+                        {k:'frame_height_mm'  as const,l:'Height',     hint:'32-54'},
                       ]).map(f=>(
                         <div key={f.k}>
-                          <label className="text-[8px] font-bold text-slate-400 uppercase tracking-widest block mb-1.5">{f.l}</label>
+                          <label className="text-[9px] font-bold text-slate-400 uppercase tracking-[0.15em] block mb-2 ml-1">{f.l}</label>
                           <div className="relative">
                             <input type="number" min="0" step="0.1" value={form[f.k]} onChange={e=>sf(f.k,e.target.value)} placeholder={f.hint}
-                              className="w-full text-[12px] font-mono font-bold text-slate-900 bg-white/70 border border-slate-200/60 rounded-xl px-4 py-3.5 pr-9 focus:outline-none focus:border-slate-400 focus:ring-4 focus:ring-slate-400/10 transition-all shadow-sm placeholder-slate-300"/>
-                            <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[9px] font-bold text-slate-300">mm</span>
+                              className={`${inputClasses} font-mono text-[13px] px-4 py-3.5 pr-10 bg-white/70`} />
+                            <span className="absolute right-4 top-1/2 -translate-y-1/2 text-[9px] font-bold text-slate-300">mm</span>
                           </div>
                         </div>
                       ))}
                     </div>
-                    <p className="text-[9px] text-slate-400 mt-3 font-light leading-relaxed">
-                      Tip: measurements printed on inner temple arm e.g. &ldquo;52□18-145&rdquo; = lens width □ bridge - temple length.
+                    <p className="text-[10px] text-slate-400 mt-4 font-medium tracking-wide">
+                      Guidance: Check the inner temple arm. Format is typically <b>52□18-145</b> (Lens □ Bridge - Temple).
                     </p>
                   </div>
 
                   {/* Try-on image */}
-                  <div className="border-t border-slate-200/50 pt-7">
-                    <div className="flex items-center justify-between mb-1">
-                      <p className="text-[9px] font-bold uppercase tracking-[0.2em] text-slate-500">Try-On Overlay Image</p>
-                      <span className="text-[8px] font-bold uppercase tracking-widest px-2.5 py-1 rounded-lg bg-amber-50 border border-amber-200 text-amber-700">Optional</span>
+                  <div className="border-t border-slate-200/50 pt-8">
+                    <div className="flex items-center justify-between mb-2">
+                      <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-500">Overlay Asset</p>
                     </div>
-                    <p className="text-[10px] text-slate-400 font-light mb-5 leading-relaxed">
-                      Transparent PNG or WebP, front-facing, horizontally centred. Max 3 MB.
+                    <p className="text-[11px] text-slate-500 font-medium mb-6">
+                      Front-facing transparent PNG or WebP. Centered horizontally. Max 3MB.
                     </p>
+                    
                     {tryOnUploadErr&&(
-                      <div className="mb-4 p-4 bg-rose-50 border border-rose-200 rounded-xl flex items-start justify-between">
-                        <div className="flex gap-3"><AlertCircle size={13} className="text-rose-600 mt-0.5 flex-shrink-0"/><span className="text-[10px] text-rose-800">{tryOnUploadErr}</span></div>
+                      <div className="mb-5 p-4 bg-rose-50 border border-rose-200 rounded-xl flex items-start justify-between">
+                        <div className="flex gap-3"><AlertCircle size={13} className="text-rose-600 mt-0.5 flex-shrink-0"/><span className="text-[10px] text-rose-800 font-medium">{tryOnUploadErr}</span></div>
                         <button onClick={()=>setTryOnUploadErr(null)}><X size={13} className="text-rose-400"/></button>
                       </div>
                     )}
-                    <div className="flex items-start gap-5 flex-wrap">
+                    
+                    <div onDragOver={onTryOnDragOver} onDragLeave={onTryOnDragLeave} onDrop={onTryOnDrop}
+                      className={`flex items-start gap-6 flex-wrap rounded-3xl transition-all duration-300 ${tryOnDragOver?'ring-2 ring-slate-400 ring-offset-4 bg-slate-50/80 p-4 -m-4':''}`}>
                       {tryOnImg&&(
-                        <div className="relative group w-40 h-28 rounded-2xl border border-slate-200 bg-[repeating-conic-gradient(#f1f5f9_0%_25%,transparent_0%_50%)] bg-[size:16px_16px] shadow-sm overflow-hidden flex-shrink-0">
-                          <img src={tryOnImg.url} alt="" className="w-full h-full object-contain p-2"/>
-                          <span className="absolute top-2 left-2 text-[8px] bg-emerald-600/90 text-white px-2 py-0.5 rounded font-bold uppercase tracking-widest">Set</span>
+                        <div className="relative group w-48 h-32 rounded-2xl border border-slate-200 bg-[repeating-conic-gradient(#f8fafc_0%_25%,transparent_0%_50%)] bg-[size:16px_16px] shadow-sm overflow-hidden flex-shrink-0 hover:shadow-lg transition-all duration-300">
+                          <img src={tryOnImg.url} alt="" className="w-full h-full object-contain p-3"/>
+                          <span className="absolute top-2 left-2 text-[8px] bg-slate-900/90 text-white px-2.5 py-1 rounded-lg font-bold uppercase tracking-[0.2em] shadow-sm backdrop-blur-md">Active</span>
                           <button onClick={()=>setTryOnImg(null)}
-                            className="absolute -top-2 -right-2 w-7 h-7 rounded-full bg-white border border-slate-200 text-slate-400 hover:text-rose-600 hover:bg-rose-50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all shadow-sm"><X size={12} strokeWidth={2.5}/></button>
+                            className="absolute -top-3 -right-3 w-8 h-8 rounded-full bg-white border border-slate-200 text-slate-400 hover:text-rose-600 hover:bg-rose-50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 shadow-md"><X size={13} strokeWidth={2}/></button>
                         </div>
                       )}
                       <button onClick={()=>tryOnRef.current?.click()} disabled={tryOnUploading}
-                        className="h-28 px-8 rounded-2xl border-2 border-dashed border-slate-300 bg-white/40 flex flex-col items-center justify-center text-slate-400 hover:border-slate-500 hover:bg-white hover:text-slate-700 transition-all shadow-sm min-w-[110px]">
-                        {tryOnUploading?<Loader2 size={18} strokeWidth={2.5} className="animate-spin"/>:<>
-                          <Camera size={18} strokeWidth={1.75}/>
-                          <span className="text-[9px] font-bold uppercase tracking-widest mt-2">{tryOnImg?'Replace':'Upload PNG'}</span>
+                        className={`h-32 px-10 rounded-2xl border-2 border-dashed flex flex-col items-center justify-center transition-all duration-300 shadow-sm min-w-[140px] ${tryOnDragOver?'border-slate-600 bg-white text-slate-800 scale-105':'border-slate-300/80 bg-white/40 text-slate-400 hover:border-slate-400 hover:bg-white hover:text-slate-600 hover:shadow-md'}`}>
+                        {tryOnUploading?<Loader2 size={20} strokeWidth={2} className="animate-spin"/>:<>
+                          <ImagePlus size={20} strokeWidth={1.5}/>
+                          <span className="text-[9px] font-bold uppercase tracking-[0.2em] mt-3">{tryOnDragOver?'Drop Asset':tryOnImg?'Replace':'Upload Asset'}</span>
                         </>}
                       </button>
                     </div>
@@ -602,22 +586,22 @@ export default function AdminProductsPage() {
               {editing ? (
                 <VariantGroupManager productId={editing.id} productName={form.name || editing.name} />
               ) : (
-                <section className="bg-white/50 p-7 rounded-3xl border border-white shadow-sm">
-                  <div className="flex items-center gap-3 mb-2">
-                    <div className="p-2 bg-white shadow-sm border border-slate-100 rounded-xl"><Palette size={16} strokeWidth={2} className="text-slate-400"/></div>
+                <section className={sectionClasses}>
+                  <div className="flex items-center gap-4">
+                    <div className="p-2.5 bg-white shadow-sm border border-slate-100 rounded-xl"><Palette size={16} strokeWidth={1.5} className="text-slate-400"/></div>
                     <div>
-                      <p className="text-[10px] font-bold text-slate-900 uppercase tracking-[0.2em]">Product Variant Linking</p>
-                      <p className="text-[9px] text-slate-400 font-light mt-0.5">Save this product first, then reopen it to link color variants.</p>
+                      <p className="text-[10px] font-bold text-slate-900 uppercase tracking-[0.2em]">Variant Management</p>
+                      <p className="text-[10px] text-slate-500 font-medium mt-1 tracking-wide">Publish this entry first to unlock colorway linking capabilities.</p>
                     </div>
                   </div>
                 </section>
               )}
 
               {/* Submit */}
-              <div className="pb-4">
+              <div className="pt-4 pb-8 sticky bottom-0 bg-gradient-to-t from-slate-50 via-slate-50/90 to-transparent z-20">
                 <button onClick={save} disabled={saving}
-                  className="w-full py-5 rounded-2xl bg-slate-900 hover:bg-slate-800 disabled:opacity-50 text-white text-[11px] uppercase tracking-[0.25em] font-bold transition-all shadow-xl hover:shadow-2xl hover:-translate-y-0.5 flex items-center justify-center gap-3">
-                  {saving?<><Loader2 size={18} strokeWidth={2.5} className="animate-spin"/>Saving...</>:<><Save size={18} strokeWidth={2.5}/>{editing?'Update Entry':'Publish Entry'}</>}
+                  className="w-full py-5 rounded-2xl bg-slate-900 hover:bg-slate-800 disabled:opacity-50 text-white text-[11px] uppercase tracking-[0.3em] font-bold transition-all duration-300 shadow-xl shadow-slate-900/20 hover:shadow-2xl hover:shadow-slate-900/30 hover:-translate-y-0.5 flex items-center justify-center gap-3">
+                  {saving?<><Loader2 size={18} strokeWidth={2} className="animate-spin"/>Processing...</>:<><Save size={18} strokeWidth={2}/>{editing?'Commit Changes':'Publish Entry'}</>}
                 </button>
               </div>
             </div>
@@ -627,5 +611,3 @@ export default function AdminProductsPage() {
     </div>
   )
 }
-
-const cls = "w-full text-[12px] font-medium text-slate-900 bg-white/60 border border-slate-200/60 rounded-xl px-5 py-4 focus:outline-none focus:border-slate-400 focus:ring-4 focus:ring-slate-400/10 transition-all shadow-sm placeholder-slate-400"
