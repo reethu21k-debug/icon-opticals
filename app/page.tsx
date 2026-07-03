@@ -194,9 +194,9 @@ const PARTNER_BRANDS = [
 ]
 
 const TRUST_STATS = [
-  { value: '1',   numeric: 1,   label: 'Flagship Store',  delay: '0.1s',  suffix: ''  },
+  { value: '1',    numeric: 1,   label: 'Flagship Store',  delay: '0.1s',  suffix: ''  },
   { value: '4.8',  numeric: 4.8, label: 'Average Rating', delay: '0.17s', suffix: '★' },
-  { value: '10',  numeric: 10,  label: 'Happy Clients',   delay: '0.24s', suffix: 'K+' },
+  { value: '10',   numeric: 10,  label: 'Happy Clients',   delay: '0.24s', suffix: 'K+' },
   { value: 'Free', numeric: -1,  label: 'Consultations',  delay: '0.31s', suffix: ''  },
 ]
 
@@ -425,7 +425,6 @@ const PAGE_STYLES = `
     background: rgba(255, 255, 255, 0.85);
     border-color: rgba(255, 255, 255, 0.9);
   }
-  /* Disable hover transform on touch devices */
   @media (hover: none) {
     .cat-card:hover { transform: none; box-shadow: var(--glass-shadow); }
     .cat-card:active { transform: scale(0.98); }
@@ -503,106 +502,213 @@ const PAGE_STYLES = `
   }
 
   /* ────────────────────────────────────────────────
-     HERO SECTION
+     SECTION 4 REDESIGN: EDITORIAL LUXURY & BENTO UI
   ──────────────────────────────────────────────── */
-  .hero-section {
+  .hero-redesign-section {
     position: relative;
-    z-index: 1;
-    padding-top: var(--section-py);
-    padding-bottom: var(--section-py);
+    z-index: 2;
+    overflow: hidden;
   }
-  .hero-inner {
+  
+  .hero-editorial-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: clamp(40px, 6vw, 80px);
+    align-items: center;
+  }
+  @media (min-width: 1024px) {
+    .hero-editorial-grid {
+      grid-template-columns: 1.15fr 0.85fr;
+    }
+  }
+
+  .hero-editorial-left {
     display: flex;
     flex-direction: column;
-    gap: clamp(24px, 4vw, 36px);
     align-items: flex-start;
-    max-width: 720px;
   }
 
-  .hero-title {
-    font-size: clamp(2.5rem, 8vw, 5.5rem);
-    line-height: 1.05;
-    letter-spacing: -0.02em;
+  .hero-editorial-title {
+    font-size: clamp(3rem, 7vw, 6.2rem);
+    line-height: 0.96;
+    letter-spacing: -0.03em;
     color: var(--ink);
-    margin: 0;
-    overflow: visible;
-  }
-  .hero-desc {
-    font-size: clamp(0.95rem, 2.2vw, 1.15rem);
-    line-height: 1.6;
-    color: var(--ink-soft);
-    margin: 0;
-    max-width: 480px;
+    margin: clamp(20px, 3vw, 28px) 0 0 0;
     font-weight: 400;
-    letter-spacing: 0.01em;
   }
 
-  .hero-cta-group {
-    display: flex;
+  .editorial-italic-wrapper {
+    display: inline-flex;
+    align-items: baseline;
     gap: clamp(12px, 2vw, 20px);
     flex-wrap: wrap;
-    margin-top: 8px;
   }
 
-  .hero-rule {
+  .hero-italic-accent {
+    font-style: italic;
+    font-weight: 400;
+    background: linear-gradient(135deg, #0f172a 0%, #475569 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .editorial-script-tag {
+    font-family: 'DM Sans', sans-serif;
+    font-size: clamp(9px, 1.4vw, 11px);
+    text-transform: uppercase;
+    letter-spacing: 0.3em;
+    font-weight: 600;
+    color: var(--ink-soft);
+    padding: 6px 14px;
+    border-radius: 100px;
+    background: rgba(15, 23, 42, 0.04);
+    border: 1px solid rgba(15, 23, 42, 0.08);
+    transform: translateY(-8px);
+  }
+
+  .hero-editorial-rule {
     height: 1px;
-    width: clamp(60px, 8vw, 100px);
-    background: var(--line);
-    border-radius: 2px;
-    transform-origin: left;
-    animation: lineDraw 1s var(--ease-fluid) 0.3s both;
+    width: clamp(80px, 12vw, 160px);
+    background: linear-gradient(90deg, var(--ink), transparent);
+    margin: clamp(24px, 3.5vw, 36px) 0;
+    animation: lineDraw 1.2s var(--ease-fluid) 0.3s both;
   }
 
-  /* ────────────────────────────────────────────────
-     TRUST GRID
-  ──────────────────────────────────────────────── */
-  .trust-grid {
-    margin-top: clamp(40px, 6vw, 64px);
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: var(--gap-md);
-  }
-  @media (min-width: 480px) {
-    .trust-grid { grid-template-columns: repeat(4, 1fr); }
+  .hero-editorial-desc {
+    font-size: clamp(1rem, 1.8vw, 1.2rem);
+    line-height: 1.65;
+    color: var(--ink-soft);
+    margin: 0;
+    max-width: 520px;
+    font-weight: 400;
+    letter-spacing: -0.005em;
   }
 
-  .trust-cell {
-    text-align: left;
-    padding: clamp(1.2rem, 3vw, 2rem) clamp(1.2rem, 2vw, 1.8rem);
-    border: 1px solid var(--glass-border);
-    background: var(--surface);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-    border-radius: clamp(16px, 2.5vw, 24px);
-    transition: box-shadow .5s var(--ease-fluid), background .5s var(--ease-fluid), transform .5s var(--ease-fluid);
-    animation: fadeUp .8s var(--ease-fluid) both;
+  .hero-editorial-ctas {
+    display: flex;
+    gap: clamp(12px, 2vw, 16px);
+    flex-wrap: wrap;
+    margin-top: clamp(28px, 4vw, 40px);
+  }
+
+  /* Right Bento Showcase */
+  .trust-bento-card {
+    background: rgba(255, 255, 255, 0.65);
+    backdrop-filter: blur(32px);
+    -webkit-backdrop-filter: blur(32px);
+    border: 1px solid rgba(255, 255, 255, 0.8);
+    border-radius: clamp(24px, 3.5vw, 36px);
+    padding: clamp(24px, 4vw, 48px);
+    box-shadow: 
+      0 30px 60px -15px rgba(15, 23, 42, 0.07),
+      inset 0 1px 0 0 rgba(255, 255, 255, 0.9);
     position: relative;
     overflow: hidden;
-    box-shadow: var(--glass-shadow), var(--glass-highlight);
   }
-  .trust-cell:hover { 
-    box-shadow: 0 24px 48px -12px rgba(15,23,42,.08), var(--glass-highlight); 
-    background: rgba(255,255,255,0.9); 
-    transform: translateY(-4px); 
+  
+  .trust-bento-card::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle at top right, rgba(255, 255, 255, 0.8) 0%, transparent 60%);
+    pointer-events: none;
   }
-  @media (hover: none) { .trust-cell:hover { transform: none; } }
 
-  .trust-value  {
-    font-size: clamp(1.8rem, 4vw, 2.8rem);
+  .trust-bento-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: clamp(24px, 3vw, 36px);
+    padding-bottom: clamp(16px, 2vw, 20px);
+    border-bottom: 1px solid rgba(15, 23, 42, 0.06);
+    position: relative;
+    z-index: 1;
+  }
+
+  .trust-bento-subtitle {
+    font-size: clamp(9px, 1.4vw, 11px);
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    font-weight: 600;
     color: var(--ink);
+  }
+
+  .trust-bento-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 10px;
+    font-weight: 500;
+    color: var(--ink-soft);
+  }
+
+  .status-indicator {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #10b981;
+    box-shadow: 0 0 8px #10b981;
+  }
+
+  .trust-bento-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: clamp(16px, 2.5vw, 24px);
+    position: relative;
+    z-index: 1;
+  }
+
+  .trust-bento-item {
+    background: rgba(255, 255, 255, 0.5);
+    border: 1px solid rgba(255, 255, 255, 0.6);
+    border-radius: clamp(16px, 2vw, 24px);
+    padding: clamp(20px, 3vw, 28px) clamp(16px, 2.5vw, 24px);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    transition: all 0.5s var(--ease-fluid);
+    animation: fadeUp .8s var(--ease-fluid) both;
+  }
+
+  .trust-bento-item:hover {
+    background: rgba(255, 255, 255, 0.95);
+    transform: translateY(-4px) scale(1.01);
+    border-color: rgba(15, 23, 42, 0.1);
+    box-shadow: 0 16px 32px -8px rgba(15, 23, 42, 0.06);
+  }
+
+  .trust-bento-top {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+  }
+
+  .trust-bento-value {
+    font-size: clamp(2rem, 3.8vw, 3.2rem);
     line-height: 1;
+    color: var(--ink);
     margin: 0;
+    letter-spacing: -0.03em;
   }
-  .trust-divider{
+
+  .trust-bento-divider {
     height: 1px;
-    width: 100%;
-    background: linear-gradient(90deg, var(--line), transparent);
-    margin: clamp(12px, 2vw, 16px) 0;
+    width: 32px;
+    background: rgba(15, 23, 42, 0.12);
+    margin: clamp(14px, 2vw, 18px) 0 clamp(10px, 1.5vw, 14px);
+    transition: width 0.4s var(--ease-fluid);
   }
-  .trust-label  {
+  .trust-bento-item:hover .trust-bento-divider {
+    width: 100%;
+  }
+
+  .trust-bento-label {
     margin: 0;
-    font-size: clamp(8px, 1.3vw, 10px);
-    letter-spacing: 0.2em;
+    font-size: clamp(9px, 1.2vw, 11px);
+    letter-spacing: 0.18em;
     color: var(--ink-soft);
     text-transform: uppercase;
     font-weight: 600;
@@ -1174,7 +1280,7 @@ const PAGE_STYLES = `
 
   @media (max-width: 360px) {
     :root { --container-px: 16px; }
-    .hero-title { font-size: 2rem; }
+    .hero-editorial-title { font-size: 2.4rem; }
   }
 
   /* ────────────────────────────────────────────────
@@ -1182,7 +1288,6 @@ const PAGE_STYLES = `
   ──────────────────────────────────────────────── */
   @media (min-width: 768px) {
     .cat-grid { grid-template-columns: repeat(3, 1fr); }
-    .trust-grid { grid-template-columns: repeat(4, 1fr); }
   }
 
   /* ────────────────────────────────────────────────
@@ -1353,66 +1458,85 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* ── 4. HERO TEXT + TRUST STATS ────────────────────────── */}
-      <section className="hero-section">
+      {/* ── 4. REDESIGNED HERO TEXT + TRUST STATS (EDITORIAL LUXURY) ── */}
+      <section className="hero-redesign-section section-pad">
         <div className="page-container">
-          <div className="hero-inner">
-            <div
-              className="hero-badge"
-              style={{ animation: 'fadeUp .6s cubic-bezier(0.22, 1, 0.36, 1) .05s both' }}
-            >
-              <span className="hero-badge-dot" />
-              <span className="shiny-text">Premium Eyewear · Est. 2012</span>
-            </div>
-
-            <h1 className="serif hero-title">
-              <span className="split-word" style={{ animationDelay: '0.1s' }}>See</span>{' '}
-              <span className="split-word" style={{ animationDelay: '0.2s' }}>the</span>{' '}
-              <span className="split-word" style={{ animationDelay: '0.3s' }}>World</span>
-              <br />
-              <em style={{ fontStyle: 'italic', color: '#334155' }}>
-                <span className="split-word" style={{ animationDelay: '0.4s' }}>in</span>{' '}
-                <span className="split-word" style={{ animationDelay: '0.5s' }}>Style</span>
-              </em>
-            </h1>
-
-            <div className="hero-rule" />
-
-            <p className="hero-desc blur-in">
-              Premium eyeglasses, sunglasses &amp; contacts.
-              Visit us at our store in Anantapur, Andhra Pradesh.
-            </p>
-
-            <div
-              className="hero-cta-group"
-              style={{ animation: 'fadeUp .7s cubic-bezier(0.22, 1, 0.36, 1) .3s both' }}
-            >
-              <Link href="/products" className="btn-primary">
-                <span className="text-cursor-after">Shop Now</span>
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" />
-                </svg>
-              </Link>
-              <Link href="/booking" className="btn-ghost">Book Eye Test</Link>
-            </div>
-          </div>
-
-          <div className="trust-grid">
-            {TRUST_STATS.map(t => (
-              <div key={t.label} className="trust-cell" style={{ animationDelay: t.delay }}>
-                <p className="serif trust-value">
-                  {t.numeric >= 0 ? (
-                    <span data-count-display={t.numeric} data-suffix={t.suffix}>
-                      {t.value}{t.suffix}
-                    </span>
-                  ) : (
-                    <span>{t.value}</span>
-                  )}
-                </p>
-                <div className="trust-divider" />
-                <p className="trust-label">{t.label}</p>
+          <div className="hero-editorial-grid">
+            
+            {/* Left Column: Architectural Narrative & Actions */}
+            <div className="hero-editorial-left">
+              <div
+                className="hero-badge"
+                style={{ animation: 'fadeUp .6s cubic-bezier(0.22, 1, 0.36, 1) .05s both' }}
+              >
+                <span className="hero-badge-dot" />
+                <span className="shiny-text">Premium Eyewear · Est. 2012</span>
               </div>
-            ))}
+
+              <h1 className="serif hero-editorial-title">
+                <span className="split-word" style={{ animationDelay: '0.1s' }}>See</span>{' '}
+                <span className="split-word" style={{ animationDelay: '0.2s' }}>the</span>{' '}
+                <span className="split-word" style={{ animationDelay: '0.3s' }}>World</span>
+                <br />
+                <span className="editorial-italic-wrapper">
+                  <em className="hero-italic-accent split-word" style={{ animationDelay: '0.45s' }}>in Style</em>
+                  <span className="editorial-script-tag split-word" style={{ animationDelay: '0.6s' }}>Curated Optics</span>
+                </span>
+              </h1>
+
+              <div className="hero-editorial-rule" />
+
+              <p className="hero-editorial-desc blur-in">
+                Premium eyeglasses, sunglasses &amp; contacts engineered for visual clarity and timeless elegance.
+                Experience curated optical perfection at our studio in Anantapur, Andhra Pradesh.
+              </p>
+
+              <div
+                className="hero-editorial-ctas"
+                style={{ animation: 'fadeUp .7s cubic-bezier(0.22, 1, 0.36, 1) .3s both' }}
+              >
+                <Link href="/products" className="btn-primary">
+                  <span className="text-cursor-after">Shop Now</span>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" />
+                  </svg>
+                </Link>
+                <Link href="/booking" className="btn-ghost">Book Eye Test</Link>
+              </div>
+            </div>
+
+            {/* Right Column: Glass Bento Box Trust Showcase */}
+            <div className="hero-editorial-right">
+              <div className="trust-bento-card">
+                <div className="trust-bento-header">
+                  <span className="trust-bento-subtitle">Why Choose Us</span>
+                  <div className="trust-bento-status">
+                    <span className="status-indicator" />
+                    <span>Flagship Excellence</span>
+                  </div>
+                </div>
+                <div className="trust-bento-grid">
+                  {TRUST_STATS.map((t) => (
+                    <div key={t.label} className="trust-bento-item" style={{ animationDelay: t.delay }}>
+                      <div className="trust-bento-top">
+                        <p className="serif trust-bento-value">
+                          {t.numeric >= 0 ? (
+                            <span data-count-display={t.numeric} data-suffix={t.suffix}>
+                              {t.value}{t.suffix}
+                            </span>
+                          ) : (
+                            <span>{t.value}</span>
+                          )}
+                        </p>
+                      </div>
+                      <div className="trust-bento-divider" />
+                      <p className="trust-bento-label">{t.label}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+
           </div>
         </div>
       </section>
