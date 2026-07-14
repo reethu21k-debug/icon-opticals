@@ -618,7 +618,7 @@ export default function AdminProductsPage() {
                 </section>
               )}
 
-              {/* ── Product Variant Linking Section (Optional) ─── */}
+              {/* ── Product Variant Linking Sectionn (Optional) ─── */}
               {editing ? (
                 <VariantGroupManager productId={editing.id} productName={form.name || editing.name} />
               ) : (
@@ -647,3 +647,4 @@ export default function AdminProductsPage() {
     </div>
   )
 }
+
