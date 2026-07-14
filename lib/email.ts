@@ -164,7 +164,7 @@ function baseTemplate(innerContent: string): string {
             font-weight:300;letter-spacing:1.5px;color:#2A3555;">
             <a href="tel:9676227094" style="color:#2A3555;text-decoration:none;">+91 96762 27094</a>
             &nbsp;&nbsp;&middot;&nbsp;&nbsp;
-            <a href="tel:9154693939" style="color:#2A3555;text-decoration:none;">+91 91546 93939</a>
+            <a href="tel:9676227094" style="color:#2A3555;text-decoration:none;">+91 96762 27094</a>
             &nbsp;&nbsp;&middot;&nbsp;&nbsp; Ananthapur
           </td>
         </tr>
@@ -650,7 +650,7 @@ export function buildOrderConfirmationEmail(order: Order, userName: string): str
       </td>
     </tr>
 
-    ${cardFooterRow(`Questions? Call us at <a href="tel:9676227094" style="color:#D4AA5A;text-decoration:none;">+91 96762 27094</a> &nbsp;/&nbsp; <a href="tel:9154693939" style="color:#D4AA5A;text-decoration:none;">+91 91546 93939</a>`)}
+    ${cardFooterRow(`Questions? Call us at <a href="tel:9676227094" style="color:#D4AA5A;text-decoration:none;">+91 96762 27094</a> &nbsp;/&nbsp; <a href="tel:9676227094" style="color:#D4AA5A;text-decoration:none;">+91 96762 27094</a>`)}
   `
 
   return baseTemplate(inner)
@@ -762,7 +762,7 @@ export function buildBookingConfirmationEmail(booking: Booking, userName: string
               Kindly arrive <strong style="color:#C8D4E8;font-weight:500;">5&ndash;10 minutes</strong>
               before your scheduled time. If you need to reschedule, please call us at least
               2 hours in advance at
-              <strong style="color:#C8D4E8;font-weight:500;">+91 96762 27094 / +91 91546 93939</strong>.
+              <strong style="color:#C8D4E8;font-weight:500;">+91 96762 27094 / +91 96762 27094</strong>.
             </td>
           </tr>
         </table>

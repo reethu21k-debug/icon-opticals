@@ -118,7 +118,7 @@ const SOCIAL: SocialItem[] = [
   { label: 'Instagram', href: 'https://instagram.com',       icon: ICONS.Instagram },
   { label: 'Facebook',  href: 'https://facebook.com',        icon: ICONS.Facebook },
   { label: 'LinkedIn',  href: 'https://www.linkedin.com/in/rithik-sai-gowda', icon: ICONS.LinkedIn },
-  { label: 'WhatsApp',  href: 'https://wa.me/919876543210',  icon: ICONS.WhatsApp },
+  { label: 'WhatsApp',  href: 'https://wa.me/919676227094',  icon: ICONS.WhatsApp },
 ]
 
 /* ── CSS ──────────────────────────────────────────────────────────────────── */
@@ -606,8 +606,8 @@ function StoreCard() {
         <div className="ft-card-icon" aria-hidden="true">{ICONS.Phone}</div>
         <div>
           <p className="ft-card-tag">Contact</p>
-          <a href="tel:+919876543210" className="ft-card-val">
-            +91 98765 43210
+          <a href="tel:+919676227094" className="ft-card-val">
+            +91 96762 27094
           </a>
         </div>
       </div>

@@ -202,7 +202,7 @@ export function buildInvoiceHTML(
                   Raju Road, Vaibhav Jewellers Opposite Road,<br/>
                   Near Punjab National Bank, Kamala Nagar,<br/>
                   Ananthapuram - 515001<br/>
-                  Phone: +91 96762 27094 / +91 91546 93939<br/>
+                  Phone: +91 96762 27094 / +91 96762 27094<br/>
                   Email: support@iconopticals-atp.com
                 </div>
               </td>
@@ -405,7 +405,7 @@ function drawHeader(doc: Doc, order: InvoiceOrder): void {
 
   doc.font('Helvetica').fontSize(9).fillColor(LIGHT)
     .text('Raju Road, Vaibhav Jewellers Opp., Near PNB, Kamala Nagar, Ananthapuram - 515001', L, 84, { lineBreak: false })
-    .text('Ph: +91 96762 27094  |  +91 91546 93939', L, 96, { lineBreak: false })
+    .text('Ph: +91 96762 27094  |  +91 96762 27094', L, 96, { lineBreak: false })
 
   const invoiceDate = new Date(order.created_at).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })
 
