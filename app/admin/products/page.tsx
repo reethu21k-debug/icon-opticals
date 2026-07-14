@@ -7,6 +7,7 @@ import VariantGroupManager from '@/components/admin/VariantGroupManager'
 import {
   Plus, Pencil, Trash2, X, Loader2, ImagePlus, Save,
   AlertCircle, ChevronLeft, ChevronRight, Check, Package, Camera, Ruler, Palette,
+  Archive, RotateCcw, XCircle,
 } from 'lucide-react'
 
 type Category   = 'eyeglasses'|'sunglasses'|'contact-lenses'|'accessories'
@@ -141,6 +142,9 @@ function ColorCombobox({ value, onChange }: { value: string; onChange: (v: strin
 export default function AdminProductsPage() {
   const [products,setProducts]=useState<any[]>([])
   const [total,setTotal]=useState(0)
+  const [activeCount,setActiveCount]=useState(0)
+  const [archivedCount,setArchivedCount]=useState(0)
+  const [statusTab,setStatusTab]=useState<'active'|'archived'>('active')
   const [page,setPage]=useState(0)
   const [loading,setLoading]=useState(true)
   const [showForm,setShowForm]=useState(false)
@@ -163,10 +167,19 @@ export default function AdminProductsPage() {
 
   const load=async()=>{
     setLoading(true)
-    const{data,count}=await sb.from('products').select('*',{count:'exact'}).order('created_at',{ascending:false}).range(page*PER,page*PER+PER-1)
-    setProducts(data||[]);setTotal(count||0);setLoading(false)
+    const{data,count}=await sb.from('products').select('*',{count:'exact'})
+      .eq('is_active',statusTab==='active')
+      .order('created_at',{ascending:false}).range(page*PER,page*PER+PER-1)
+    setProducts(data||[]);setTotal(count||0)
+    const[{count:activeN},{count:archivedN}]=await Promise.all([
+      sb.from('products').select('*',{count:'exact',head:true}).eq('is_active',true),
+      sb.from('products').select('*',{count:'exact',head:true}).eq('is_active',false),
+    ])
+    setActiveCount(activeN||0);setArchivedCount(archivedN||0)
+    setLoading(false)
   }
-  useEffect(()=>{load()},[page]) // eslint-disable-line
+  useEffect(()=>{load()},[page,statusTab]) // eslint-disable-line
+  useEffect(()=>{setPage(0)},[statusTab])
 
   const openEdit=(p:any)=>{
     setEditing(p)
@@ -267,12 +280,26 @@ export default function AdminProductsPage() {
           <h1 className="text-4xl md:text-5xl font-light text-slate-900 tracking-tight mb-3" style={{fontFamily:'Didot,"Bodoni MT","Playfair Display",Times,serif'}}>
             Boutique Catalog
           </h1>
-          <p className="text-[11px] uppercase tracking-[0.25em] font-bold text-slate-400">{total} Registered Items</p>
+          <p className="text-[11px] uppercase tracking-[0.25em] font-bold text-slate-400">{total} {statusTab==='active'?'Registered':'Archived'} Items</p>
         </div>
         <button onClick={()=>{setEditing(null);setForm(empty);setImages([]);setTryOnImg(null);setUploadErr(null);setSaveErr(null);setShowForm(true)}}
           className="group flex items-center gap-3 px-7 py-4 rounded-2xl bg-slate-900 text-white text-[10px] uppercase tracking-[0.25em] font-bold hover:bg-slate-800 hover:shadow-2xl hover:-translate-y-0.5 transition-all duration-300">
           <Plus size={16} strokeWidth={2} className="transition-transform group-hover:rotate-90 duration-500"/>
           New Entry
+        </button>
+      </div>
+
+      {/* Status Tabs */}
+      <div className="flex items-center gap-3 mb-8">
+        <button onClick={()=>setStatusTab('active')}
+          className={`flex items-center gap-2.5 px-6 py-3.5 rounded-2xl text-[10px] font-bold uppercase tracking-[0.2em] border transition-all duration-300 ${
+            statusTab==='active'?'bg-slate-900 text-white border-slate-900 shadow-lg shadow-slate-900/20':'bg-white/50 text-slate-500 border-slate-200 hover:bg-white hover:text-slate-800'}`}>
+          <Package size={13} strokeWidth={2}/> Active <span className={`px-2 py-0.5 rounded-lg text-[9px] ${statusTab==='active'?'bg-white/20':'bg-slate-100'}`}>{activeCount}</span>
+        </button>
+        <button onClick={()=>setStatusTab('archived')}
+          className={`flex items-center gap-2.5 px-6 py-3.5 rounded-2xl text-[10px] font-bold uppercase tracking-[0.2em] border transition-all duration-300 ${
+            statusTab==='archived'?'bg-slate-900 text-white border-slate-900 shadow-lg shadow-slate-900/20':'bg-white/50 text-slate-500 border-slate-200 hover:bg-white hover:text-slate-800'}`}>
+          <Archive size={13} strokeWidth={2}/> Archived <span className={`px-2 py-0.5 rounded-lg text-[9px] ${statusTab==='archived'?'bg-white/20':'bg-slate-100'}`}>{archivedCount}</span>
         </button>
       </div>
 
@@ -293,7 +320,7 @@ export default function AdminProductsPage() {
               )):products.length===0?(
                 <tr><td colSpan={7} className="px-6 py-32 text-center">
                   <AlertCircle size={32} strokeWidth={1} className="text-slate-300 mx-auto mb-5"/>
-                  <p className="text-[11px] uppercase tracking-[0.2em] font-bold text-slate-400">No products yet</p>
+                  <p className="text-[11px] uppercase tracking-[0.2em] font-bold text-slate-400">{statusTab==='active'?'No active products':'No archived products'}</p>
                 </td></tr>
               ):products.map(p=>(
                 <tr key={p.id} className="hover:bg-white/80 transition-colors duration-300 group">
@@ -331,8 +358,17 @@ export default function AdminProductsPage() {
                   <td className="px-6 py-6">
                     <div className="flex gap-2 opacity-60 group-hover:opacity-100 transition-opacity">
                       <button onClick={()=>openEdit(p)} className="p-3 rounded-xl bg-white border border-slate-200 text-slate-400 hover:text-slate-900 hover:shadow-md hover:border-slate-300 transition-all duration-300"><Pencil size={14} strokeWidth={2}/></button>
-                      <button onClick={async()=>{if(!confirm('Archive this entry?'))return;await sb.from('products').update({is_active:false}).eq('id',p.id);load()}}
-                        className="p-3 rounded-xl bg-white border border-slate-200 text-slate-400 hover:text-rose-600 hover:bg-rose-50 hover:border-rose-200 transition-all duration-300"><Trash2 size={14} strokeWidth={2}/></button>
+                      {statusTab==='active'?(
+                        <button onClick={async()=>{if(!confirm('Archive this entry? It will be hidden from the storefront immediately.'))return;await sb.from('products').update({is_active:false}).eq('id',p.id);load()}}
+                          className="p-3 rounded-xl bg-white border border-slate-200 text-slate-400 hover:text-rose-600 hover:bg-rose-50 hover:border-rose-200 transition-all duration-300" title="Archive"><Trash2 size={14} strokeWidth={2}/></button>
+                      ):(
+                        <>
+                          <button onClick={async()=>{if(!confirm('Restore this entry? It will become visible on the storefront again.'))return;await sb.from('products').update({is_active:true}).eq('id',p.id);load()}}
+                            className="p-3 rounded-xl bg-white border border-slate-200 text-slate-400 hover:text-emerald-600 hover:bg-emerald-50 hover:border-emerald-200 transition-all duration-300" title="Restore"><RotateCcw size={14} strokeWidth={2}/></button>
+                          <button onClick={async()=>{if(!confirm('Permanently delete this entry? This cannot be undone.'))return;await sb.from('products').delete().eq('id',p.id);load()}}
+                            className="p-3 rounded-xl bg-white border border-slate-200 text-slate-400 hover:text-rose-600 hover:bg-rose-50 hover:border-rose-200 transition-all duration-300" title="Delete permanently"><XCircle size={14} strokeWidth={2}/></button>
+                        </>
+                      )}
                     </div>
                   </td>
                 </tr>
