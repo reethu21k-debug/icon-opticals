@@ -359,13 +359,13 @@ export default function AdminProductsPage() {
                     <div className="flex gap-2 opacity-60 group-hover:opacity-100 transition-opacity">
                       <button onClick={()=>openEdit(p)} className="p-3 rounded-xl bg-white border border-slate-200 text-slate-400 hover:text-slate-900 hover:shadow-md hover:border-slate-300 transition-all duration-300"><Pencil size={14} strokeWidth={2}/></button>
                       {statusTab==='active'?(
-                        <button onClick={async()=>{if(!confirm('Archive this entry? It will be hidden from the storefront immediately.'))return;await sb.from('products').update({is_active:false}).eq('id',p.id);load()}}
+                        <button onClick={async()=>{if(!confirm('Archive this entry? It will be hidden from the storefront immediately.'))return;await fetch(`/api/admin/products?id=${p.id}`,{method:'DELETE'});load()}}
                           className="p-3 rounded-xl bg-white border border-slate-200 text-slate-400 hover:text-rose-600 hover:bg-rose-50 hover:border-rose-200 transition-all duration-300" title="Archive"><Trash2 size={14} strokeWidth={2}/></button>
                       ):(
                         <>
-                          <button onClick={async()=>{if(!confirm('Restore this entry? It will become visible on the storefront again.'))return;await sb.from('products').update({is_active:true}).eq('id',p.id);load()}}
+                          <button onClick={async()=>{if(!confirm('Restore this entry? It will become visible on the storefront again.'))return;await fetch(`/api/admin/products?id=${p.id}`,{method:'PATCH'});load()}}
                             className="p-3 rounded-xl bg-white border border-slate-200 text-slate-400 hover:text-emerald-600 hover:bg-emerald-50 hover:border-emerald-200 transition-all duration-300" title="Restore"><RotateCcw size={14} strokeWidth={2}/></button>
-                          <button onClick={async()=>{if(!confirm('Permanently delete this entry? This cannot be undone.'))return;await sb.from('products').delete().eq('id',p.id);load()}}
+                          <button onClick={async()=>{if(!confirm('Permanently delete this entry? This cannot be undone.'))return;await fetch(`/api/admin/products?id=${p.id}&permanent=true`,{method:'DELETE'});load()}}
                             className="p-3 rounded-xl bg-white border border-slate-200 text-slate-400 hover:text-rose-600 hover:bg-rose-50 hover:border-rose-200 transition-all duration-300" title="Delete permanently"><XCircle size={14} strokeWidth={2}/></button>
                         </>
                       )}

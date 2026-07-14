@@ -7,7 +7,22 @@ export const dynamic = 'force-dynamic'
 // The admin products page must call this instead of touching Supabase directly.
 
 import { NextRequest, NextResponse } from 'next/server'
+import { revalidatePath } from 'next/cache'
 import { createAdminClient, createServerClientInstance } from '@/lib/supabase'
+
+// ── Cache invalidation ────────────────────────────────────────────────────────
+// The homepage (`revalidate = 600`) and product detail pages
+// (`revalidate = 300`) use time-based ISR for performance. Whenever an admin
+// creates, updates, archives, restores, or deletes a product, we must bust
+// those caches on demand so the storefront reflects the change immediately
+// instead of waiting out the revalidation window.
+function revalidateStorefront(...slugs: (string | null | undefined)[]) {
+  revalidatePath('/')
+  revalidatePath('/products')
+  for (const slug of slugs) {
+    if (slug) revalidatePath(`/products/${slug}`)
+  }
+}
 
 // ── Auth guard ────────────────────────────────────────────────────────────────
 // Verifies the caller is a logged-in admin (role = 'admin' in profiles).
@@ -88,6 +103,14 @@ export async function PUT(request: NextRequest) {
 
   const db = createAdminClient() // service role — bypasses RLS
 
+  // Grab the pre-update slug so we can bust the old detail page's cache too,
+  // in case this update changes the slug (or flips is_active).
+  const { data: existing } = await db
+    .from('products')
+    .select('slug')
+    .eq('id', id)
+    .maybeSingle()
+
   // ── Ensure slug uniqueness on update ──────────────────────────────────────
   if (payload.slug && typeof payload.slug === 'string') {
     payload.slug = await ensureUniqueSlug(db, payload.slug, id)
@@ -104,6 +127,8 @@ export async function PUT(request: NextRequest) {
     console.error('[api/admin/products] Update failed:', error.message)
     return NextResponse.json({ error: error.message }, { status: 500 })
   }
+
+  revalidateStorefront((existing as { slug: string } | null)?.slug, data?.slug)
 
   return NextResponse.json({ success: true, product: data })
 }
@@ -148,12 +173,53 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: error.message }, { status: 500 })
   }
 
+  revalidateStorefront(data?.slug)
+
   return NextResponse.json({ success: true, product: data })
 }
 
-// ── DELETE /api/admin/products?id=xxx — archive a product ────────────────────
+// ── DELETE /api/admin/products?id=xxx — archive (or permanently delete) ──────
+// Pass ?permanent=true to hard-delete the row instead of just archiving it.
 
 export async function DELETE(request: NextRequest) {
+  const adminId = await requireAdmin()
+  if (!adminId) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  }
+
+  const id = request.nextUrl.searchParams.get('id')
+  if (!id) {
+    return NextResponse.json({ error: 'Product id is required' }, { status: 400 })
+  }
+  const permanent = request.nextUrl.searchParams.get('permanent') === 'true'
+
+  const db = createAdminClient()
+
+  // Grab the slug up front — we need it to bust the detail page's cache,
+  // and it's gone from the table after a hard delete.
+  const { data: existing } = await db
+    .from('products')
+    .select('slug')
+    .eq('id', id)
+    .maybeSingle()
+
+  const { error } = permanent
+    ? await db.from('products').delete().eq('id', id)
+    : await db.from('products').update({ is_active: false }).eq('id', id)
+
+  if (error) {
+    console.error('[api/admin/products] Delete failed:', error.message)
+    return NextResponse.json({ error: error.message }, { status: 500 })
+  }
+
+  revalidateStorefront((existing as { slug: string } | null)?.slug)
+
+  return NextResponse.json({ success: true })
+}
+
+// ── PATCH /api/admin/products?id=xxx — restore an archived product ───────────
+
+export async function PATCH(request: NextRequest) {
   const adminId = await requireAdmin()
   if (!adminId) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
@@ -166,15 +232,19 @@ export async function DELETE(request: NextRequest) {
 
   const db = createAdminClient()
 
-  const { error } = await db
+  const { data, error } = await db
     .from('products')
-    .update({ is_active: false })
+    .update({ is_active: true })
     .eq('id', id)
+    .select('slug')
+    .single()
 
   if (error) {
-    console.error('[api/admin/products] Archive failed:', error.message)
+    console.error('[api/admin/products] Restore failed:', error.message)
     return NextResponse.json({ error: error.message }, { status: 500 })
   }
+
+  revalidateStorefront(data?.slug)
 
   return NextResponse.json({ success: true })
 }
