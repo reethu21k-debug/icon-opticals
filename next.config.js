@@ -66,6 +66,29 @@ const nextConfig = {
     outputFileTracingIncludes: {
       '**': ['./node_modules/pdfkit/**/*'],
     },
+    // ─────────────────────────────────────────────────────────────────────
+    // FIX: Client-side Router Cache staleness for dynamic pages.
+    //
+    // /products (category listing) and / (homepage category previews) are
+    // both re-queried fresh on every server request (force-dynamic /
+    // revalidatePath on admin writes), so the *server* is always correct
+    // the instant a product is archived or deleted.
+    //
+    // BUT Next.js 14's client Router Cache still caches the RSC payload for
+    // soft navigations (<Link>, router.push) to *dynamic* routes for 30s by
+    // default. That means a user who navigates to a category via a nav link
+    // can be served a client-cached snapshot from just before a product was
+    // deleted — the listing looks stale even though the server would return
+    // correct data. Clicking into the (now-missing) product is a route the
+    // client hasn't cached yet, so it always fetches fresh and 404s — which
+    // is exactly the "stale category list, 404 on click" symptom.
+    //
+    // Setting dynamic staleTime to 0 forces every soft navigation to a
+    // dynamic route (like /products?category=...) to re-fetch from the
+    // server, so category listings reflect deletions immediately.
+    staleTimes: {
+      dynamic: 0,
+    },
   },
 
   async headers() {
