@@ -10,7 +10,16 @@ import { StoreFinderCTA } from '@/components/ImprovedSections'
 import { AnimationInit } from '@/components/AnimationInit'
 import type { Product } from '@/types'
 
-export const revalidate = 600
+// FIX: was `export const revalidate = 600` (10-min ISR). That relied on
+// revalidatePath() firing correctly from the admin delete/create routes to
+// bust the cache early — if that on-demand revalidation doesn't propagate
+// (e.g. CDN/edge cache layer, deploy timing), the category preview sections
+// below (getProductsByCategory) can keep serving deleted/missing-new
+// products for up to 10 minutes. Forcing full dynamic rendering makes this
+// page query Supabase fresh on every request instead, so adds/deletes show
+// up immediately — matching how /products already behaves.
+export const dynamic = 'force-dynamic'
+export const revalidate = 0
 
 /* ─── SEO Metadata ───────────────────────────────────────────────────── */
 

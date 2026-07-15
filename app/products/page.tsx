@@ -9,6 +9,8 @@ import { SITE, CATEGORIES } from '@/lib/seo/constants'
 import { breadcrumbSchema, collectionPageSchema } from '@/lib/seo/schema'
 
 export const dynamic = 'force-dynamic'
+export const revalidate = 0
+export const fetchCache = 'force-no-store'
 
 interface PageProps {
   searchParams: Record<string, string>
