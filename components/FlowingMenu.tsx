@@ -178,7 +178,7 @@ const MenuItem = ({
           fontSize: 'clamp(12px, 3.8vw, 36px)',
           color: textColor,
           letterSpacing: '0.04em',
-          fontFamily: "'DM Serif Display', Georgia, serif",
+          fontFamily: "var(--font-playfair), Georgia, serif",
           // Prevent text wrapping on very small viewports
           whiteSpace: 'nowrap',
           overflow: 'hidden',
@@ -233,7 +233,7 @@ const MenuItem = ({
                   fontSize: 'clamp(11px, 3.5vw, 32px)',
                   lineHeight: 1,
                   padding: '0 clamp(4px, 1vw, 12px)',
-                  fontFamily: "'DM Sans', sans-serif",
+                  fontFamily: "var(--font-dm-sans), system-ui, sans-serif",
                   letterSpacing: '0.06em',
                 }}
               >

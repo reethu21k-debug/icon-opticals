@@ -152,7 +152,7 @@ export default async function ProductPage({ params }: PageProps) {
 
               <h1
                 className="text-4xl md:text-5xl text-slate-900 leading-tight mb-6 tracking-tight"
-                style={{ fontFamily: 'Didot, "Bodoni MT", "Playfair Display", Times, serif' }}
+                style={{ fontFamily: 'var(--font-playfair), Georgia, serif' }}
               >
                 {product.name}
               </h1>

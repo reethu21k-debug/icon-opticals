@@ -332,8 +332,8 @@ const PAGE_STYLES = `
     font-weight: 500;
   }
 
-  .page-entry { font-family: 'DM Sans', sans-serif; animation: fadeIn .6s ease both; }
-  .serif      { font-family: 'DM Serif Display', Georgia, serif !important; font-weight: 400; }
+  .page-entry { font-family: var(--font-dm-sans), system-ui, sans-serif; animation: fadeIn .6s ease both; }
+  .serif      { font-family: var(--font-playfair), Georgia, serif !important; font-weight: 400; }
 
   /* ── Page container — fluid horizontal padding ── */
   .page-container {
@@ -562,7 +562,7 @@ const PAGE_STYLES = `
   }
 
   .editorial-script-tag {
-    font-family: 'DM Sans', sans-serif;
+    font-family: var(--font-dm-sans), system-ui, sans-serif;
     font-size: clamp(9px, 1.4vw, 11px);
     text-transform: uppercase;
     letter-spacing: 0.3em;
@@ -960,7 +960,7 @@ const PAGE_STYLES = `
     text-transform: uppercase;
     color: var(--ink-soft);
     font-weight: 600;
-    font-family: 'DM Sans', sans-serif;
+    font-family: var(--font-dm-sans), system-ui, sans-serif;
   }
   .flowing-menu-eyebrow-hint {
     font-size: clamp(7px, 1.3vw, 9px);
@@ -968,7 +968,7 @@ const PAGE_STYLES = `
     text-transform: uppercase;
     color: var(--ink-faint);
     font-weight: 500;
-    font-family: 'DM Sans', sans-serif;
+    font-family: var(--font-dm-sans), system-ui, sans-serif;
     display: flex;
     align-items: center;
     gap: 8px;

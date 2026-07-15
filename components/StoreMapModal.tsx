@@ -95,7 +95,7 @@ export default function StoreMapModal({ isOpen, onClose, store }: StoreMapModalP
                 </p>
                 <h2 
                   className="text-3xl text-slate-900 tracking-tight leading-none mb-3"
-                  style={{ fontFamily: 'Didot, "Bodoni MT", "Playfair Display", Times, serif' }}
+                  style={{ fontFamily: 'var(--font-playfair), Georgia, serif' }}
                 >
                   {store.name}
                 </h2>

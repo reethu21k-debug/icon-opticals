@@ -76,7 +76,7 @@ export default function OrdersPage() {
           
           <h1 
             className="text-4xl text-slate-900 tracking-tight mb-2"
-            style={{ fontFamily: 'Didot, "Bodoni MT", "Playfair Display", Times, serif' }}
+            style={{ fontFamily: 'var(--font-playfair), Georgia, serif' }}
           >
             Transaction Ledger
           </h1>
@@ -91,7 +91,7 @@ export default function OrdersPage() {
             <ShoppingBag size={48} strokeWidth={1} className="mx-auto text-slate-300 mb-6" />
             <h2 
               className="text-2xl text-slate-900 tracking-tight mb-4"
-              style={{ fontFamily: 'Didot, "Bodoni MT", "Playfair Display", Times, serif' }}
+              style={{ fontFamily: 'var(--font-playfair), Georgia, serif' }}
             >
               Ledger is Empty
             </h2>

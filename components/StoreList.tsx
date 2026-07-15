@@ -191,7 +191,7 @@ function StoreCard({
             color: '#0f172a',
             marginBottom: '1.5rem',
             lineHeight: 1.2,
-            fontFamily: 'Didot, "Bodoni MT", "Playfair Display", Times, serif',
+            fontFamily: 'var(--font-playfair), Georgia, serif',
             letterSpacing: hovered ? '0.008em' : '0em',
             transition: 'letter-spacing 0.4s ease',
           }}
@@ -375,7 +375,7 @@ export default function StoreList({ stores }: { stores: StoreItem[] }) {
                 className="text-slate-900 mb-3"
                 style={{
                   fontSize: 'clamp(2rem, 4vw, 2.75rem)',
-                  fontFamily: 'Didot, "Bodoni MT", "Playfair Display", Times, serif',
+                  fontFamily: 'var(--font-playfair), Georgia, serif',
                   letterSpacing: '-0.01em',
                   lineHeight: 1.1,
                 }}
@@ -496,7 +496,7 @@ export default function StoreList({ stores }: { stores: StoreItem[] }) {
                     fontSize: '2rem',
                     lineHeight: 1,
                     color: '#0f172a',
-                    fontFamily: 'Didot, "Bodoni MT", "Playfair Display", Times, serif',
+                    fontFamily: 'var(--font-playfair), Georgia, serif',
                   }}
                 >
                   <AnimatedCount value={filtered.length} />
@@ -515,7 +515,7 @@ export default function StoreList({ stores }: { stores: StoreItem[] }) {
                     fontSize: '2rem',
                     lineHeight: 1,
                     color: '#0f172a',
-                    fontFamily: 'Didot, "Bodoni MT", "Playfair Display", Times, serif',
+                    fontFamily: 'var(--font-playfair), Georgia, serif',
                   }}
                 >
                   <span

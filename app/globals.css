@@ -15,7 +15,7 @@
   }
 
   body {
-    @apply bg-white text-slate-900 antialiased;
+    @apply bg-white text-slate-900 antialiased font-sans;
     text-rendering: optimizeLegibility;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;

@@ -142,7 +142,7 @@ function BookingPageInner() {
           </p>
           <h1 
             className="text-4xl md:text-5xl text-slate-900 tracking-tight mb-5"
-            style={{ fontFamily: 'Didot, "Bodoni MT", "Playfair Display", Times, serif' }}
+            style={{ fontFamily: 'var(--font-playfair), Georgia, serif' }}
           >
             Boutique Concierge
           </h1>

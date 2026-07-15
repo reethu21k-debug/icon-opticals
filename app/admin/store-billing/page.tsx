@@ -108,7 +108,7 @@ function PriceOverrideModal({ item, onSave, onClose }: PriceOverrideModalProps) 
 
         <div className="mb-8">
           <p className="text-[9px] uppercase tracking-[0.25em] font-bold text-slate-400 mb-2">Admin Override</p>
-          <h3 className="text-2xl font-light text-slate-900 tracking-tight" style={{ fontFamily: 'Didot, "Bodoni MT", "Playfair Display", Times, serif' }}>
+          <h3 className="text-2xl font-light text-slate-900 tracking-tight" style={{ fontFamily: 'var(--font-playfair), Georgia, serif' }}>
             Edit Product Price
           </h3>
           <p className="text-xs text-slate-500 font-medium mt-1.5 truncate pr-8">{item.product.name}</p>
@@ -595,7 +595,7 @@ export default function StoreBillingPage() {
             <div className="absolute inset-0 bg-emerald-400/20 rounded-full animate-ping opacity-75" />
             <CheckCircle className="text-emerald-600 relative z-10" size={32} strokeWidth={2} />
           </div>
-          <h2 className="text-3xl tracking-tight text-slate-900 mb-3" style={{ fontFamily: 'Didot, "Bodoni MT", "Playfair Display", Times, serif' }}>Bill Generated</h2>
+          <h2 className="text-3xl tracking-tight text-slate-900 mb-3" style={{ fontFamily: 'var(--font-playfair), Georgia, serif' }}>Bill Generated</h2>
           <p className="text-sm font-medium text-slate-500 mb-1.5">Order No. <span className="font-bold text-slate-900">{success.order_number}</span></p>
           <p className="text-sm font-medium text-slate-500 mb-1.5">Customer: <span className="font-bold text-slate-800">{success.customer_name}</span></p>
           <p className="text-3xl font-light text-slate-900 mt-6 mb-8 bg-white/50 py-3 rounded-2xl border border-slate-100 shadow-sm">{fmt(success.total)}</p>
@@ -701,7 +701,7 @@ export default function StoreBillingPage() {
             </div>
             <h1 className="text-[10px] uppercase tracking-[0.3em] font-bold text-slate-400">Admin Interface</h1>
           </div>
-          <h2 className="text-3xl md:text-4xl font-light tracking-tight text-slate-900 mb-2" style={{ fontFamily: 'Didot, "Bodoni MT", "Playfair Display", Times, serif' }}>
+          <h2 className="text-3xl md:text-4xl font-light tracking-tight text-slate-900 mb-2" style={{ fontFamily: 'var(--font-playfair), Georgia, serif' }}>
             Store Billing
           </h2>
           <p className="text-xs font-medium text-slate-500">Create and process in-store orders for walk-in clientele.</p>
@@ -1189,7 +1189,7 @@ export default function StoreBillingPage() {
                     </div>
                     <div className="flex justify-between items-end mb-8">
                       <span className="text-[11px] uppercase tracking-[0.2em] font-bold text-slate-400">Total Amount</span>
-                      <span className="text-4xl font-light text-white tracking-tight" style={{ fontFamily: 'Didot, "Bodoni MT", "Playfair Display", Times, serif' }}>{fmt(subtotal)}</span>
+                      <span className="text-4xl font-light text-white tracking-tight" style={{ fontFamily: 'var(--font-playfair), Georgia, serif' }}>{fmt(subtotal)}</span>
                     </div>
                   </>
                 )}

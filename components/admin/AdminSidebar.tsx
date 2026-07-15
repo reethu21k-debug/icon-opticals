@@ -47,7 +47,7 @@ export default function AdminSidebar({ userName }: { userName: string }) {
         <Link href="/" className="flex flex-col items-start justify-center group mb-5 relative z-10">
           <span 
             className="text-3xl tracking-tight text-slate-900 transition-colors group-hover:text-slate-600 drop-shadow-sm" 
-            style={{ fontFamily: 'Didot, "Bodoni MT", "Playfair Display", Times, serif' }}
+            style={{ fontFamily: 'var(--font-playfair), Georgia, serif' }}
           >
             ICON
           </span>

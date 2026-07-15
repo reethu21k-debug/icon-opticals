@@ -168,7 +168,7 @@ function CheckoutPageInner() {
         <div className="mb-12 border-b border-slate-200 pb-6">
           <h1
             className="text-4xl text-slate-900 tracking-tight mb-2"
-            style={{ fontFamily: 'Didot, "Bodoni MT", "Playfair Display", Times, serif' }}
+            style={{ fontFamily: 'var(--font-playfair), Georgia, serif' }}
           >
             Secure Checkout
           </h1>

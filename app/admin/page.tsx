@@ -56,7 +56,7 @@ export default async function AdminDashboard() {
         </div>
         <h1 
           className="text-3xl sm:text-4xl md:text-5xl text-slate-900 tracking-tight"
-          style={{ fontFamily: 'Didot, "Bodoni MT", "Playfair Display", Times, serif' }}
+          style={{ fontFamily: 'var(--font-playfair), Georgia, serif' }}
         >
           Performance Metrics
         </h1>

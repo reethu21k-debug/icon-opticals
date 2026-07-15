@@ -21,7 +21,7 @@ export default function ProductsError({
           Could not load products
         </p>
         <h2 className="text-2xl text-slate-900 tracking-tight mb-4"
-          style={{ fontFamily: 'Didot, "Bodoni MT", "Playfair Display", Times, serif' }}>
+          style={{ fontFamily: 'var(--font-playfair), Georgia, serif' }}>
           Something went wrong
         </h2>
         <p className="text-slate-500 text-sm mb-8">

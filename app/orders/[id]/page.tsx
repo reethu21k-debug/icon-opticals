@@ -154,7 +154,7 @@ function OrderPageInner() {
   if (!order) return (
     <main className="min-h-screen bg-slate-50 flex items-center justify-center p-4">
       <div className="text-center border border-slate-200 bg-white p-12 max-w-md w-full">
-        <h1 className="text-2xl text-slate-900 tracking-tight mb-4" style={{ fontFamily: 'Didot, "Bodoni MT", "Playfair Display", Times, serif' }}>Record Not Found</h1>
+        <h1 className="text-2xl text-slate-900 tracking-tight mb-4" style={{ fontFamily: 'var(--font-playfair), Georgia, serif' }}>Record Not Found</h1>
         <p className="text-xs text-slate-500 font-light mb-8">The requested order manifest could not be located.</p>
         <Link href="/" className="inline-block border border-slate-900 text-slate-900 text-[10px] uppercase tracking-[0.2em] font-medium px-8 py-3 hover:bg-slate-900 hover:text-white transition-colors">
           Return to Boutique
@@ -186,7 +186,7 @@ function OrderPageInner() {
                     <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z" />
                   </svg>
                 </div>
-                <h1 className="text-4xl text-slate-900 tracking-tight mb-4" style={{ fontFamily: 'Didot, "Bodoni MT", "Playfair Display", Times, serif' }}>
+                <h1 className="text-4xl text-slate-900 tracking-tight mb-4" style={{ fontFamily: 'var(--font-playfair), Georgia, serif' }}>
                   Order Request Submitted
                 </h1>
                 <p className="text-xs text-slate-500 font-light max-w-md mx-auto leading-relaxed">
@@ -197,7 +197,7 @@ function OrderPageInner() {
             ) : showConfirmedHeader ? (
               <>
                 <Check size={40} strokeWidth={1} className="mx-auto mb-6 text-slate-900" />
-                <h1 className="text-4xl text-slate-900 tracking-tight mb-4" style={{ fontFamily: 'Didot, "Bodoni MT", "Playfair Display", Times, serif' }}>
+                <h1 className="text-4xl text-slate-900 tracking-tight mb-4" style={{ fontFamily: 'var(--font-playfair), Georgia, serif' }}>
                   Order Confirmed
                 </h1>
                 <p className="text-xs text-slate-500 font-light max-w-md mx-auto leading-relaxed">

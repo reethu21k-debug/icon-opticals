@@ -21,7 +21,7 @@ export default function ReviewList({ reviews, totalCount, avgRating }: ReviewLis
     <section className="py-8">
       <h2 
         className="text-3xl text-slate-900 mb-12 tracking-tight" 
-        style={{ fontFamily: 'Didot, "Bodoni MT", "Playfair Display", Times, serif' }}
+        style={{ fontFamily: 'var(--font-playfair), Georgia, serif' }}
       >
         Client Reviews
       </h2>
@@ -33,7 +33,7 @@ export default function ReviewList({ reviews, totalCount, avgRating }: ReviewLis
         <div className="flex flex-col items-start md:items-center justify-center min-w-[160px]">
           <p 
             className="text-6xl text-slate-900 leading-none mb-4"
-            style={{ fontFamily: 'Didot, "Bodoni MT", "Playfair Display", Times, serif' }}
+            style={{ fontFamily: 'var(--font-playfair), Georgia, serif' }}
           >
             {avgRating.toFixed(1)}
           </p>

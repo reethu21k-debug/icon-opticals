@@ -45,7 +45,7 @@ export default function ForgotPasswordPage() {
           <Link href="/" className="flex flex-col items-center justify-center group mb-8">
             <span 
               className="text-3xl tracking-[0.1em] text-slate-900 transition-colors group-hover:text-slate-700" 
-              style={{ fontFamily: 'Didot, "Bodoni MT", "Playfair Display", Times, serif' }}
+              style={{ fontFamily: 'var(--font-playfair), Georgia, serif' }}
             >
               ICON
             </span>
@@ -55,7 +55,7 @@ export default function ForgotPasswordPage() {
           </Link>
           <h1 
             className="text-3xl text-slate-900 tracking-tight mb-2"
-            style={{ fontFamily: 'Didot, "Bodoni MT", "Playfair Display", Times, serif' }}
+            style={{ fontFamily: 'var(--font-playfair), Georgia, serif' }}
           >
             Recover Access
           </h1>

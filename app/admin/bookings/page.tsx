@@ -91,7 +91,7 @@ export default function AdminBookingsPage() {
         <div>
           <h1 
             className="text-3xl text-slate-900 tracking-tight mb-2"
-            style={{ fontFamily: 'Didot, "Bodoni MT", "Playfair Display", Times, serif' }}
+            style={{ fontFamily: 'var(--font-playfair), Georgia, serif' }}
           >
             Reservation Ledger
           </h1>

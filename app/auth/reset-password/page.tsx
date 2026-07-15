@@ -98,7 +98,7 @@ function ResetPasswordInner() {
             <div className="flex justify-center mb-6">
               <AlertCircle className="text-slate-900" size={32} strokeWidth={1} />
             </div>
-            <h2 className="text-3xl text-slate-900 mb-4 tracking-tight" style={{ fontFamily: 'Didot, "Bodoni MT", "Playfair Display", Times, serif' }}>
+            <h2 className="text-3xl text-slate-900 mb-4 tracking-tight" style={{ fontFamily: 'var(--font-playfair), Georgia, serif' }}>
               Link Expired
             </h2>
             <p className="text-xs text-slate-500 font-light leading-relaxed mb-8">
@@ -125,7 +125,7 @@ function ResetPasswordInner() {
           <Link href="/" className="flex flex-col items-center justify-center group mb-8">
             <span 
               className="text-3xl tracking-[0.1em] text-slate-900 transition-colors group-hover:text-slate-700" 
-              style={{ fontFamily: 'Didot, "Bodoni MT", "Playfair Display", Times, serif' }}
+              style={{ fontFamily: 'var(--font-playfair), Georgia, serif' }}
             >
               ICON
             </span>
@@ -135,7 +135,7 @@ function ResetPasswordInner() {
           </Link>
           <h1 
             className="text-3xl text-slate-900 tracking-tight mb-2"
-            style={{ fontFamily: 'Didot, "Bodoni MT", "Playfair Display", Times, serif' }}
+            style={{ fontFamily: 'var(--font-playfair), Georgia, serif' }}
           >
             Reset Credentials
           </h1>

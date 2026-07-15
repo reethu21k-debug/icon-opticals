@@ -347,7 +347,7 @@ function NavbarInner() {
             >
               <span
                 className="text-[24px] sm:text-[28px] tracking-[0.14em] text-slate-900 group-hover:text-slate-600 transition-colors leading-none"
-                style={{ fontFamily: 'Didot, "Bodoni MT", "Playfair Display", Times, serif' }}
+                style={{ fontFamily: 'var(--font-playfair), Georgia, serif' }}
               >
                 ICON
               </span>
@@ -480,7 +480,7 @@ function NavbarInner() {
                   onChange={handleSearchChange}
                   placeholder="Search frames, brands, styles…"
                   className="w-full bg-transparent text-4xl sm:text-6xl font-light text-slate-900 placeholder-slate-300 outline-none pr-16 tracking-tight"
-                  style={{ fontFamily: 'Didot, "Bodoni MT", "Playfair Display", Times, serif' }}
+                  style={{ fontFamily: 'var(--font-playfair), Georgia, serif' }}
                 />
                 <button
                   type="submit"
@@ -538,7 +538,7 @@ function NavbarInner() {
             <div className="flex flex-col">
               <span
                 className="text-2xl tracking-[0.12em] text-slate-900 leading-none"
-                style={{ fontFamily: 'Didot, "Bodoni MT", "Playfair Display", Times, serif' }}
+                style={{ fontFamily: 'var(--font-playfair), Georgia, serif' }}
               >
                 ICON
               </span>

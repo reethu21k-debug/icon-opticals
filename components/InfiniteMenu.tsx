@@ -884,7 +884,7 @@ const MENU_STYLES = `
   @import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&display=swap');
 
   .im-root {
-    font-family: 'DM Sans', sans-serif;
+    font-family: var(--font-dm-sans), system-ui, sans-serif;
     /* Prevent text selection while dragging on all devices */
     user-select: none;
     -webkit-user-select: none;
@@ -1024,7 +1024,7 @@ const MENU_STYLES = `
 
   /* ── Product title ── */
   .im-title {
-    font-family: 'DM Serif Display', Georgia, serif;
+    font-family: var(--font-playfair), Georgia, serif;
     font-size: clamp(1.0rem, 3.8vw, 3.2rem);
     line-height: 1.05;
     letter-spacing: -0.02em;

@@ -168,7 +168,7 @@ export default async function ProductsPage({ searchParams }: PageProps) {
           <div className="mb-10 text-center lg:text-left">
             <h1
               className="text-4xl lg:text-5xl text-slate-900 tracking-tight"
-              style={{ fontFamily: 'Didot, "Bodoni MT", "Playfair Display", Times, serif' }}
+              style={{ fontFamily: 'var(--font-playfair), Georgia, serif' }}
             >
               {categoryLabel}
             </h1>

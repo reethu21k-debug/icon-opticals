@@ -156,7 +156,7 @@ const CSS = `
   /* Continues the gradient from the homepage */
   background: linear-gradient(135deg, rgba(255,241,242,0.4) 0%, #ffffff 50%, #f8fafc 100%);
   color: var(--ink-mid);
-  font-family: 'DM Sans', sans-serif;
+  font-family: var(--font-dm-sans), system-ui, sans-serif;
   position: relative;
   overflow: hidden;
 }
@@ -167,7 +167,7 @@ const CSS = `
   border-radius: 4px;
 }
 
-.serif { font-family: 'DM Serif Display', Georgia, serif !important; }
+.serif { font-family: var(--font-playfair), Georgia, serif !important; }
 
 /* ═══ TICKER ═════════════════════════════════════════════════════ */
 .ft-ticker-wrap {
@@ -324,7 +324,7 @@ const CSS = `
   display: flex; align-items: baseline; justify-content: center; gap: 4px;
   margin-bottom: 12px;
 }
-.ft-stat-sup { font-size: 60%; color: var(--ink-soft); font-family: 'DM Sans', sans-serif;}
+.ft-stat-sup { font-size: 60%; color: var(--ink-soft); font-family: var(--font-dm-sans), system-ui, sans-serif;}
 .ft-stat-lbl {
   font-size: clamp(7px, 1.2vw, 8px); 
   letter-spacing: 0.2em; text-transform: uppercase;
@@ -427,7 +427,7 @@ a.ft-card-val:hover { color: var(--ink); }
   background: rgba(255,255,255,0.6); border: 1px solid var(--glass-border); 
   backdrop-filter: blur(8px);
   color: var(--ink); padding: 1.2rem 1.4rem;
-  font-size: 15px; font-family: 'DM Sans', sans-serif; font-weight: 500;
+  font-size: 15px; font-family: var(--font-dm-sans), system-ui, sans-serif; font-weight: 500;
   outline: none; transition: all 0.3s ease;
   border-radius: var(--radius-sm) var(--radius-sm) 0 0;
 }
@@ -443,7 +443,7 @@ a.ft-card-val:hover { color: var(--ink); }
   border: 1px solid var(--ink); border-top: none;
   color: #fff; padding: 1.2rem 1.4rem;
   font-size: 10px; letter-spacing: 0.2em; text-transform: uppercase; font-weight: 700;
-  font-family: 'DM Sans', sans-serif; cursor: pointer;
+  font-family: var(--font-dm-sans), system-ui, sans-serif; cursor: pointer;
   display: flex; align-items: center; justify-content: center; gap: 12px;
   transition: all 0.3s ease;
   border-radius: 0 0 var(--radius-sm) var(--radius-sm);

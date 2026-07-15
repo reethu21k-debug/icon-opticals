@@ -65,7 +65,7 @@
 //         <div className="mb-12 border-b border-slate-200 pb-6">
 //           <h1 
 //             className="text-4xl text-slate-900 tracking-tight mb-2"
-//             style={{ fontFamily: 'Didot, "Bodoni MT", "Playfair Display", Times, serif' }}
+//             style={{ fontFamily: 'var(--font-playfair), Georgia, serif' }}
 //           >
 //             Client Profile
 //           </h1>
@@ -108,11 +108,11 @@
 //             <div className="bg-white border border-slate-200 shadow-2xl p-8 sm:p-12 animate-in fade-in slide-in-from-bottom-4 duration-700">
               
 //               <div className="flex items-center gap-6 mb-10 pb-8 border-b border-slate-100">
-//                 <div className="w-20 h-20 border border-slate-200 bg-slate-50 flex items-center justify-center text-3xl font-light text-slate-900 flex-shrink-0" style={{ fontFamily: 'Didot, "Bodoni MT", "Playfair Display", Times, serif' }}>
+//                 <div className="w-20 h-20 border border-slate-200 bg-slate-50 flex items-center justify-center text-3xl font-light text-slate-900 flex-shrink-0" style={{ fontFamily: 'var(--font-playfair), Georgia, serif' }}>
 //                   {name.charAt(0).toUpperCase() || user?.email?.charAt(0).toUpperCase()}
 //                 </div>
 //                 <div>
-//                   <p className="text-xl text-slate-900 tracking-tight mb-1" style={{ fontFamily: 'Didot, "Bodoni MT", "Playfair Display", Times, serif' }}>
+//                   <p className="text-xl text-slate-900 tracking-tight mb-1" style={{ fontFamily: 'var(--font-playfair), Georgia, serif' }}>
 //                     {name || 'Unidentified Client'}
 //                   </p>
 //                   <p className="text-[11px] uppercase tracking-widest text-slate-400">
@@ -305,7 +305,7 @@ export default function AccountPage() {
         <div className="mb-12 border-b border-slate-200 pb-6">
           <h1
             className="text-4xl text-slate-900 tracking-tight mb-2"
-            style={{ fontFamily: 'Didot, "Bodoni MT", "Playfair Display", Times, serif' }}
+            style={{ fontFamily: 'var(--font-playfair), Georgia, serif' }}
           >
             Client Profile
           </h1>
@@ -356,14 +356,14 @@ export default function AccountPage() {
               <div className="flex items-center gap-6 mb-10 pb-8 border-b border-slate-100">
                 <div
                   className="w-20 h-20 border border-slate-200 bg-slate-50 flex items-center justify-center text-3xl font-light text-slate-900 flex-shrink-0"
-                  style={{ fontFamily: 'Didot, "Bodoni MT", "Playfair Display", Times, serif' }}
+                  style={{ fontFamily: 'var(--font-playfair), Georgia, serif' }}
                 >
                   {name.charAt(0).toUpperCase() || user?.email?.charAt(0).toUpperCase()}
                 </div>
                 <div>
                   <p
                     className="text-xl text-slate-900 tracking-tight mb-1"
-                    style={{ fontFamily: 'Didot, "Bodoni MT", "Playfair Display", Times, serif' }}
+                    style={{ fontFamily: 'var(--font-playfair), Georgia, serif' }}
                   >
                     {name || 'Unidentified Client'}
                   </p>

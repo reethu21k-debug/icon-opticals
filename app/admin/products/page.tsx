@@ -277,7 +277,7 @@ export default function AdminProductsPage() {
             <div className="p-2.5 bg-white/60 backdrop-blur-xl rounded-2xl shadow-sm border border-white"><Package size={18} strokeWidth={1.5} className="text-slate-900"/></div>
             <p className="text-[10px] uppercase tracking-[0.35em] text-slate-500 font-bold">Inventory Management</p>
           </div>
-          <h1 className="text-4xl md:text-5xl font-light text-slate-900 tracking-tight mb-3" style={{fontFamily:'Didot,"Bodoni MT","Playfair Display",Times,serif'}}>
+          <h1 className="text-4xl md:text-5xl font-light text-slate-900 tracking-tight mb-3" style={{fontFamily:'var(--font-playfair), Georgia, serif'}}>
             Boutique Catalog
           </h1>
           <p className="text-[11px] uppercase tracking-[0.25em] font-bold text-slate-400">{total} {statusTab==='active'?'Registered':'Archived'} Items</p>
@@ -396,7 +396,7 @@ export default function AdminProductsPage() {
             <div className="bg-white/80 border-b border-slate-200/50 px-8 sm:px-10 py-8 flex items-start justify-between flex-shrink-0 relative z-10">
               <div>
                 <p className="text-[9px] uppercase tracking-[0.3em] text-slate-400 mb-3 font-bold">Item Configuration</p>
-                <h2 className="text-3xl text-slate-900 tracking-tight" style={{fontFamily:'Didot,"Bodoni MT","Playfair Display",Times,serif'}}>
+                <h2 className="text-3xl text-slate-900 tracking-tight" style={{fontFamily:'var(--font-playfair), Georgia, serif'}}>
                   {editing?'Modify Entry':'New Entry'}
                 </h2>
               </div>
@@ -647,4 +647,3 @@ export default function AdminProductsPage() {
     </div>
   )
 }
-

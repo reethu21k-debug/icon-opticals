@@ -89,7 +89,7 @@ export default function LensFlowModal({ product, onClose, onComplete }: LensFlow
                 {['Lens Power', 'Lens Package', 'Prescription Details'][step - 1]}
               </p>
             </div>
-            <h2 className="text-3xl text-slate-900 tracking-tight" style={{ fontFamily: 'Didot, "Bodoni MT", "Playfair Display", Times, serif' }}>
+            <h2 className="text-3xl text-slate-900 tracking-tight" style={{ fontFamily: 'var(--font-playfair), Georgia, serif' }}>
               {product.name}
             </h2>
           </div>

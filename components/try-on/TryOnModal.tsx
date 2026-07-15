@@ -133,7 +133,7 @@ export default function TryOnModal({ product, onClose }: TryOnModalProps) {
             </p>
             <h2
               className="text-2xl sm:text-3xl text-slate-900 leading-tight tracking-tight"
-              style={{ fontFamily: 'Didot, "Bodoni MT", "Playfair Display", Times, serif' }}
+              style={{ fontFamily: 'var(--font-playfair), Georgia, serif' }}
             >
               {product.name}
             </h2>

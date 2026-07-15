@@ -104,7 +104,7 @@
 //           <h3
 //             style={{
 //               fontSize: 'clamp(1.25rem,2.5vw,1.75rem)',
-//               fontFamily: 'Didot, "Bodoni MT", "Playfair Display", Times, serif',
+//               fontFamily: 'var(--font-playfair), Georgia, serif',
 //               color: '#0f172a',
 //               margin: '0 0 8px',
 //               letterSpacing: '-.02em',
@@ -422,7 +422,7 @@ export default function ProductGrid({ products, total, page, perPage, filters, v
       <div className="flex flex-col items-center justify-center py-40 px-6 text-center w-full">
         <h3 
           className="text-3xl md:text-5xl text-slate-900 tracking-tight mb-6"
-          style={{ fontFamily: 'Didot, "Bodoni MT", "Playfair Display", Times, serif' }}
+          style={{ fontFamily: 'var(--font-playfair), Georgia, serif' }}
         >
           No Curations Found
         </h3>

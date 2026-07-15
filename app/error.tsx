@@ -22,7 +22,7 @@ export default function GlobalError({
         </p>
         <h1
           className="text-4xl text-slate-900 tracking-tight mb-6"
-          style={{ fontFamily: 'Didot, "Bodoni MT", "Playfair Display", Times, serif' }}
+          style={{ fontFamily: 'var(--font-playfair), Georgia, serif' }}
         >
           Unexpected Error
         </h1>

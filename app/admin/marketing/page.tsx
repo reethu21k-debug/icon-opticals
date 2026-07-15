@@ -66,7 +66,7 @@ export default function AdminMarketingPage() {
         <div>
           <h1 
             className="text-3xl text-slate-900 tracking-tight mb-2"
-            style={{ fontFamily: 'Didot, "Bodoni MT", "Playfair Display", Times, serif' }}
+            style={{ fontFamily: 'var(--font-playfair), Georgia, serif' }}
           >
             Editorial Dispatches
           </h1>
@@ -189,7 +189,7 @@ export default function AdminMarketingPage() {
             <div className="sticky top-0 bg-white/95 backdrop-blur-md border-b border-slate-200 px-8 py-6 flex items-start justify-between z-10">
               <div>
                 <p className="text-[9px] uppercase tracking-[0.25em] text-slate-400 mb-2">Composer</p>
-                <h2 className="text-2xl text-slate-900 tracking-tight" style={{ fontFamily: 'Didot, "Bodoni MT", "Playfair Display", Times, serif' }}>
+                <h2 className="text-2xl text-slate-900 tracking-tight" style={{ fontFamily: 'var(--font-playfair), Georgia, serif' }}>
                   Draft Editorial Dispatch
                 </h2>
               </div>

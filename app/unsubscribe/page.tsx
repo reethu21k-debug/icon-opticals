@@ -41,7 +41,7 @@ function UnsubscribePageInner() {
             <Check size={32} strokeWidth={1} className="mx-auto mb-8 text-slate-900" />
             <h1 
               className="text-3xl text-slate-900 mb-4 tracking-tight"
-              style={{ fontFamily: 'Didot, "Bodoni MT", "Playfair Display", Times, serif' }}
+              style={{ fontFamily: 'var(--font-playfair), Georgia, serif' }}
             >
               Preferences Updated
             </h1>
@@ -63,7 +63,7 @@ function UnsubscribePageInner() {
             <AlertCircle size={32} strokeWidth={1} className="mx-auto mb-8 text-slate-900" />
             <h1 
               className="text-3xl text-slate-900 mb-4 tracking-tight"
-              style={{ fontFamily: 'Didot, "Bodoni MT", "Playfair Display", Times, serif' }}
+              style={{ fontFamily: 'var(--font-playfair), Georgia, serif' }}
             >
               Request Unsuccessful
             </h1>

@@ -61,11 +61,11 @@ const CTA_CSS = `
     position: relative; 
     overflow: hidden; 
     padding: clamp(64px, 10vw, 120px) 0; 
-    font-family: 'DM Sans', sans-serif;
+    font-family: var(--font-dm-sans), system-ui, sans-serif;
     color: var(--ink);
   }
 
-  .serif { font-family: 'DM Serif Display', Georgia, serif !important; font-weight: 400; }
+  .serif { font-family: var(--font-playfair), Georgia, serif !important; font-weight: 400; }
 
   /* Ambient Studio Lighting (Matched to Homepage) */
   .cta-ambient-light {

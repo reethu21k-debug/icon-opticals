@@ -47,7 +47,7 @@
 //     animation: cart-fade-up 0.5s cubic-bezier(0.22,1,0.36,1) both;
 //   }
 //   .ct-eyebrow { font-size: 8.5px; text-transform: uppercase; letter-spacing: 0.3em; color: #94a3b8; font-weight: 600; margin-bottom: 6px; }
-//   .ct-title { font-family: Didot, "Bodoni MT", "Playfair Display", Times, serif; font-size: clamp(2rem, 4vw, 3rem); color: #0f172a; font-weight: 400; letter-spacing: -0.02em; }
+//   .ct-title { font-family: var(--font-playfair), Georgia, serif; font-size: clamp(2rem, 4vw, 3rem); color: #0f172a; font-weight: 400; letter-spacing: -0.02em; }
 //   .ct-count { font-size: 8.5px; text-transform: uppercase; letter-spacing: 0.28em; color: #94a3b8; font-weight: 600; }
 
 //   .ct-bogo {
@@ -55,7 +55,7 @@
 //     background: #0f172a; padding: 1.25rem 1.5rem; margin-bottom: 2rem;
 //     animation: cart-fade-up 0.5s cubic-bezier(0.22,1,0.36,1) 0.1s both;
 //   }
-//   .ct-bogo-title { font-family: Didot, "Bodoni MT", "Playfair Display", Times, serif; color: #fff; font-size: 1.05rem; }
+//   .ct-bogo-title { font-family: var(--font-playfair), Georgia, serif; color: #fff; font-size: 1.05rem; }
 //   .ct-bogo-sub { font-size: 9px; text-transform: uppercase; letter-spacing: 0.22em; color: #64748b; margin-top: 2px; }
 
 //   .ct-grid { display: grid; grid-template-columns: 1fr 360px; gap: 3.5rem; align-items: start; }
@@ -86,7 +86,7 @@
 //   .ct-item-body { flex: 1; display: flex; flex-direction: column; justify-content: space-between; gap: 0.75rem; min-width: 0; }
 //   .ct-brand { font-size: 9px; text-transform: uppercase; letter-spacing: 0.22em; color: #94a3b8; }
 //   .ct-name {
-//     font-family: Didot, "Bodoni MT", "Playfair Display", Times, serif;
+//     font-family: var(--font-playfair), Georgia, serif;
 //     font-size: 1.2rem; color: #0f172a; text-decoration: none; line-height: 1.2;
 //     transition: color .18s; display: block;
 //   }
@@ -108,14 +108,14 @@
 //   .ct-delete:hover { color: #0f172a; }
 
 //   .ct-price { text-align: right; }
-//   .ct-price-main { font-family: Didot, "Bodoni MT", "Playfair Display", Times, serif; font-size: 1.2rem; color: #0f172a; }
+//   .ct-price-main { font-family: var(--font-playfair), Georgia, serif; font-size: 1.2rem; color: #0f172a; }
 //   .ct-price-strike { font-size: 10px; color: #cbd5e1; text-decoration: line-through; }
 //   .ct-price-hint { font-size: 9px; text-transform: uppercase; letter-spacing: 0.15em; color: #94a3b8; margin-top: 2px; }
 
 //   /* Summary */
 //   .ct-summary { position: sticky; top: 5.5rem; }
 //   .ct-summary-inner { border: 1px solid #e2e8f0; background: #fff; padding: 2rem; }
-//   .ct-summary-title { font-family: Didot, "Bodoni MT", "Playfair Display", Times, serif; font-size: 1.5rem; color: #0f172a; padding-bottom: 1.25rem; border-bottom: 1px solid #f1f5f9; margin-bottom: 1.5rem; }
+//   .ct-summary-title { font-family: var(--font-playfair), Georgia, serif; font-size: 1.5rem; color: #0f172a; padding-bottom: 1.25rem; border-bottom: 1px solid #f1f5f9; margin-bottom: 1.5rem; }
 
 //   .ct-coupon-applied { display: flex; align-items: center; justify-content: space-between; border: 1px solid #0f172a; padding: 0.875rem 1rem; background: #f8fafc; margin-bottom: 1.5rem; }
 //   .ct-coupon-code { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.22em; color: #0f172a; }
@@ -139,7 +139,7 @@
 
 //   .ct-total-row { display: flex; align-items: flex-end; justify-content: space-between; margin-bottom: 1.75rem; }
 //   .ct-total-label { font-size: 9px; text-transform: uppercase; letter-spacing: 0.22em; color: #94a3b8; }
-//   .ct-total-val { font-family: Didot, "Bodoni MT", "Playfair Display", Times, serif; font-size: 2rem; color: #0f172a; letter-spacing: -0.02em; }
+//   .ct-total-val { font-family: var(--font-playfair), Georgia, serif; font-size: 2rem; color: #0f172a; letter-spacing: -0.02em; }
 
 //   .ct-checkout-btn {
 //     width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px;
@@ -161,7 +161,7 @@
 //   .ct-empty { min-height: 100vh; background: #fff; display: flex; align-items: center; justify-content: center; }
 //   .ct-empty-inner { text-align: center; max-width: 400px; padding: 2rem; animation: cart-fade-up 0.6s cubic-bezier(0.22,1,0.36,1) both; }
 //   .ct-empty-icon { width: 72px; height: 72px; border: 1px solid #e2e8f0; display: flex; align-items: center; justify-content: center; margin: 0 auto 2rem; color: #cbd5e1; }
-//   .ct-empty-title { font-family: Didot, "Bodoni MT", "Playfair Display", Times, serif; font-size: 2rem; color: #0f172a; margin-bottom: 0.75rem; font-weight: 400; }
+//   .ct-empty-title { font-family: var(--font-playfair), Georgia, serif; font-size: 2rem; color: #0f172a; margin-bottom: 0.75rem; font-weight: 400; }
 //   .ct-empty-desc { font-size: 13px; color: #64748b; line-height: 1.65; margin-bottom: 2rem; }
 //   .ct-shop-btn { display: inline-flex; align-items: center; gap: 8px; padding: 1rem 2rem; background: #0f172a; color: #fff; font-size: 9.5px; text-transform: uppercase; letter-spacing: 0.22em; font-weight: 600; text-decoration: none; font-family: 'Inter', sans-serif; transition: background .2s; }
 //   .ct-shop-btn:hover { background: #1e293b; }
@@ -551,7 +551,7 @@
 //           .brand-btn-p span { position:relative; z-index:1; display:flex; align-items:center; gap:8px; }
 //           .brand-btn-p:active { transform:scale(.97); }
           
-//           .font-didot { font-family: Didot, "Bodoni MT", "Playfair Display", Times, serif; }
+//           .font-didot { font-family: var(--font-playfair), Georgia, serif; }
 //         `}</style>
         
 //         <div className="text-center py-16 px-4">
@@ -597,7 +597,7 @@
 //         .brand-btn-g:hover { background:#0f172a; color:#fff; }
 //         .brand-btn-g:active { transform:scale(.97); }
 
-//         .font-didot { font-family: Didot, "Bodoni MT", "Playfair Display", Times, serif; }
+//         .font-didot { font-family: var(--font-playfair), Georgia, serif; }
 //         .eyebrow-text { font-size:8.5px; text-transform:uppercase; letter-spacing:.2em; color:#94a3b8; }
 //       `}</style>
 
@@ -953,7 +953,7 @@ const CART_CSS = `
     animation: cart-fade-up 0.5s cubic-bezier(0.22,1,0.36,1) both;
   }
   .ct-eyebrow { font-size: 8.5px; text-transform: uppercase; letter-spacing: 0.3em; color: #94a3b8; font-weight: 600; margin-bottom: 6px; }
-  .ct-title { font-family: Didot, "Bodoni MT", "Playfair Display", Times, serif; font-size: clamp(2rem, 4vw, 3rem); color: #0f172a; font-weight: 400; letter-spacing: -0.02em; }
+  .ct-title { font-family: var(--font-playfair), Georgia, serif; font-size: clamp(2rem, 4vw, 3rem); color: #0f172a; font-weight: 400; letter-spacing: -0.02em; }
   .ct-count { font-size: 8.5px; text-transform: uppercase; letter-spacing: 0.28em; color: #94a3b8; font-weight: 600; }
 
   .ct-bogo {
@@ -961,7 +961,7 @@ const CART_CSS = `
     background: #0f172a; padding: 1.25rem 1.5rem; margin-bottom: 2rem;
     animation: cart-fade-up 0.5s cubic-bezier(0.22,1,0.36,1) 0.1s both;
   }
-  .ct-bogo-title { font-family: Didot, "Bodoni MT", "Playfair Display", Times, serif; color: #fff; font-size: 1.05rem; }
+  .ct-bogo-title { font-family: var(--font-playfair), Georgia, serif; color: #fff; font-size: 1.05rem; }
   .ct-bogo-sub { font-size: 9px; text-transform: uppercase; letter-spacing: 0.22em; color: #64748b; margin-top: 2px; }
 
   .ct-grid { display: grid; grid-template-columns: 1fr 360px; gap: 3.5rem; align-items: start; }
@@ -992,7 +992,7 @@ const CART_CSS = `
   .ct-item-body { flex: 1; display: flex; flex-direction: column; justify-content: space-between; gap: 0.75rem; min-width: 0; }
   .ct-brand { font-size: 9px; text-transform: uppercase; letter-spacing: 0.22em; color: #94a3b8; }
   .ct-name {
-    font-family: Didot, "Bodoni MT", "Playfair Display", Times, serif;
+    font-family: var(--font-playfair), Georgia, serif;
     font-size: 1.2rem; color: #0f172a; text-decoration: none; line-height: 1.2;
     transition: color .18s; display: block;
   }
@@ -1014,14 +1014,14 @@ const CART_CSS = `
   .ct-delete:hover { color: #0f172a; }
 
   .ct-price { text-align: right; }
-  .ct-price-main { font-family: Didot, "Bodoni MT", "Playfair Display", Times, serif; font-size: 1.2rem; color: #0f172a; }
+  .ct-price-main { font-family: var(--font-playfair), Georgia, serif; font-size: 1.2rem; color: #0f172a; }
   .ct-price-strike { font-size: 10px; color: #cbd5e1; text-decoration: line-through; }
   .ct-price-hint { font-size: 9px; text-transform: uppercase; letter-spacing: 0.15em; color: #94a3b8; margin-top: 2px; }
 
   /* Summary */
   .ct-summary { position: sticky; top: 5.5rem; }
   .ct-summary-inner { border: 1px solid #e2e8f0; background: #fff; padding: 2rem; }
-  .ct-summary-title { font-family: Didot, "Bodoni MT", "Playfair Display", Times, serif; font-size: 1.5rem; color: #0f172a; padding-bottom: 1.25rem; border-bottom: 1px solid #f1f5f9; margin-bottom: 1.5rem; }
+  .ct-summary-title { font-family: var(--font-playfair), Georgia, serif; font-size: 1.5rem; color: #0f172a; padding-bottom: 1.25rem; border-bottom: 1px solid #f1f5f9; margin-bottom: 1.5rem; }
 
   .ct-coupon-applied { display: flex; align-items: center; justify-content: space-between; border: 1px solid #0f172a; padding: 0.875rem 1rem; background: #f8fafc; margin-bottom: 1.5rem; }
   .ct-coupon-code { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.22em; color: #0f172a; }
@@ -1045,7 +1045,7 @@ const CART_CSS = `
 
   .ct-total-row { display: flex; align-items: flex-end; justify-content: space-between; margin-bottom: 1.75rem; }
   .ct-total-label { font-size: 9px; text-transform: uppercase; letter-spacing: 0.22em; color: #94a3b8; }
-  .ct-total-val { font-family: Didot, "Bodoni MT", "Playfair Display", Times, serif; font-size: 2rem; color: #0f172a; letter-spacing: -0.02em; }
+  .ct-total-val { font-family: var(--font-playfair), Georgia, serif; font-size: 2rem; color: #0f172a; letter-spacing: -0.02em; }
 
   .ct-checkout-btn {
     width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px;
@@ -1067,7 +1067,7 @@ const CART_CSS = `
   .ct-empty { min-height: 100vh; background: #fff; display: flex; align-items: center; justify-content: center; }
   .ct-empty-inner { text-align: center; max-width: 400px; padding: 2rem; animation: cart-fade-up 0.6s cubic-bezier(0.22,1,0.36,1) both; }
   .ct-empty-icon { width: 72px; height: 72px; border: 1px solid #e2e8f0; display: flex; align-items: center; justify-content: center; margin: 0 auto 2rem; color: #cbd5e1; }
-  .ct-empty-title { font-family: Didot, "Bodoni MT", "Playfair Display", Times, serif; font-size: 2rem; color: #0f172a; margin-bottom: 0.75rem; font-weight: 400; }
+  .ct-empty-title { font-family: var(--font-playfair), Georgia, serif; font-size: 2rem; color: #0f172a; margin-bottom: 0.75rem; font-weight: 400; }
   .ct-empty-desc { font-size: 13px; color: #64748b; line-height: 1.65; margin-bottom: 2rem; }
   .ct-shop-btn { display: inline-flex; align-items: center; gap: 8px; padding: 1rem 2rem; background: #0f172a; color: #fff; font-size: 9.5px; text-transform: uppercase; letter-spacing: 0.22em; font-weight: 600; text-decoration: none; font-family: 'Inter', sans-serif; transition: background .2s; }
   .ct-shop-btn:hover { background: #1e293b; }

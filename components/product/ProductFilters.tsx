@@ -370,7 +370,7 @@ export default function ProductFilters({ initial, totalCount }: FiltersProps) {
       {/* ── Top Row ───────────────────────────────────────────── */}
       <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
         <div>
-          <h2 className="text-2xl text-slate-900 tracking-tight mb-1" style={{ fontFamily: 'Didot, "Bodoni MT", "Playfair Display", Times, serif' }}>
+          <h2 className="text-2xl text-slate-900 tracking-tight mb-1" style={{ fontFamily: 'var(--font-playfair), Georgia, serif' }}>
             Refine Selection
           </h2>
           <p className="text-[10px] uppercase tracking-[0.15em] text-slate-500 flex items-center gap-2">
