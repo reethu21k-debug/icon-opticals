@@ -539,7 +539,7 @@ const PAGE_STYLES = `
 
   .hero-editorial-title {
     font-size: clamp(3rem, 7vw, 6.2rem);
-    line-height: 0.96;
+    line-height: 1.08;
     letter-spacing: -0.03em;
     color: var(--ink);
     margin: clamp(20px, 3vw, 28px) 0 0 0;
@@ -551,6 +551,8 @@ const PAGE_STYLES = `
     align-items: baseline;
     gap: clamp(12px, 2vw, 20px);
     flex-wrap: wrap;
+    padding-bottom: 0.08em;
+    overflow: visible;
   }
 
   .hero-italic-accent {
