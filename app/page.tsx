@@ -151,12 +151,12 @@ async function getShowcaseProducts(limit = 14): Promise<Product[]> {
 /* ─── Static data ───────────────────────────────────────────────────── */
 
 const CATEGORIES = [
-  { label: 'Eyeglasses',       img: 'https://static1.lenskart.com/media/desktop/img/Apr22/a2.png',      href: '/products?category=eyeglasses',              desc: 'Everyday vision correction' },
-  { label: 'Sunglasses',       img: 'https://static1.lenskart.com/media/desktop/img/Apr22/b2.png',      href: '/products?category=sunglasses',              desc: 'Style & UV protection' },
-  { label: 'Computer Glasses', img: 'https://static1.lenskart.com/media/desktop/img/Apr22/d2.png',      href: '/products?category=computer-glasses',        desc: 'Blue-light protection' },
-  { label: 'Contact Lenses',   img: 'https://static1.lenskart.com/media/desktop/img/Apr22/d.png',       href: '/products?category=contact-lenses',          desc: 'Comfortable daily wear' },
-  { label: 'Power Sunglasses', img: 'https://static1.lenskart.com/media/desktop/img/Apr22/e2.png',      href: '/products?category=sunglasses&powered=true', desc: 'Corrective + cool' },
-  { label: 'Progressive',      img: 'https://static1.lenskart.com/media/desktop/img/June22/prog11.jpg', href: '/products?category=progressive',             desc: 'Multi-focal comfort' },
+  { label: 'Eyeglasses',       img: '/category/Eye_Glasses.png',        href: '/products?category=eyeglasses',              desc: 'Everyday vision correction' },
+  { label: 'Sunglasses',       img: '/category/Sun_Glasses.png',        href: '/products?category=sunglasses',              desc: 'Style & UV protection' },
+  { label: 'Computer Glasses', img: '/category/Computer_Glasses.png',   href: '/products?category=computer-glasses',        desc: 'Blue-light protection' },
+  { label: 'Contact Lenses',   img: '/category/Contact_Lenses.png',     href: '/products?category=contact-lenses',          desc: 'Comfortable daily wear' },
+  { label: 'Power Sunglasses', img: '/category/Power_Sunglasses.png',   href: '/products?category=sunglasses&powered=true', desc: 'Corrective + cool' },
+  { label: 'Progressive',      img: '/category/Progressive_Lenses.png', href: '/products?category=progressive',             desc: 'Multi-focal comfort' },
 ]
 
 const FLOWING_MENU_ITEMS = [
@@ -231,7 +231,7 @@ const PAGE_STYLES = `
     /* Responsive spacing tokens */
     --section-py: clamp(48px, 8vw, 96px);
     --container-px: clamp(20px, 5vw, 80px);
-    --gap-sm: clamp(12px, 2vw, 20px);
+    --gap-sm: clamp(10px, 2vw, 20px);
     --gap-md: clamp(16px, 2.5vw, 32px);
     --gap-lg: clamp(24px, 4vw, 48px);
   }
@@ -384,7 +384,8 @@ const PAGE_STYLES = `
   .ticker-sep { color: var(--ink-faint); font-size: 8px; opacity: 0.5; }
 
   /* ────────────────────────────────────────────────
-     CATEGORY SECTION
+     CATEGORY SECTION — premium editorial cards
+     matched to 1254×1254 source images
   ──────────────────────────────────────────────── */
   .cat-section {
     position: relative;
@@ -396,87 +397,214 @@ const PAGE_STYLES = `
     display: flex;
     flex-direction: column;
     gap: 10px;
-    margin-bottom: clamp(32px, 5vw, 48px);
+    margin-bottom: clamp(32px, 5.5vw, 56px);
     align-items: center;
   }
 
   .cat-grid {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(2, 1fr);
     gap: var(--gap-sm);
+  }
+  @media (min-width: 480px) {
+    .cat-grid { grid-template-columns: repeat(3, 1fr); }
   }
   @media (min-width: 640px) {
     .cat-grid { grid-template-columns: repeat(3, 1fr); gap: var(--gap-md); }
   }
-  @media (min-width: 1024px) {
-    .cat-grid { grid-template-columns: repeat(6, 1fr); gap: var(--gap-md); }
+  @media (min-width: 900px) {
+    .cat-grid { grid-template-columns: repeat(4, 1fr); }
+  }
+  @media (min-width: 1200px) {
+    .cat-grid { grid-template-columns: repeat(6, 1fr); }
   }
 
   .cat-card {
-    background: var(--surface);
-    backdrop-filter: blur(24px);
-    -webkit-backdrop-filter: blur(24px);
-    border: 1px solid rgba(255, 255, 255, 0.6);
-    border-radius: clamp(16px, 2.5vw, 24px);
-    text-align: center;
+    background: #0f172a;
     text-decoration: none;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
+    display: block;
     overflow: hidden;
-    transition: transform 0.6s var(--ease-fluid), box-shadow 0.6s var(--ease-fluid), border-color 0.4s ease, background 0.4s ease;
     position: relative;
-    box-shadow: var(--glass-shadow), var(--glass-highlight);
+    border-radius: clamp(18px, 2.8vw, 26px);
+    isolation: isolate;
+    box-shadow:
+      0 1px 0 0 rgba(255,255,255,0.05) inset,
+      0 20px 40px -18px rgba(15, 23, 42, 0.35);
+    transition: transform 0.7s var(--ease-fluid), box-shadow 0.7s var(--ease-fluid);
   }
   .cat-card:hover {
-    transform: translateY(-8px) scale(1.01);
-    box-shadow: 0 30px 60px -12px rgba(15, 23, 42, 0.08), var(--glass-highlight);
-    background: rgba(255, 255, 255, 0.85);
-    border-color: rgba(255, 255, 255, 0.9);
+    transform: translateY(-6px);
+    box-shadow:
+      0 1px 0 0 rgba(255,255,255,0.08) inset,
+      0 34px 64px -20px rgba(15, 23, 42, 0.45);
   }
   @media (hover: none) {
-    .cat-card:hover { transform: none; box-shadow: var(--glass-shadow); }
-    .cat-card:active { transform: scale(0.98); }
+    .cat-card:hover { transform: none; }
+    .cat-card:active { transform: scale(0.97); }
   }
 
+  /* subtle 1px hairline frame that brightens on hover */
+  .cat-card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    border: 1px solid rgba(255,255,255,0.14);
+    z-index: 3;
+    pointer-events: none;
+    transition: border-color 0.5s var(--ease-fluid);
+  }
+  .cat-card:hover::before {
+    border-color: rgba(255,255,255,0.35);
+  }
+
+  /* 1:1 wrapper — mirrors the 1254×1254 source exactly at every breakpoint */
   .cat-img-wrapper {
+    position: relative;
     width: 100%;
-    padding: clamp(16px, 3vw, 32px) clamp(12px, 2vw, 20px) clamp(8px, 1.5vw, 16px);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    background: radial-gradient(circle at top center, rgba(255,255,255,0.8) 0%, transparent 80%);
+    aspect-ratio: 1 / 1;
+    overflow: hidden;
+    border-radius: inherit;
+    background: #0f172a;
   }
-  .cat-card:hover .cat-img { transform: scale(1.08) translateY(-4px); }
   .cat-img {
-    max-width: 100%;
-    max-height: clamp(60px, 12vw, 110px);
-    object-fit: contain;
-    transition: transform 0.7s var(--ease-fluid);
-    filter: drop-shadow(0 10px 15px rgba(0,0,0,0.05));
-  }
-  .cat-label {
-    font-size: clamp(11px, 1.8vw, 14px);
-    font-weight: 600;
-    color: var(--ink);
-    margin: 0 0 4px;
-    letter-spacing: -0.01em;
-    line-height: 1.3;
-  }
-  .cat-desc  {
-    font-size: clamp(9px, 1.3vw, 11px);
-    color: var(--ink-soft);
-    margin: 0;
-    font-weight: 400;
-    line-height: 1.5;
-  }
-  .cat-text-pad {
-    padding: clamp(10px, 2vw, 20px) clamp(8px, 1.5vw, 16px) clamp(16px, 2.5vw, 24px);
+    position: absolute;
+    inset: 0;
     width: 100%;
-    flex: 1;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+    filter: saturate(0.94) brightness(0.92);
+    transition: transform 1s var(--ease-fluid), filter 0.7s ease;
+    display: block;
+  }
+  .cat-card:hover .cat-img {
+    transform: scale(1.08);
+    filter: saturate(1.05) brightness(0.85);
+  }
+
+  /* permanent gradient for legibility, deepens slightly on hover */
+  .cat-card-scrim {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    background: linear-gradient(
+      to top,
+      rgba(0,0,0,0.82) 0%,
+      rgba(0,0,0,0.42) 32%,
+      rgba(0,0,0,0.02) 58%,
+      transparent 72%
+    );
+    transition: background 0.6s ease;
+    pointer-events: none;
+  }
+  .cat-card:hover .cat-card-scrim {
+    background: linear-gradient(
+      to top,
+      rgba(0,0,0,0.9) 0%,
+      rgba(0,0,0,0.5) 34%,
+      rgba(0,0,0,0.05) 60%,
+      transparent 74%
+    );
+  }
+
+  .cat-card-index {
+    position: absolute;
+    top: clamp(12px, 1.8vw, 18px);
+    right: clamp(12px, 1.8vw, 18px);
+    z-index: 3;
+    font-family: var(--font-dm-sans), system-ui, sans-serif;
+    font-size: clamp(9px, 1.2vw, 10px);
+    letter-spacing: 0.15em;
+    color: rgba(255,255,255,0.55);
+    font-weight: 500;
+    transition: color 0.4s ease;
+  }
+  .cat-card:hover .cat-card-index { color: rgba(255,255,255,0.9); }
+
+  .cat-card-body {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 2;
+    padding: clamp(16px, 2.6vw, 26px) clamp(16px, 2.4vw, 24px);
     display: flex;
     flex-direction: column;
+    gap: 4px;
+  }
+
+  .cat-card-rule {
+    width: 22px;
+    height: 1.5px;
+    background: rgba(255,255,255,0.5);
+    margin-bottom: clamp(8px, 1.2vw, 12px);
+    transform-origin: left;
+    transition: width 0.5s var(--ease-fluid), background 0.4s ease;
+  }
+  .cat-card:hover .cat-card-rule {
+    width: 40px;
+    background: #fff;
+  }
+
+  .cat-card-label {
+    font-family: var(--font-playfair), Georgia, serif;
+    font-weight: 400;
+    font-size: clamp(1rem, 1.9vw, 1.35rem);
+    line-height: 1.15;
+    color: #fff;
+    letter-spacing: -0.01em;
+    margin: 0;
+  }
+
+  .cat-card-desc {
+    margin: 0;
+    font-family: var(--font-dm-sans), system-ui, sans-serif;
+    font-size: clamp(9px, 1.15vw, 10.5px);
+    letter-spacing: 0.06em;
+    color: rgba(255,255,255,0.62);
+    font-weight: 400;
+    max-height: 0;
+    opacity: 0;
+    overflow: hidden;
+    transition: max-height 0.5s var(--ease-fluid), opacity 0.4s ease 0.05s, margin-top 0.5s var(--ease-fluid);
+  }
+  .cat-card:hover .cat-card-desc {
+    max-height: 40px;
+    opacity: 1;
+    margin-top: 2px;
+  }
+
+  .cat-card-arrow {
+    position: absolute;
+    bottom: clamp(16px, 2.6vw, 26px);
+    right: clamp(16px, 2.4vw, 24px);
+    z-index: 3;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.12);
+    border: 1px solid rgba(255,255,255,0.3);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    display: flex;
+    align-items: center;
     justify-content: center;
+    color: #fff;
+    opacity: 0;
+    transform: translate(6px, 6px) scale(0.85);
+    transition: all 0.5s var(--ease-fluid);
+  }
+  .cat-card:hover .cat-card-arrow {
+    opacity: 1;
+    transform: translate(0, 0) scale(1);
+    background: #fff;
+    color: #0f172a;
+    border-color: #fff;
+  }
+  @media (hover: none) {
+    .cat-card-desc { max-height: 40px; opacity: 1; margin-top: 2px; }
+    .cat-card-arrow { opacity: 1; transform: none; }
   }
 
   /* ────────────────────────────────────────────────
@@ -1293,20 +1421,6 @@ const PAGE_STYLES = `
     :root { --container-px: 16px; }
     .hero-editorial-title { font-size: 2.4rem; }
   }
-
-  /* ────────────────────────────────────────────────
-     TABLET
-  ──────────────────────────────────────────────── */
-  @media (min-width: 768px) {
-    .cat-grid { grid-template-columns: repeat(3, 1fr); }
-  }
-
-  /* ────────────────────────────────────────────────
-     DESKTOP
-  ──────────────────────────────────────────────── */
-  @media (min-width: 1024px) {
-    .cat-grid { grid-template-columns: repeat(6, 1fr); }
-  }
 `
 
 /* ─── Shared UI primitives ─────────────────────────────────────── */
@@ -1444,6 +1558,7 @@ export default async function HomePage() {
                 key={cat.label}
                 href={cat.href}
                 className="cat-card"
+                aria-label={cat.label}
                 style={{
                   animationDelay: `${i * 0.1}s`,
                   animation: 'fadeUp .8s cubic-bezier(0.22, 1, 0.36, 1) both',
@@ -1457,12 +1572,28 @@ export default async function HomePage() {
                     className="cat-img"
                     loading="lazy"
                     decoding="async"
+                    width={1254}
+                    height={1254}
                   />
                 </div>
-                <div className="cat-text-pad">
-                  <p className="cat-label">{cat.label}</p>
-                  <p className="cat-desc">{cat.desc}</p>
+
+                <div className="cat-card-scrim" />
+
+                <span className="cat-card-index">
+                  0{i + 1}
+                </span>
+
+                <div className="cat-card-body">
+                  <div className="cat-card-rule" />
+                  <h3 className="cat-card-label">{cat.label}</h3>
+                  <p className="cat-card-desc">{cat.desc}</p>
                 </div>
+
+                <span className="cat-card-arrow" aria-hidden="true">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2">
+                    <line x1="5" y1="19" x2="19" y2="5" /><polyline points="8 5 19 5 19 16" />
+                  </svg>
+                </span>
               </Link>
             ))}
           </div>

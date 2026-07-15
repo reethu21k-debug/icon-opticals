@@ -4,17 +4,29 @@ import { useState, useEffect, useCallback, useRef } from 'react'
 import Link from 'next/link'
 
 const SLIDES = [
-  { src: '/Icon_Baneer1.png',                                                           alt: 'Icon Banner 1',          label: 'Icon Banner 1',      href: '/products' },
-  { src: '/Icon_Baneer2.png',                                                           alt: 'Icon Banner 1',          label: 'Icon Banner 1',      href: '/products' },
-  { src: '/Icon_Banner4.png',                                                           alt: 'Icon Banner 1',          label: 'Icon Banner 1',      href: '/products' },
-  { src: '/Icon_Banner3.png',                                                            alt: 'Icon Banner',            label: 'Icon Banner',        href: '/products' },
-  { src: '/Icon_Baneer.png',                                                            alt: 'Icon Banner',            label: 'Icon Banner',        href: '/products' },
-  { src: '/Icon_Banner5.png',                                                            alt: 'Icon Banner',            label: 'Icon Banner',        href: '/products' },
-  { src: 'https://static1.lenskart.com/media/desktop/img/Nov22/trans1.gif',             alt: 'Transitions',            label: 'Transitions',        href: '/products' },
-  { src: 'https://static5.lenskart.com/media/uploads/Desktop-summer-20may26.png',     alt: 'Blend Edit Collection',  label: 'Blend Edit',         href: '/products' },
-  { src: 'https://static1.lenskart.com/media/desktop/img/Nov22/tinted/launch-desk.gif', alt: 'Tinted Launch',          label: 'Tinted Launch',      href: '/products' },
-  { src: 'https://static1.lenskart.com/media/desktop/img/Jan23/desktoop.gif',           alt: 'Jan Collection',         label: 'January Collection', href: '/products' },
-]
+  { src: '/Icon_Baneer18.png', alt: 'Icon Banner 18', label: 'Icon Banner 18', href: '/products' },
+  { src: '/Icon_Baneer17.png', alt: 'Icon Banner 17', label: 'Icon Banner 17', href: '/products' },
+  { src: '/Icon_Baneer19.png', alt: 'Icon Banner 19', label: 'Icon Banner 19', href: '/products' },
+  { src: '/Icon_Baneer11.png', alt: 'Icon Banner 11', label: 'Icon Banner 11', href: '/products' },
+  { src: '/Icon_Baneer16.png', alt: 'Icon Banner 16', label: 'Icon Banner 16', href: '/products' },
+  { src: '/Icon_Baneer22.png', alt: 'Icon Banner 22', label: 'Icon Banner 22', href: '/products' },
+  { src: '/Icon_Baneer12.png', alt: 'Icon Banner 12', label: 'Icon Banner 12', href: '/products' },
+  { src: '/Icon_Baneer21.png', alt: 'Icon Banner 21', label: 'Icon Banner 21', href: '/products' },
+  { src: '/Icon_Baneer15.png', alt: 'Icon Banner 15', label: 'Icon Banner 15', href: '/products' },
+  { src: '/Icon_Banner7.png',  alt: 'Icon Banner 7',  label: 'Icon Banner 7',  href: '/products' },
+  { src: '/Icon_Banner8.png',  alt: 'Icon Banner 8',  label: 'Icon Banner 8',  href: '/products' },
+  { src: '/Icon_Banner5.png',  alt: 'Icon Banner 5',  label: 'Icon Banner 5',  href: '/products' },
+  { src: '/Icon_Banner3.png',  alt: 'Icon Banner 3',  label: 'Icon Banner 3',  href: '/products' },
+  { src: '/Icon_Banner4.png',  alt: 'Icon Banner 4',  label: 'Icon Banner 4',  href: '/products' },
+  { src: '/Icon_Baneer10.png', alt: 'Icon Banner 10', label: 'Icon Banner 10', href: '/products' },
+  { src: '/Icon_Baneer14.png', alt: 'Icon Banner 14', label: 'Icon Banner 14', href: '/products' },
+  { src: '/Icon_Baneer9.png',  alt: 'Icon Banner 9',  label: 'Icon Banner 9',  href: '/products' },
+  { src: '/Icon_Baneer20.png', alt: 'Icon Banner 20', label: 'Icon Banner 20', href: '/products' },
+  { src: '/Icon_Baneer6.png',  alt: 'Icon Banner 6',  label: 'Icon Banner 6',  href: '/products' },
+  { src: '/Icon_Baneer2.png',  alt: 'Icon Banner 2',  label: 'Icon Banner 2',  href: '/products' },
+  { src: '/Icon_Baneer1.png',  alt: 'Icon Banner 1',  label: 'Icon Banner 1',  href: '/products' },
+  { src: '/Icon_Baneer.png',   alt: 'Icon Banner',    label: 'Icon Banner',    href: '/products' },
+];
 
 export default function BannerSlider() {
   const [current, setCurrent]           = useState(0)
